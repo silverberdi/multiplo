@@ -10,7 +10,7 @@
 6. Mantener el sistema sencillo de probar, desplegar y mantener.
 
 ## 2. Arquitectura propuesta
-\`\`\`mermaid
+```mermaid
 flowchart LR
   U[Niño: toque o clic] --> UI[Interfaz web responsive]
   UI --> GAME[Lógica local de ronda y preguntas]
@@ -19,9 +19,9 @@ flowchart LR
   UI --> VOICE[API de voz del navegador]
   RULES --> STORE[LocalStorage del navegador]
   HOST[Hosting estático] --> UI
-\`\`\`
+```
 
-**Tecnologías acordadas como enfoque mínimo:** HTML + CSS + JavaScript, PWA cuando el navegador lo permita, \`speechSynthesis\`, \`localStorage\`, archivos SVG y WAV versionados, hosting estático. No usar framework pesado, backend, autenticación, servidor de base de datos ni generación por IA para este MVP.
+**Tecnologías acordadas como enfoque mínimo:** HTML + CSS + JavaScript, PWA cuando el navegador lo permita, `speechSynthesis`, `localStorage`, archivos SVG y WAV versionados, hosting estático. No usar framework pesado, backend, autenticación, servidor de base de datos ni generación por IA para este MVP.
 
 ### Responsabilidades lógicas (no prescriben estructura de archivos)
 | Responsabilidad | Qué debe hacer | Qué NO debe hacer |
@@ -38,21 +38,21 @@ Estas son divisiones conceptuales para claridad, no una autorización para intro
 
 ## 3. Datos y estado
 Se necesita un conjunto **mínimo** de datos locales:
-- \`highestUnlockedLevel\`: un entero entre 1 y 4 (o conjunto equivalente de niveles).
-- \`soundEnabled\`: booleano.
-- \`recentMistakes\`: lista opcional, limitada, de factores difíciles para priorizar rondas sin datos de identidad.
-- \`dataVersion\`: opcional, si sirve para descartar datos corruptos o cambios de formato.
+- `highestUnlockedLevel`: un entero entre 1 y 4 (o conjunto equivalente de niveles).
+- `soundEnabled`: booleano.
+- `recentMistakes`: lista opcional, limitada, de factores difíciles para priorizar rondas sin datos de identidad.
+- `dataVersion`: opcional, si sirve para descartar datos corruptos o cambios de formato.
 
 La ronda activa puede vivir en memoria. No se exige reanudar preguntas interrumpidas al cerrar la pestaña. **Una respuesta equivocada y corregida no se vuelve acierto inicial**: el puntaje debe depender del primer intento guardado en el estado de la pregunta.
 
 Ejemplo conceptual (NO es API ni esquema obligatorio):
-\`\`\`json
+```json
 {
   "highestUnlockedLevel": 2,
   "soundEnabled": true,
   "recentMistakes": [{"level": 1, "factor": 4}]
 }
-\`\`\`
+```
 
 Las escrituras locales deben fallar de modo no catastrófico: si el navegador bloquea almacenamiento, permitir jugar la ronda y advertir con lenguaje apto para adulto, sin romper el juego.
 
@@ -64,7 +64,7 @@ Las escrituras locales deben fallar de modo no catastrófico: si el navegador bl
 - No alojar archivos de audio de estudio ni gestionar locuciones manuales; las instrucciones usan la voz nativa del navegador.
 
 ## 5. PWA y distribución
-- \`manifest\` e iconos de instalación; validar en navegadores elegidos.
+- `manifest` e iconos de instalación; validar en navegadores elegidos.
 - Una PWA **no garantiza** instalación idéntica en iOS, Android y escritorio ni voz idéntica. El navegador normal debe seguir funcionando.
 - El funcionamiento **totalmente offline**, actualizaciones automáticas avanzadas y notificaciones push no son requisitos comprometidos del MVP. Cualquier caché debe evitar servir versiones inconsistentes.
 - Hospedaje estático compatible con HTTPS para instalación donde aplique. La selección de proveedor/URL final está abierta.
@@ -97,7 +97,7 @@ Las escrituras locales deben fallar de modo no catastrófico: si el navegador bl
 Todo cambio implementado debe:
 - demostrar que el flujo completo puede ejecutarse, no solo renderizar un componente;
 - comprobar matemáticamente respuestas y distractores;
-- mantener la convención \`a×b = a grupos de b\` y el desbloqueo 3/4;
+- mantener la convención `a×b = a grupos de b` y el desbloqueo 3/4;
 - probar que el fallo de voz no bloquea el juego;
 - respetar los requisitos del [modelo de aprendizaje](LEARNING_MODEL.md);
 - evitar dependencias innecesarias para entregar el MVP.
