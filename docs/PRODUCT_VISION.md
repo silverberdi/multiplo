@@ -5,7 +5,7 @@
 Múltiplo nace para ayudar a un niño de seis años a **descubrir qué significa multiplicar**, antes de exigirle memorizar tablas. La necesidad no es ofrecer un curso completo ni evaluar como un examen: es disponer de una experiencia breve, atractiva y autónoma, que convierta una idea abstracta (multiplicar) en grupos visibles de objetos.
 
 ### Problema por resolver
-Las multiplicaciones expresadas solo como símbolos (\`3 × 2\`) pueden carecer de significado para un niño que todavía aprende a contar y leer. El producto debe tender un puente comprensible entre:
+Las multiplicaciones expresadas solo como símbolos (`3 × 2`) pueden carecer de significado para un niño que todavía aprende a contar y leer. El producto debe tender un puente comprensible entre:
 1. contar objetos;
 2. reconocer grupos iguales;
 3. sumar cantidades repetidas;
@@ -83,7 +83,7 @@ Si no, registrarla como posible evolución en [ROADMAP.md](ROADMAP.md) sin compr
 | Datos de menores | Tentación de recopilar interacciones | No introducir cuentas, telemetría, identificadores ni datos personales |
 
 ## 9. Gobierno del alcance
-- **Intención y comportamiento:** documentos en \`docs/\`.
+- **Intención y comportamiento:** documentos en `docs/`.
 - **Decisiones duraderas:** [DECISIONS.md](DECISIONS.md).
 - **Entrega ejecutable:** issues [#1–#7](https://github.com/silverberdi/multiplo/issues), gestionados mediante OpenSpec antes de implementar.
 - **Validación con usuario:** [QUALITY_AND_VALIDATION.md](QUALITY_AND_VALIDATION.md).
