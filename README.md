@@ -1,33 +1,27 @@
 # Múltiplo ⭐
 
-Juego educativo en español para niños de 6 años. Su objetivo es enseñar a **comprender y practicar multiplicaciones** jugando.
+**Juego educativo para un niño de 6 años:** aprender a multiplicar mediante grupos de objetos, sumas repetidas y desafíos positivos.
 
-## Estado
+**Estado:** MVP v1.0 de producto **definido; no implementado**. El repositorio contiene documentación, issues y recursos multimedia listos para ser usados por un agente de desarrollo mediante OpenSpec.
 
-**MVP v1.0 — planificación.** Este repositorio contiene el alcance y los issues para implementar el MVP. **Todavía no contiene una implementación del juego.**
+## Empezar aquí
 
-## Experiencia del MVP
+- **[Índice canónico de contexto](docs/INDEX.md)** — documentación y orden de lectura.
+- [Intención de negocio](docs/PRODUCT_VISION.md) — por qué existe el juego y qué validaremos con el niño.
+- [Contrato MVP](docs/MVP.md) — comportamiento acordado.
+- [Roadmap](docs/ROADMAP.md) — secuencia de ejecución y criterios de salida.
+- [Decisiones](docs/DECISIONS.md) — decisiones aprobadas, sugeridas y pendientes.
+- [Transferencia a OpenSpec](docs/OPENSPEC_HANDOFF.md) y [configuración](openspec/config.yaml).
+- [Backlog de siete issues](../../issues) y [recursos multimedia](docs/ASSETS.md).
 
-- Una estrella amarilla guía con instrucciones mediante **voz y texto**.
-- Una partida corta de 5 actividades: 1 demostración visual, 2 ejercicios de contar grupos y 2 desafíos.
-- Tres tipos de ejercicio: contar grupos, resolver multiplicaciones y encontrar la multiplicación que produce un resultado.
-- Cuatro niveles progresivos: tablas del **2, 3, 4 y 5**, con factores del 1 al 5.
-- Preguntas con tres opciones grandes, pistas visuales, intentos ilimitados y sin cronómetro.
-- Se desbloquea el siguiente nivel al acertar **al menos 3 de las 4 preguntas en el primer intento**.
-- Progreso guardado localmente en el dispositivo/navegador, sin cuentas ni sincronización.
-- Web responsive, compatible con celular, tablet y computador, instalable como PWA cuando el navegador lo permita.
+## Alcance del MVP
 
-## Documentación
+Cuatro niveles progresivos (tablas del 2 al 5, factores del 1 al 5). Cada ronda tiene una demostración con grupos iguales y suma repetida, dos ejercicios visuales, un desafío de multiplicación y otro de encontrar la operación correcta. Tres opciones por pregunta, una correcta. Se avanza con 3 de 4 aciertos en primer intento; existen pistas y reintentos ilimitados.
 
-- [Contrato funcional del MVP](docs/MVP.md).
-- [Issues del proyecto](../../issues).
+Una estrella amarilla guía con voz y texto. El juego será una web responsive/PWA para celular, tablet y computador, con progreso local y sin cuentas, backend, IA, anuncios ni analítica infantil.
 
-## Alcance técnico esperado
+**Convención:** `a × b` significa **a grupos de b objetos**; por ejemplo `3×2` son tres grupos de dos, no al revés.
 
-HTML, CSS y JavaScript, hosting estático, almacenamiento local y síntesis de voz nativa del navegador. Sin backend, inteligencia artificial, autenticación, tiendas de aplicaciones ni frameworks pesados.
+## Reglas para desarrollo
 
-## Convención pedagógica
-
-La operación `a × b` se presenta como **a grupos de b objetos**. Así, `2 × 3` significa dos grupos de tres objetos (seis en total). En el nivel de la tabla del 2 se practican `2 × 1` a `2 × 5`.
-
-El trabajo de implementación se hará a partir de los issues y sus criterios de aceptación (Given / When / Then). No ampliar el alcance del MVP sin una decisión explícita.
+La documentación describe el **producto deseado**, no un producto ya terminado. La implementación solo se inicia mediante una tarea autorizada y usando el workflow nativo de OpenSpec; [AGENTS.md](AGENTS.md) describe las restricciones. No incrementar alcance del MVP sin una decisión explícita.
