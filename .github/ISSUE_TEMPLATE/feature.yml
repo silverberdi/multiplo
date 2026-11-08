@@ -1,0 +1,37 @@
+name: "Funcionalidad del MVP"
+description: "Trabajo funcional con aceptación Gherkin y multimedia vinculada"
+title: "[MVP] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo y alcance
+      description: Resultado observable para el niño y límites.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: Dependencias y restricciones
+      description: Issues previos, restricciones técnicas y exclusiones.
+    validations:
+      required: true
+  - type: textarea
+    id: assets
+    attributes:
+      label: Recursos multimedia
+      description: Enlaces de repositorio a los recursos en assets/ y a docs/ASSETS.md; señalar recursos pendientes si existen.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación (Gherkin)
+      description: Given / When / Then con comportamiento verificable.
+      value: |
+        **Given** ...
+        **When** ...
+        **Then** ...
+    validations:
+      required: true
