@@ -14,7 +14,7 @@ En pocos segundos el niño debe entender qué hacer: ver la estrella, pulsar **J
 7. **Una única experiencia adaptable.** Sin flujos separados ni productos distintos por dispositivo.
 
 ## 2. Mapa de navegación
-\`\`\`mermaid
+```mermaid
 flowchart TD
   A[Inicio y niveles] -->|Jugar nivel disponible| B[Aprende: grupos, suma, multiplicación]
   B -->|Continuar| C[Pregunta 1 de 4]
@@ -25,7 +25,7 @@ flowchart TD
   G -->|Repetir| B
   G -->|Siguiente nivel desbloqueado| B
   G -->|Volver a niveles| A
-\`\`\`
+```
 Los cuatro estados de pregunta reutilizan **la misma pantalla Juego**; feedback de error/acierto se presenta sin crear nuevas pantallas.
 
 ## 3. Especificación por pantalla
