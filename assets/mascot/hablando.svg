@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Estrella Múltiplo: hablando">
+ <defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FFF9A2"/><stop offset=".45" stop-color="#FFE550"/><stop offset="1" stop-color="#FFBB26"/></linearGradient><filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="#E09F21" flood-opacity=".25"/></filter></defs>
+ <path d="M205 92 l14 -7 M207 109 l18 -1 M205 125 l15 8" fill="none" stroke="#EAA834" stroke-width="6" stroke-linecap="round"/><polygon points="128.0,33.0 156.8,84.4 214.5,95.9 174.6,139.1 181.5,197.6 128.0,173.0 74.5,197.6 81.4,139.1 41.5,95.9 99.2,84.4" fill="url(#gold)" stroke="#D78C13" stroke-width="7" stroke-linejoin="round" filter="url(#shadow)"/>
+ <path d="M95 60 Q128 38 158 60" stroke="white" stroke-width="7" stroke-linecap="round" fill="none" opacity=".52"/>
+ <ellipse cx="83" cy="141" rx="12" ry="7" fill="#FF9A89" opacity=".75"/><ellipse cx="174" cy="141" rx="12" ry="7" fill="#FF9A89" opacity=".75"/>
+ <ellipse cx="102" cy="120" rx="8.5" ry="12.5" fill="#3A251C"/><ellipse cx="155" cy="120" rx="8.5" ry="12.5" fill="#3A251C"/><circle cx="105" cy="116" r="3.5" fill="white"/><circle cx="158" cy="116" r="3.5" fill="white"/><ellipse cx="129" cy="150" rx="14" ry="18" fill="#652C35"/><path d="M121 157 Q129 150 137 157" stroke="#F49E9B" stroke-width="5" fill="none"/>
+ </svg>
