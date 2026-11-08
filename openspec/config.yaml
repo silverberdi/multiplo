@@ -1,0 +1,47 @@
+# Contexto del proyecto Múltiplo para OpenSpec.
+# Este archivo configura planificación; NO significa que el juego esté implementado.
+schema: spec-driven
+
+context: |
+  Proyecto: Múltiplo, web/PWA educativa en español para un niño de seis años.
+  Estado actual: repositorio greenfield en planificación; NO existe juego implementado.
+  Intención: enseñar el significado de multiplicar por grupos iguales y sumas repetidas,
+  en sesiones cortas, alegres, sin cronómetro, castigos ni datos de menores.
+  Fuente de verdad de intención de producto: docs/PRODUCT_VISION.md y docs/MVP.md.
+  Reglas matemáticas y de evaluación: docs/LEARNING_MODEL.md.
+  UX y voz: docs/USER_EXPERIENCE.md. Decisiones: docs/DECISIONS.md.
+  Arquitectura: docs/ARCHITECTURE.md. Secuencia: docs/ROADMAP.md.
+  Trazabilidad: docs/TRACEABILITY.md; QA: docs/QUALITY_AND_VALIDATION.md.
+  Recursos disponibles: docs/ASSETS.md y assets/ (SVG y WAV).
+  Backlog aprobado: GitHub issues #1–#7, silverberdi/multiplo.
+  MVP invariante: tablas 2,3,4,5 con segundo factor 1–5; a x b = a grupos de b;
+  ronda de 1 demostración no evaluable + 4 preguntas; 3 opciones distintas, 1 correcta;
+  pistas/reintentos ilimitados; el primer intento define la estrella; se desbloquea con 3/4.
+  UX: estrella amarilla como guía, instrucciones mediante voz en español + texto/fallback,
+  pantallas responsive para móvil/tablet/PC, toque y clic.
+  Arquitectura objetivo: HTML/CSS/JS, PWA con soporte progresivo, localStorage,
+  voz nativa del navegador, hosting estático; sin backend, cuentas, IA, publicidad,
+  telemetría infantil, rankings, monedas ni pantallas innecesarias.
+  El objetivo es el MVP funcional completo, no plataformas o abstractions de futuro.
+  Escribir artefactos de producto y escenarios de aceptación en español; conservar
+  las palabras clave Gherkin Given / When / Then.
+  No declarar funcionalidad entregada hasta que haya implementación y evidencia.
+  No sustituir OpenSpec por un workflow artesanal. Seguir el CLI y schema instalados.
+
+rules:
+  proposal:
+    - "Identificar issue(s) GitHub, RF/RNF afectados y la necesidad del niño que se satisface."
+    - "Declarar límites explícitos y dependencias; no agregar características fuera del MVP."
+    - "Diferenciar decisiones aprobadas de elecciones técnicas que siguen abiertas."
+  specs:
+    - "Escribir requisitos observables con escenarios Given / When / Then verificables."
+    - "Cubrir fallos de voz, errores/reintentos y matemáticas cuando correspondan."
+    - "Respetar la convención a x b = a grupos de b y puntuación del primer intento."
+  design:
+    - "Preferir solución web estática pequeña, consumo de assets existentes y fallback de voz."
+    - "Justificar cualquier nueva dependencia y evitar backend o capas no solicitadas."
+    - "Separar el contrato de comportamiento de decisiones internas de implementación."
+  tasks:
+    - "Vincular tareas a los escenarios de aceptación, issues y recursos multimedia existentes."
+    - "Incluir prueba de las invariantes matemáticas y del flujo completo cuando apliquen."
+    - "No crear infraestructura ni fases adicionales por anticipación."
