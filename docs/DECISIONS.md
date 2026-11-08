@@ -22,7 +22,7 @@
 | D-015 | Voz del navegador y fallback escrito | **Diseño de apoyo** | Evita servicios externos y tolera diferencias entre plataformas |
 | D-016 | Animaciones/efectos breves, sin música elaborada | **Diseño de apoyo** | No distraer de la operación, reducir tamaño/alcance |
 | D-017 | No añadir backend, IA, anuncios, monedas, ranking o paneles | **Aprobada** | Evitar ingeniería y contenido ajenos al objetivo inicial |
-| D-018 | Recursos versionados en \`assets/\` y ligados a issues | **Diseño de apoyo** | Permite que el agente use material reproducible; evita adjuntos temporales |
+| D-018 | Recursos versionados en `assets/` y ligados a issues | **Diseño de apoyo** | Permite que el agente use material reproducible; evita adjuntos temporales |
 | D-019 | Aciertos iniciales inmutables después de errores | **Aprobada (precisión de D-011)** | No permitir avanzar por ensayo repetido sin demostrar reconocimiento inicial |
 | D-020 | Sin telemetría infantil ni identificadores del niño | **Diseño de apoyo de privacidad** | El MVP no necesita datos personales |
 | D-021 | No exigir offline total ni notificaciones push | **Diseño de apoyo** | PWA no equivale a requisitos de caché avanzada o mensajería |
