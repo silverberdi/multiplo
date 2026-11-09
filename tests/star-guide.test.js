@@ -338,9 +338,10 @@ test('2.5 Efectos sonoros discretos (clic, acierto, intento, celebracion) y abso
 // --- 3. GUION Y EXPERIENCIA DE LA ACTIVIDAD ---
 
 test('3.1 Catálogo de frases breves cubre el recorrido completo del MVP', () => {
+  // Nota (MVP-03 / Task 4.1): la demostración Aprende ahora se genera dinámicamente
+  // mediante el modelo matemático de ronda y no como frase fija estática.
   const requiredPhrases = [
     '¡Hola! Vamos a jugar',
-    'Mira: tres grupos de dos',
     '¿Cuántos hay en total?',
     '¡Muy bien!',
     'Cuenta otra vez',
