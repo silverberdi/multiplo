@@ -149,27 +149,21 @@
 
           <h2 id="heading-juego" class="view-title question-title">¿Cuántas manzanas hay en total?</h2>
           <p class="instruction-text" id="juego-instruction-text">Toca la respuesta correcta:</p>
+
+          <!-- Contenedor semántico para grupos visuales de manzanas (usado en preguntas 2, 3 y como pista en 4 y 5) -->
+          <div id="juego-groups-container" class="juego-groups-container" role="region" aria-label="Grupos de manzanas para contar" hidden></div>
+
           <div id="juego-feedback-box" class="feedback-box" aria-live="polite" hidden></div>
 
-          <!-- Opciones de respuesta para niño de 6 años: 3 botones grandes -->
-          <div class="options-grid" role="group" aria-label="Opciones de respuesta">
-            <button class="btn btn-option" data-option="4" type="button">
-              <span class="option-number">4</span>
-            </button>
-            <button class="btn btn-option" data-option="6" type="button">
-              <span class="option-number">6</span>
-            </button>
-            <button class="btn btn-option" data-option="8" type="button">
-              <span class="option-number">8</span>
-            </button>
-          </div>
+          <!-- Opciones de respuesta para niño de 6 años: 3 botones grandes dinámicos -->
+          <div class="options-grid" id="juego-options-grid" role="group" aria-label="Opciones de respuesta"></div>
 
           <div class="actions-group game-actions">
-            <button id="btn-juego-hint" class="btn btn-secondary" type="button">
+            <button id="btn-juego-hint" class="btn btn-secondary" type="button" hidden>
               💡 Pista
             </button>
-            <button id="btn-juego-next" class="btn btn-primary" type="button">
-              Ver fin de ronda
+            <button id="btn-juego-continue" class="btn btn-primary" type="button" hidden>
+              Continuar
             </button>
             <button id="btn-juego-back" class="btn btn-link" type="button">
               Volver a niveles
@@ -190,14 +184,11 @@
           </div>
 
           <h2 id="heading-fin" class="view-title">¡Fantástico!</h2>
-          <p class="instruction-text congratulation-message">Ganaste tres estrellas. ¡Buen esfuerzo!</p>
+          <p class="instruction-text congratulation-message" id="fin-summary-message">Completaste la ronda de cuatro preguntas.</p>
 
-          <!-- Estrellas de premio obtenidas -->
-          <div class="reward-stars-container" role="region" aria-label="Premio obtenido: 3 estrellas de 4">
-            <img src="assets/icons/estrella-premio.svg" alt="Estrella ganada" class="reward-star" width="56" height="56">
-            <img src="assets/icons/estrella-premio.svg" alt="Estrella ganada" class="reward-star" width="56" height="56">
-            <img src="assets/icons/estrella-premio.svg" alt="Estrella ganada" class="reward-star" width="56" height="56">
-            <img src="assets/icons/estrella-premio.svg" alt="Estrella por conseguir" class="reward-star star-unearned" width="56" height="56">
+          <!-- Resumen accesible de 0 a 4 aciertos al primer intento (sin markup de recompensa hasta Change #6) -->
+          <div class="summary-box" id="fin-summary-box" role="region" aria-label="Resumen de aciertos de la ronda">
+            <p class="summary-score-text" id="fin-score-text">Aciertos al primer intento: 0 de 4</p>
           </div>
 
           <div class="actions-group">

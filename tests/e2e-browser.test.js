@@ -76,15 +76,28 @@ test('E2E Real Browser: Recorrido completo, responsive, accesibilidad y degradac
     const isJuegoVisible = await page.$eval('#view-juego', (el) => !el.hidden && el.classList.contains('view-active'));
     assert.ok(isJuegoVisible, 'Al continuar desde Aprende, debe mostrarse la vista Juego');
 
-    // 4. Interacción con opciones del juego
-    const optionBtns = await page.$$('.btn-option');
-    assert.equal(optionBtns.length, 3, 'Deben existir exactamente 3 opciones grandes de respuesta');
-    await optionBtns[1].click();
+    // 4. Completar las cuatro preguntas de la ronda respondiendo correctamente
+    for (let q = 0; q < 4; q++) {
+      const qProgress = await page.$eval('#game-progress-text', (el) => el.textContent.trim());
+      assert.equal(qProgress, `Pregunta ${q + 1} de 4`);
 
-    // 5. Clic en "Ver fin de ronda" -> Navega a Vista Fin de ronda
-    await page.click('#btn-juego-next');
+      const optionBtns = await page.$$('.btn-option');
+      assert.equal(optionBtns.length, 3, 'Deben existir exactamente 3 opciones grandes de respuesta');
+
+      const correctIdx = await page.evaluate(() => {
+        const curQ = window.__multiploApp.getCurrentQuestion();
+        return curQ.alternatives.findIndex((a) => a.isCorrect);
+      });
+      await optionBtns[correctIdx].click();
+
+      // Clic en Continuar (o Ver fin de ronda en la 4ª)
+      await page.waitForSelector('#btn-juego-continue:not([hidden])');
+      await page.click('#btn-juego-continue');
+    }
+
+    // 5. Cierre de ronda -> Navega a Vista Fin de ronda
     const isFinVisible = await page.$eval('#view-fin', (el) => !el.hidden && el.classList.contains('view-active'));
-    assert.ok(isFinVisible, 'Al finalizar el juego, debe mostrarse la vista Fin de ronda');
+    assert.ok(isFinVisible, 'Al finalizar las cuatro preguntas, debe mostrarse la vista Fin de ronda');
 
     // 6. Clic en "Volver a niveles" -> Regresa a Vista Inicio
     await page.click('#btn-fin-home');

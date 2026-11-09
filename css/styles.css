@@ -530,7 +530,8 @@ html, body {
   }
 }
 
-.groups-container {
+.groups-container,
+.juego-groups-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -621,6 +622,8 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .option-number {
@@ -629,6 +632,27 @@ html, body {
   font-weight: 900;
   color: var(--color-text-dark);
   line-height: 1;
+}
+
+.option-operation {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--color-text-dark);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.btn-option.option-correct {
+  background-color: #E8F8EE;
+  border-color: var(--color-green);
+  box-shadow: 0 6px 0 var(--color-green), 0 8px 16px var(--color-shadow);
+}
+
+.btn-option.option-retry {
+  background-color: #FFF4E5;
+  border-color: var(--color-yellow-dark);
+  box-shadow: 0 6px 0 var(--color-yellow-dark), 0 8px 16px var(--color-shadow);
 }
 
 .btn-option:hover, .btn-option:focus-visible {
@@ -657,41 +681,21 @@ html, body {
   color: var(--color-text-dark);
 }
 
-.reward-stars-container {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-md);
-  margin: var(--space-lg) 0 var(--space-xl) 0;
+.summary-box {
+  background: var(--color-gray-soft);
+  border: 2px solid var(--color-gray-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: var(--space-md) 0 var(--space-lg) 0;
+  text-align: center;
 }
 
-.reward-star {
-  display: block;
-  width: 56px;
-  height: 56px;
-  filter: drop-shadow(0 4px 8px rgba(255, 180, 0, 0.4));
-  animation: pulseStar 1.8s infinite ease-in-out;
-}
-
-.reward-star:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.reward-star:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-.reward-star.star-unearned {
-  filter: grayscale(100%) opacity(35%);
-  animation: none;
-}
-
-@keyframes pulseStar {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
+.summary-score-text {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  margin: 0;
 }
 
 /* 11. Pie de página */
@@ -761,17 +765,20 @@ html, body {
     font-size: 2.1rem;
   }
 
+  .option-operation {
+    font-size: 1.45rem;
+  }
+
+  .summary-score-text {
+    font-size: 1.3rem;
+  }
+
   .math-row {
     font-size: 1.1rem;
   }
 
   .math-big {
     font-size: 1.4rem;
-  }
-
-  .reward-star {
-    width: 44px;
-    height: 44px;
   }
 
   .game-actions {
