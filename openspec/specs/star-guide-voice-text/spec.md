@@ -14,6 +14,11 @@ La experiencia SHALL mostrar cada instrucción de la actividad en texto legible 
 - **WHEN** se presenta una instrucción después de iniciar la interacción
 - **THEN** el niño ve la instrucción escrita y la escucha si el navegador soporta síntesis de voz española, con un control disponible para repetirla
 
+#### Scenario: Narración de la demostración Aprende
+- **GIVEN** se presenta la actividad Aprende con `a × b`
+- **WHEN** aparece la demostración visual
+- **THEN** la estrella usa `hablando.svg` y narra en español una explicación equivalente a los grupos, la suma repetida y el producto que el niño puede ver
+
 #### Scenario: Instrucciones habladas y texto simultáneamente disponible
 - **GIVEN** se presenta una instrucción y el navegador dispone de síntesis nativa de voz
 - **WHEN** la instrucción se ofrece al jugador
