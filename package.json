@@ -1,0 +1,14 @@
+{
+  "name": "multiplo",
+  "version": "0.1.0",
+  "description": "Juego educativo para un niño de 6 años: aprender a multiplicar mediante grupos de objetos, sumas repetidas y desafíos positivos.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:unit": "node --test tests/static-structure.test.js tests/manifest.test.js tests/css-tokens.test.js",
+    "test:e2e": "node --test tests/e2e-browser.test.js"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.40.0"
+  }
+}

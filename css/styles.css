@@ -1,0 +1,701 @@
+/* ==========================================================================
+   Múltiplo — Identidad visual, tokens y diseño responsive
+   Guía de diseño: docs/ASSETS.md y docs/USER_EXPERIENCE.md
+   Público: niño de 6 años · Dispositivos: celular, tablet, computador
+   ========================================================================== */
+
+/* 1. Tokens de diseño */
+:root {
+  /* Paleta canónica (docs/ASSETS.md) */
+  --color-primary-blue: #2D6CDF;
+  --color-primary-blue-dark: #1E50A8;
+  --color-yellow: #FFD83D;
+  --color-yellow-dark: #E5BE1F;
+  --color-green: #34C759;
+  --color-coral: #FF6868;
+  --color-purple: #A66DFF;
+  --color-light-blue: #E6F5FF;
+  --color-text-dark: #17336F;
+  --color-white: #FFFFFF;
+  --color-gray-soft: #F2F6FA;
+  --color-gray-border: #D3E0EA;
+  --color-locked-bg: #EAEFF6;
+  --color-locked-text: #6B7C96;
+  --color-shadow: rgba(23, 51, 111, 0.12);
+  --color-shadow-strong: rgba(23, 51, 111, 0.2);
+
+  /* Jerarquía tipográfica con fallback del sistema (RNF-07) */
+  --font-title: 'Baloo 2', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Espaciado */
+  --space-xs: 0.25rem;  /* 4px */
+  --space-sm: 0.5rem;   /* 8px */
+  --space-md: 1rem;     /* 16px */
+  --space-lg: 1.5rem;   /* 24px */
+  --space-xl: 2rem;     /* 32px */
+  --space-xxl: 2.5rem;  /* 40px */
+
+  /* Bordes redondeados amigables para niños */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+
+  /* Tamaño mínimo para controles táctiles */
+  --touch-target-min: 52px;
+  --touch-target-large: 64px;
+}
+
+/* 2. Reseteo base y prevención de desbordamiento horizontal */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  background-color: var(--color-light-blue);
+  color: var(--color-text-dark);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 3. Estructura general de la aplicación */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.app-header {
+  background-color: var(--color-white);
+  border-bottom: 3px solid var(--color-gray-border);
+  padding: var(--space-sm) var(--space-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  max-width: 840px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+  color: var(--color-primary-blue);
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.logo-mark {
+  color: var(--color-yellow-dark);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.btn-icon {
+  background: var(--color-gray-soft);
+  border: 2px solid var(--color-gray-border);
+  border-radius: var(--radius-pill);
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.4rem;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-icon:hover, .btn-icon:focus-visible {
+  background-color: var(--color-yellow);
+  transform: scale(1.05);
+  outline: 3px solid var(--color-primary-blue);
+  outline-offset: 2px;
+}
+
+.btn-icon-small {
+  background: var(--color-gray-soft);
+  border: 2px solid var(--color-gray-border);
+  border-radius: var(--radius-pill);
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* 4. Contenedor principal de vistas */
+.main-container {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-md);
+  width: 100%;
+}
+
+.view {
+  display: none;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.view.view-active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.view-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: 0 8px 24px var(--color-shadow);
+  border: 3px solid var(--color-gray-border);
+  text-align: center;
+  width: 100%;
+}
+
+/* 5. Elementos visuales comunes */
+.mascot-wrapper {
+  margin-bottom: var(--space-sm);
+  display: flex;
+  justify-content: center;
+}
+
+.mascot-wrapper-small {
+  margin-bottom: var(--space-xs);
+  display: flex;
+  justify-content: center;
+}
+
+.mascot-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.08));
+}
+
+.view-title {
+  font-family: var(--font-title);
+  color: var(--color-primary-blue);
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin: var(--space-xs) 0 var(--space-sm) 0;
+  line-height: 1.2;
+}
+
+.section-subtitle {
+  font-family: var(--font-title);
+  color: var(--color-text-dark);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: var(--space-md) 0 var(--space-sm) 0;
+}
+
+.instruction-text {
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.highlight-instruction {
+  font-size: 1.35rem;
+  color: var(--color-primary-blue);
+  font-weight: 700;
+}
+
+/* 6. Botones y controles para niños de 6 años */
+.btn {
+  font-family: var(--font-body);
+  font-weight: 800;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+  text-align: center;
+  min-height: var(--touch-target-min);
+  padding: var(--space-sm) var(--space-xl);
+  font-size: 1.25rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: translateY(2px);
+}
+
+.btn-large {
+  min-height: var(--touch-target-large);
+  padding: var(--space-md) var(--space-xxl);
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.btn-primary {
+  background-color: var(--color-green);
+  color: var(--color-white);
+  box-shadow: 0 6px 0 #248A3D, 0 10px 16px var(--color-shadow-strong);
+}
+
+.btn-primary:hover, .btn-primary:focus-visible {
+  background-color: #2FB350;
+  outline: 3px solid var(--color-primary-blue);
+  outline-offset: 3px;
+}
+
+.btn-primary:active {
+  box-shadow: 0 2px 0 #248A3D, 0 4px 8px var(--color-shadow);
+}
+
+.btn-secondary {
+  background-color: var(--color-yellow);
+  color: var(--color-text-dark);
+  box-shadow: 0 6px 0 var(--color-yellow-dark), 0 10px 16px var(--color-shadow);
+}
+
+.btn-secondary:hover, .btn-secondary:focus-visible {
+  background-color: #FFDE59;
+  outline: 3px solid var(--color-primary-blue);
+  outline-offset: 3px;
+}
+
+.btn-secondary:active {
+  box-shadow: 0 2px 0 var(--color-yellow-dark), 0 4px 8px var(--color-shadow);
+}
+
+.btn-link {
+  background: transparent;
+  color: var(--color-primary-blue);
+  text-decoration: underline;
+  box-shadow: none;
+  font-size: 1.1rem;
+}
+
+.btn-link:hover, .btn-link:focus-visible {
+  color: var(--color-primary-blue-dark);
+  outline: 2px solid var(--color-primary-blue);
+  outline-offset: 2px;
+}
+
+.actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0 0 0;
+  align-items: center;
+}
+
+/* 7. Niveles en Inicio */
+.levels-section {
+  margin-top: var(--space-xl);
+  border-top: 2px dashed var(--color-gray-border);
+  padding-top: var(--space-md);
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.level-card {
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md) var(--space-sm);
+  min-height: 110px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.level-number {
+  font-family: var(--font-title);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.level-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-top: var(--space-xs);
+}
+
+.level-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-xs);
+  text-transform: uppercase;
+}
+
+/* Nivel 1 desbloqueado */
+.level-unlocked {
+  background-color: var(--color-light-blue);
+  border: 3px solid var(--color-primary-blue);
+  color: var(--color-text-dark);
+  box-shadow: 0 5px 0 var(--color-primary-blue);
+}
+
+.level-unlocked .level-badge.available-badge {
+  background-color: var(--color-green);
+  color: var(--color-white);
+}
+
+.level-unlocked:hover, .level-unlocked:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--color-primary-blue), 0 10px 16px var(--color-shadow);
+  outline: 3px solid var(--color-yellow);
+}
+
+/* Niveles 2-4 bloqueados */
+.level-locked {
+  background-color: var(--color-locked-bg);
+  border: 3px solid var(--color-gray-border);
+  color: var(--color-locked-text);
+  box-shadow: 0 4px 0 var(--color-gray-border);
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.level-locked .level-badge.locked-badge {
+  background-color: var(--color-gray-border);
+  color: var(--color-locked-text);
+}
+
+/* 8. Vista Aprende */
+.view-header-row, .game-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.section-tag, .progress-indicator {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  background: var(--color-light-blue);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-pill);
+}
+
+.groups-container {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin: var(--space-md) 0 var(--space-lg) 0;
+  flex-wrap: wrap;
+}
+
+.item-group {
+  background: var(--color-yellow);
+  border: 3px solid var(--color-yellow-dark);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  box-shadow: 0 4px 10px var(--color-shadow);
+}
+
+.object-img {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+.math-relation-box {
+  background: var(--color-gray-soft);
+  border: 2px solid var(--color-gray-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: var(--space-md) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.math-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.25rem;
+}
+
+.math-label {
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.math-expression {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-text-dark);
+}
+
+.math-highlight {
+  background: var(--color-white);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  border-left: 5px solid var(--color-primary-blue);
+}
+
+.math-big {
+  font-size: 1.8rem;
+  color: var(--color-primary-blue);
+}
+
+/* 9. Vista Juego */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+}
+
+.btn-option {
+  background-color: var(--color-light-blue);
+  border: 3px solid var(--color-primary-blue);
+  border-radius: var(--radius-lg);
+  min-height: 80px;
+  padding: var(--space-sm);
+  box-shadow: 0 6px 0 var(--color-primary-blue), 0 8px 16px var(--color-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.option-number {
+  font-family: var(--font-title);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--color-text-dark);
+  line-height: 1;
+}
+
+.btn-option:hover, .btn-option:focus-visible {
+  background-color: var(--color-yellow);
+  border-color: var(--color-yellow-dark);
+  box-shadow: 0 6px 0 var(--color-yellow-dark), 0 10px 18px var(--color-shadow);
+  transform: translateY(-2px);
+  outline: 3px solid var(--color-primary-blue);
+}
+
+.btn-option:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--color-primary-blue);
+}
+
+.game-actions {
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* 10. Vista Fin de ronda */
+.congratulation-message {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.reward-stars-container {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0 var(--space-xl) 0;
+}
+
+.reward-star {
+  display: block;
+  width: 56px;
+  height: 56px;
+  filter: drop-shadow(0 4px 8px rgba(255, 180, 0, 0.4));
+  animation: pulseStar 1.8s infinite ease-in-out;
+}
+
+.reward-star:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.reward-star:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.reward-star.star-unearned {
+  filter: grayscale(100%) opacity(35%);
+  animation: none;
+}
+
+@keyframes pulseStar {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 11. Pie de página */
+.app-footer {
+  text-align: center;
+  padding: var(--space-md);
+  font-size: 0.9rem;
+  color: var(--color-text-dark);
+  opacity: 0.8;
+}
+
+.footer-note {
+  margin: 0;
+}
+
+/* 12. Reglas Responsive (Celular, Tablet, Computador) */
+
+/* Celular pequeño / pantallas estrechas (<= 480px) */
+@media (max-width: 480px) {
+  html, body {
+    font-size: 16px;
+  }
+
+  .view-card {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+  }
+
+  .view-title {
+    font-size: 1.7rem;
+  }
+
+  .mascot-normal, .mascot-celebrando {
+    width: 130px;
+    height: 130px;
+  }
+
+  .levels-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+
+  .options-grid {
+    gap: var(--space-sm);
+  }
+
+  .btn-option {
+    min-height: 70px;
+  }
+
+  .option-number {
+    font-size: 2.1rem;
+  }
+
+  .math-row {
+    font-size: 1.1rem;
+  }
+
+  .math-big {
+    font-size: 1.4rem;
+  }
+
+  .reward-star {
+    width: 44px;
+    height: 44px;
+  }
+
+  .game-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .game-actions .btn {
+    width: 100%;
+  }
+}
+
+/* Tablet (481px a 840px) */
+@media (min-width: 481px) and (max-width: 840px) {
+  .view-card {
+    padding: var(--space-xl);
+  }
+
+  .levels-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Computador / Escritorio (> 840px) */
+@media (min-width: 841px) {
+  .main-container {
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .view-card {
+    padding: var(--space-xxl);
+  }
+
+  .view-title {
+    font-size: 2.3rem;
+  }
+
+  .btn-large {
+    font-size: 1.6rem;
+  }
+}
+
+/* Accesibilidad: Reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Múltiplo - Juego educativo para niños de 6 años para aprender a multiplicar mediante grupos iguales y sumas repetidas.">
+  <meta name="theme-color" content="#2D6CDF">
+  <title>Múltiplo — Aprende a multiplicar jugando</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/estrella-premio.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/estrella-premio.svg">
+
+  <!-- Tipografías: Baloo 2 para títulos y Nunito para lectura y números con fallback del sistema -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Barra superior de navegación / accesibilidad -->
+    <header class="app-header" role="banner">
+      <div class="header-content">
+        <a href="#view-inicio" class="logo" id="header-logo" aria-label="Ir al inicio de Múltiplo">
+          <span class="logo-mark" aria-hidden="true">★</span>
+          <span class="logo-text">Múltiplo</span>
+        </a>
+        <button id="btn-sound-toggle" class="btn-icon" aria-label="Silenciar sonido" title="Sonido activado" aria-pressed="true">
+          <span class="sound-icon" aria-hidden="true">🔊</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Contenedor principal de vistas -->
+    <main id="app-main" class="main-container" role="main" tabIndex="-1">
+      
+      <!-- VISTA 1: Inicio y niveles -->
+      <section id="view-inicio" class="view view-active" aria-labelledby="heading-inicio">
+        <div class="view-card">
+          <div class="mascot-wrapper">
+            <img src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo sonriendo alegremente" class="mascot-img mascot-normal" width="160" height="160">
+          </div>
+          <h1 id="heading-inicio" class="view-title">¡Hola! Soy Múltiplo</h1>
+          <p class="instruction-text">¡Vamos a aprender jugando!</p>
+
+          <div class="actions-group">
+            <button id="btn-start-game" class="btn btn-primary btn-large" type="button">
+              ¡Jugar!
+            </button>
+          </div>
+
+          <div class="levels-section" aria-labelledby="heading-levels">
+            <h2 id="heading-levels" class="section-subtitle">Elige tu nivel</h2>
+            <div class="levels-grid" role="group" aria-label="Niveles de multiplicación">
+              
+              <!-- Nivel 1: Disponible al inicio -->
+              <button id="btn-level-1" class="level-card level-unlocked" data-level="1" type="button" aria-label="Nivel 1: Tabla del 2. Nivel disponible">
+                <span class="level-badge available-badge">Disponible</span>
+                <span class="level-number">1</span>
+                <span class="level-title">Tabla del 2</span>
+              </button>
+
+              <!-- Niveles 2, 3 y 4: Bloqueados inicialmente sin lógica ficticia -->
+              <button id="btn-level-2" class="level-card level-locked" data-level="2" type="button" disabled aria-disabled="true" aria-label="Nivel 2: Tabla del 3. Bloqueado">
+                <span class="level-badge locked-badge" aria-hidden="true">🔒 Bloqueado</span>
+                <span class="level-number">2</span>
+                <span class="level-title">Tabla del 3</span>
+              </button>
+
+              <button id="btn-level-3" class="level-card level-locked" data-level="3" type="button" disabled aria-disabled="true" aria-label="Nivel 3: Tabla del 4. Bloqueado">
+                <span class="level-badge locked-badge" aria-hidden="true">🔒 Bloqueado</span>
+                <span class="level-number">3</span>
+                <span class="level-title">Tabla del 4</span>
+              </button>
+
+              <button id="btn-level-4" class="level-card level-locked" data-level="4" type="button" disabled aria-disabled="true" aria-label="Nivel 4: Tabla del 5. Bloqueado">
+                <span class="level-badge locked-badge" aria-hidden="true">🔒 Bloqueado</span>
+                <span class="level-number">4</span>
+                <span class="level-title">Tabla del 5</span>
+              </button>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA 2: Aprende -->
+      <section id="view-aprende" class="view" aria-labelledby="heading-aprende" hidden>
+        <div class="view-card">
+          <div class="view-header-row">
+            <span class="section-tag">Demostración inicial</span>
+            <button id="btn-aprende-sound" class="btn-icon-small" aria-label="Escuchar explicación" type="button">
+              <span aria-hidden="true">🔊</span>
+            </button>
+          </div>
+
+          <div class="mascot-wrapper-small">
+            <img src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo explicando" class="mascot-img mascot-speaking" width="110" height="110">
+          </div>
+
+          <h2 id="heading-aprende" class="view-title">Aprende</h2>
+          <p class="instruction-text highlight-instruction">Tres grupos de dos manzanas</p>
+
+          <!-- Demostración visual de grupos iguales -->
+          <div class="groups-container" role="region" aria-label="Demostración visual de 3 grupos de 2 manzanas">
+            <div class="item-group" aria-label="Grupo 1 con dos manzanas">
+              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
+              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
+            </div>
+            <div class="item-group" aria-label="Grupo 2 con dos manzanas">
+              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
+              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
+            </div>
+            <div class="item-group" aria-label="Grupo 3 con dos manzanas">
+              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
+              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
+            </div>
+          </div>
+
+          <!-- Relación matemática: suma repetida y multiplicación -->
+          <div class="math-relation-box">
+            <div class="math-row">
+              <span class="math-label">Suma repetida:</span>
+              <span class="math-expression">2 + 2 + 2 = 6</span>
+            </div>
+            <div class="math-row math-highlight">
+              <span class="math-label">Multiplicación:</span>
+              <span class="math-expression math-big">3 × 2 = 6</span>
+            </div>
+          </div>
+
+          <div class="actions-group">
+            <button id="btn-aprende-continue" class="btn btn-primary btn-large" type="button">
+              Continuar al juego
+            </button>
+            <button id="btn-aprende-back" class="btn btn-secondary" type="button">
+              Volver a niveles
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA 3: Juego -->
+      <section id="view-juego" class="view" aria-labelledby="heading-juego" hidden>
+        <div class="view-card">
+          <div class="game-meta-row">
+            <span class="progress-indicator" id="game-progress-text" aria-live="polite">Pregunta 1 de 4</span>
+            <button id="btn-juego-sound" class="btn-icon-small" aria-label="Repetir consigna" type="button">
+              <span aria-hidden="true">🔊</span>
+            </button>
+          </div>
+
+          <div class="mascot-wrapper-small">
+            <img src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo acompañando el desafío" class="mascot-img mascot-game" width="90" height="90">
+          </div>
+
+          <h2 id="heading-juego" class="view-title question-title">¿Cuántas manzanas hay en total?</h2>
+          <p class="instruction-text">Toca la respuesta correcta:</p>
+
+          <!-- Opciones de respuesta para niño de 6 años: 3 botones grandes -->
+          <div class="options-grid" role="group" aria-label="Opciones de respuesta">
+            <button class="btn btn-option" data-option="4" type="button">
+              <span class="option-number">4</span>
+            </button>
+            <button class="btn btn-option" data-option="6" type="button">
+              <span class="option-number">6</span>
+            </button>
+            <button class="btn btn-option" data-option="8" type="button">
+              <span class="option-number">8</span>
+            </button>
+          </div>
+
+          <div class="actions-group game-actions">
+            <button id="btn-juego-hint" class="btn btn-secondary" type="button">
+              💡 Pista
+            </button>
+            <button id="btn-juego-next" class="btn btn-primary" type="button">
+              Ver fin de ronda
+            </button>
+            <button id="btn-juego-back" class="btn btn-link" type="button">
+              Volver a niveles
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA 4: Fin de ronda -->
+      <section id="view-fin" class="view" aria-labelledby="heading-fin" hidden>
+        <div class="view-card">
+          <div class="mascot-wrapper">
+            <img src="assets/mascot/celebrando.svg" alt="Mascota estrella Múltiplo celebrando alegremente" class="mascot-img mascot-celebrando" width="160" height="160">
+          </div>
+
+          <h2 id="heading-fin" class="view-title">¡Fantástico!</h2>
+          <p class="instruction-text congratulation-message">Ganaste tres estrellas. ¡Buen esfuerzo!</p>
+
+          <!-- Estrellas de premio obtenidas -->
+          <div class="reward-stars-container" role="region" aria-label="Premio obtenido: 3 estrellas de 4">
+            <img src="assets/icons/estrella-premio.svg" alt="Estrella ganada" class="reward-star" width="56" height="56">
+            <img src="assets/icons/estrella-premio.svg" alt="Estrella ganada" class="reward-star" width="56" height="56">
+            <img src="assets/icons/estrella-premio.svg" alt="Estrella ganada" class="reward-star" width="56" height="56">
+            <img src="assets/icons/estrella-premio.svg" alt="Estrella por conseguir" class="reward-star star-unearned" width="56" height="56">
+          </div>
+
+          <div class="actions-group">
+            <button id="btn-fin-repeat" class="btn btn-secondary btn-large" type="button">
+              Repetir ronda
+            </button>
+            <button id="btn-fin-home" class="btn btn-primary btn-large" type="button">
+              Volver a niveles
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <p class="footer-note">Múltiplo — Juego educativo sin publicidad, sin cuentas y seguro para niños.</p>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
