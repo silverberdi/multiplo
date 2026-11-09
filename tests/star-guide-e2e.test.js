@@ -77,18 +77,22 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     await page.waitForSelector('#view-aprende.view-active');
 
     // --- Vista Aprende ---
-    // Texto de instrucción visible
+    // Modelo matemático generado dinámicamente para la ronda
+    const aprendeModel = await page.evaluate(() => window.__multiploApp.getAprendeModel());
+    assert.ok(aprendeModel, 'El modelo Aprende debe existir en la ronda');
+
+    // Texto de instrucción visible coincide con el modelo
     const aprendeInstruction = await page.$eval('#view-aprende .instruction-text', (el) => el.textContent.trim());
-    assert.equal(aprendeInstruction, 'Tres grupos de dos manzanas');
+    assert.equal(aprendeInstruction, aprendeModel.instructionText);
 
     // Botón de repetición disponible con etiqueta clara
     const aprendeSoundLabel = await page.$eval('#btn-aprende-sound', (el) => el.getAttribute('aria-label'));
     assert.equal(aprendeSoundLabel, 'Repetir explicación');
 
-    // Clic en repetir explicación
+    // Clic en repetir explicación: reproduce la narración verbal derivada
     await page.click('#btn-aprende-sound');
     const lastInstructionInAprende = await page.evaluate(() => window.__multiploApp.guide.getLastInstruction());
-    assert.equal(lastInstructionInAprende, 'Mira: tres grupos de dos');
+    assert.equal(lastInstructionInAprende, aprendeModel.narrationText);
 
     // Continuar al juego
     await page.click('#btn-aprende-continue');

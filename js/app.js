@@ -13,12 +13,51 @@ import {
   STATE_DESCRIPTIONS
 } from './star-guide.js';
 
+import {
+  createAprendeModel,
+  selectAprendeFactors,
+  renderAprende
+} from './aprende.js';
+
 (function () {
   'use strict';
 
   // Identificadores de las cuatro vistas aprobadas en el MVP
   const VALID_VIEWS = ['inicio', 'aprende', 'juego', 'fin'];
   let currentView = 'inicio';
+
+  // Estado de la ronda actual (nivel, modelo de demostración Aprende, estrellas y preguntas)
+  let currentRound = null;
+  let forcedAprendeFactors = null;
+
+  /**
+   * Inicia una nueva ronda para un nivel dado con factores derivados o seleccionados.
+   * La demostración es no evaluable y las estrellas permanecen intactas en 0.
+   */
+  function startNewRound(level = 1, options = {}) {
+    const previousB = (currentRound && currentRound.level === level) ? currentRound.b : null;
+    let factors;
+    if (forcedAprendeFactors) {
+      factors = { ...forcedAprendeFactors };
+    } else {
+      factors = selectAprendeFactors(level, {
+        a: options.a,
+        b: options.b,
+        previousB
+      });
+    }
+
+    const model = createAprendeModel(factors.a, factors.b);
+    currentRound = {
+      level,
+      a: factors.a,
+      b: factors.b,
+      aprendeModel: model,
+      demonstrationShown: false,
+      stars: 0 // Invariante: las estrellas se obtienen en preguntas evaluables, nunca en Aprende
+    };
+    return currentRound;
+  }
 
   // Inicializar el coordinador de la guía
   const guide = new StarGuideCoordinator({
@@ -108,9 +147,20 @@ import {
         guide.speakInstruction(GUIDE_SCRIPT.cierre, { returnState: GUIDE_STATES.CELEBRANDO });
       }
     } else if (viewId === 'aprende') {
+      if (!currentRound) {
+        startNewRound(1);
+      }
+
+      const container = document.getElementById('aprende-content');
+      if (container && currentRound.aprendeModel) {
+        renderAprende(container, currentRound.aprendeModel);
+      }
+
+      currentRound.demonstrationShown = true;
       guide.setState(GUIDE_STATES.NORMAL);
-      if (options.speak) {
-        guide.speakInstruction(GUIDE_SCRIPT.demostracion, { returnState: GUIDE_STATES.NORMAL });
+
+      if (options.speak && currentRound.aprendeModel) {
+        guide.speakInstruction(currentRound.aprendeModel.narrationText, { returnState: GUIDE_STATES.NORMAL });
       }
     } else if (viewId === 'juego') {
       guide.setState(GUIDE_STATES.NORMAL);
@@ -234,6 +284,7 @@ import {
       btnStart.addEventListener('click', () => {
         guide.notifyUserGesture();
         guide.playEffect('clic');
+        startNewRound(1);
         navigateTo('aprende', { speak: true });
       });
     }
@@ -243,6 +294,7 @@ import {
       btnLevel1.addEventListener('click', () => {
         guide.notifyUserGesture();
         guide.playEffect('clic');
+        startNewRound(1);
         navigateTo('aprende', { speak: true });
       });
     }
@@ -320,6 +372,8 @@ import {
       btnFinRepeat.addEventListener('click', () => {
         guide.notifyUserGesture();
         guide.playEffect('clic');
+        const nextLevel = currentRound ? currentRound.level : 1;
+        startNewRound(nextLevel);
         navigateTo('aprende', { speak: true });
       });
     }
@@ -376,7 +430,26 @@ import {
       GUIDE_SCRIPT,
       GUIDE_STATES,
       MASCOT_ASSETS,
-      AUDIO_ASSETS
+      AUDIO_ASSETS,
+      startNewRound,
+      getCurrentRound: () => currentRound,
+      getAprendeModel: () => (currentRound ? currentRound.aprendeModel : null),
+      setAprendeFactors: (a, b) => {
+        forcedAprendeFactors = { a, b };
+        if (currentRound) {
+          currentRound.a = a;
+          currentRound.b = b;
+          currentRound.aprendeModel = createAprendeModel(a, b);
+          const container = document.getElementById('aprende-content');
+          if (container && currentView === 'aprende') {
+            renderAprende(container, currentRound.aprendeModel);
+          }
+        }
+        return forcedAprendeFactors;
+      },
+      clearForcedAprendeFactors: () => {
+        forcedAprendeFactors = null;
+      }
     };
   }
 })();

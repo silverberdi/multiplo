@@ -17,6 +17,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
+  <!-- Preload de recursos visuales prioritarios -->
+  <link rel="preload" href="assets/objects/manzana.svg" as="image">
+  <link rel="preload" href="assets/mascot/hablando.svg" as="image">
+
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -110,35 +114,9 @@
           </div>
 
           <h2 id="heading-aprende" class="view-title">Aprende</h2>
-          <p class="instruction-text highlight-instruction">Tres grupos de dos manzanas</p>
 
-          <!-- Demostración visual de grupos iguales -->
-          <div class="groups-container" role="region" aria-label="Demostración visual de 3 grupos de 2 manzanas">
-            <div class="item-group" aria-label="Grupo 1 con dos manzanas">
-              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
-              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
-            </div>
-            <div class="item-group" aria-label="Grupo 2 con dos manzanas">
-              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
-              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
-            </div>
-            <div class="item-group" aria-label="Grupo 3 con dos manzanas">
-              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
-              <img src="assets/objects/manzana.svg" alt="Manzana roja" class="object-img" width="48" height="48">
-            </div>
-          </div>
-
-          <!-- Relación matemática: suma repetida y multiplicación -->
-          <div class="math-relation-box">
-            <div class="math-row">
-              <span class="math-label">Suma repetida:</span>
-              <span class="math-expression">2 + 2 + 2 = 6</span>
-            </div>
-            <div class="math-row math-highlight">
-              <span class="math-label">Multiplicación:</span>
-              <span class="math-expression math-big">3 × 2 = 6</span>
-            </div>
-          </div>
+          <!-- Contenedor semántico para la demostración dinámica generada -->
+          <div id="aprende-content" class="aprende-demo-container" data-testid="aprende-demo"></div>
 
           <div class="actions-group">
             <button id="btn-aprende-continue" class="btn btn-primary btn-large" type="button">

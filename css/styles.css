@@ -506,12 +506,38 @@ html, body {
   border-radius: var(--radius-pill);
 }
 
+/* Demostración dinámica Aprende */
+@keyframes demoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.aprende-demo-container {
+  width: 100%;
+  animation: demoFadeIn 0.3s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aprende-demo-container {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 .groups-container {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: var(--space-md);
   margin: var(--space-md) 0 var(--space-lg) 0;
   flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .item-group {
@@ -520,15 +546,19 @@ html, body {
   border-radius: var(--radius-md);
   padding: var(--space-sm);
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-xs);
   align-items: center;
+  justify-content: center;
   box-shadow: 0 4px 10px var(--color-shadow);
+  max-width: 100%;
 }
 
 .object-img {
   display: block;
   width: 48px;
   height: 48px;
+  flex-shrink: 0;
 }
 
 .math-relation-box {
@@ -702,6 +732,21 @@ html, body {
   .levels-grid {
     grid-template-columns: 1fr;
     gap: var(--space-sm);
+  }
+
+  .groups-container {
+    gap: var(--space-sm);
+    margin: var(--space-sm) 0 var(--space-md) 0;
+  }
+
+  .item-group {
+    padding: var(--space-xs);
+    gap: 2px;
+  }
+
+  .object-img {
+    width: 36px;
+    height: 36px;
   }
 
   .options-grid {
