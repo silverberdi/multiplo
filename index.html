@@ -41,7 +41,11 @@
       <section id="view-inicio" class="view view-active" aria-labelledby="heading-inicio">
         <div class="view-card">
           <div class="mascot-wrapper">
-            <img src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo sonriendo alegremente" class="mascot-img mascot-normal" width="160" height="160">
+            <img id="mascot-img-inicio" src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo sonriendo alegremente" class="mascot-img mascot-normal" width="160" height="160">
+            <div id="mascot-status-inicio" class="mascot-status-tag" data-state="normal" aria-live="polite">
+              <span class="status-icon" aria-hidden="true">⭐</span>
+              <span class="status-text">Lista</span>
+            </div>
           </div>
           <h1 id="heading-inicio" class="view-title">¡Hola! Soy Múltiplo</h1>
           <p class="instruction-text">¡Vamos a aprender jugando!</p>
@@ -92,13 +96,17 @@
         <div class="view-card">
           <div class="view-header-row">
             <span class="section-tag">Demostración inicial</span>
-            <button id="btn-aprende-sound" class="btn-icon-small" aria-label="Escuchar explicación" type="button">
+            <button id="btn-aprende-sound" class="btn-icon-small" aria-label="Repetir explicación" title="Repetir explicación" type="button">
               <span aria-hidden="true">🔊</span>
             </button>
           </div>
 
           <div class="mascot-wrapper-small">
-            <img src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo explicando" class="mascot-img mascot-speaking" width="110" height="110">
+            <img id="mascot-img-aprende" src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo explicando" class="mascot-img mascot-speaking" width="110" height="110">
+            <div id="mascot-status-aprende" class="mascot-status-tag" data-state="normal" aria-live="polite">
+              <span class="status-icon" aria-hidden="true">⭐</span>
+              <span class="status-text">Lista</span>
+            </div>
           </div>
 
           <h2 id="heading-aprende" class="view-title">Aprende</h2>
@@ -148,17 +156,22 @@
         <div class="view-card">
           <div class="game-meta-row">
             <span class="progress-indicator" id="game-progress-text" aria-live="polite">Pregunta 1 de 4</span>
-            <button id="btn-juego-sound" class="btn-icon-small" aria-label="Repetir consigna" type="button">
+            <button id="btn-juego-sound" class="btn-icon-small" aria-label="Repetir consigna" title="Repetir consigna" type="button">
               <span aria-hidden="true">🔊</span>
             </button>
           </div>
 
           <div class="mascot-wrapper-small">
-            <img src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo acompañando el desafío" class="mascot-img mascot-game" width="90" height="90">
+            <img id="mascot-img-juego" src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo acompañando el desafío" class="mascot-img mascot-game" width="90" height="90">
+            <div id="mascot-status-juego" class="mascot-status-tag" data-state="normal" aria-live="polite">
+              <span class="status-icon" aria-hidden="true">⭐</span>
+              <span class="status-text">Lista</span>
+            </div>
           </div>
 
           <h2 id="heading-juego" class="view-title question-title">¿Cuántas manzanas hay en total?</h2>
-          <p class="instruction-text">Toca la respuesta correcta:</p>
+          <p class="instruction-text" id="juego-instruction-text">Toca la respuesta correcta:</p>
+          <div id="juego-feedback-box" class="feedback-box" aria-live="polite" hidden></div>
 
           <!-- Opciones de respuesta para niño de 6 años: 3 botones grandes -->
           <div class="options-grid" role="group" aria-label="Opciones de respuesta">
@@ -191,7 +204,11 @@
       <section id="view-fin" class="view" aria-labelledby="heading-fin" hidden>
         <div class="view-card">
           <div class="mascot-wrapper">
-            <img src="assets/mascot/celebrando.svg" alt="Mascota estrella Múltiplo celebrando alegremente" class="mascot-img mascot-celebrando" width="160" height="160">
+            <img id="mascot-img-fin" src="assets/mascot/celebrando.svg" alt="Mascota estrella Múltiplo celebrando alegremente" class="mascot-img mascot-celebrando" width="160" height="160">
+            <div id="mascot-status-fin" class="mascot-status-tag" data-state="celebrando" aria-live="polite">
+              <span class="status-icon" aria-hidden="true">🎉</span>
+              <span class="status-text">¡Muy bien!</span>
+            </div>
           </div>
 
           <h2 id="heading-fin" class="view-title">¡Fantástico!</h2>
@@ -223,6 +240,6 @@
     </footer>
   </div>
 
-  <script src="js/app.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
