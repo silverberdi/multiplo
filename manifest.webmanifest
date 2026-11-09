@@ -1,0 +1,20 @@
+{
+  "name": "Múltiplo — Aprende a multiplicar",
+  "short_name": "Múltiplo",
+  "description": "Juego educativo para aprender a multiplicar mediante grupos iguales y sumas repetidas.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#E6F5FF",
+  "theme_color": "#2D6CDF",
+  "lang": "es",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "assets/icons/estrella-premio.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
