@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "test:unit": "node --test tests/static-structure.test.js tests/manifest.test.js tests/css-tokens.test.js",
-    "test:e2e": "node --test tests/e2e-browser.test.js"
+    "test:unit": "node --test tests/static-structure.test.js tests/manifest.test.js tests/css-tokens.test.js tests/star-guide.test.js",
+    "test:e2e": "node --test tests/e2e-browser.test.js tests/star-guide-e2e.test.js"
   },
   "devDependencies": {
     "puppeteer-core": "^24.40.0"
