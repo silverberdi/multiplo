@@ -166,6 +166,12 @@ test('E2E Real Browser: Recorrido completo, responsive, accesibilidad y degradac
   await t.test('3. Niveles 2, 3 y 4 bloqueados: no reaccionan a clic ni avanzan', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+      localStorage.clear();
+      if (window.__multiploApp && window.__multiploApp.resetProgression) {
+        window.__multiploApp.resetProgression();
+      }
+    });
 
     for (const levelNum of [2, 3, 4]) {
       const isDisabled = await page.$eval(`#btn-level-${levelNum}`, (el) => el.disabled && el.getAttribute('aria-disabled') === 'true');

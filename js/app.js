@@ -29,12 +29,31 @@ import {
   getLevelA
 } from './question-engine.js';
 
+import {
+  LEVELS_CATALOG,
+  MIN_LEVEL,
+  MAX_LEVEL,
+  getLevelConfig,
+  loadProgressionState,
+  saveProgressionState,
+  isLevelUnlocked,
+  getUnlockedLevels,
+  closeRoundProgression,
+  evaluateProgressionUnlock,
+  normalizeHighestUnlockedLevel,
+  createInitialProgressionState
+} from './progression.js';
+
 (function () {
   'use strict';
 
   // Identificadores de las cuatro vistas aprobadas en el MVP
   const VALID_VIEWS = ['inicio', 'aprende', 'juego', 'fin'];
   let currentView = 'inicio';
+
+  // Estado persistido y en memoria de la progresión de niveles
+  let progressionLoadResult = loadProgressionState();
+  let progressionState = progressionLoadResult.state;
 
   // Estado de la ronda actual (nivel, demo Aprende, ronda de preguntas y resumen)
   let currentRound = null;
@@ -46,12 +65,17 @@ import {
    * La demostración es no evaluable y las estrellas permanecen intactas en 0.
    */
   function startNewRound(level = 1, options = {}) {
-    const previousB = (currentRound && currentRound.level === level) ? currentRound.b : null;
+    const requestedLevel = Number(level) || MIN_LEVEL;
+    const validatedLevel = isLevelUnlocked(requestedLevel, progressionState.highestUnlockedLevel)
+      ? requestedLevel
+      : MIN_LEVEL;
+
+    const previousB = (currentRound && currentRound.level === validatedLevel) ? currentRound.b : null;
     let factors;
     if (forcedAprendeFactors) {
       factors = { ...forcedAprendeFactors };
     } else {
-      factors = selectAprendeFactors(level, {
+      factors = selectAprendeFactors(validatedLevel, {
         a: options.a,
         b: options.b,
         previousB
@@ -64,10 +88,10 @@ import {
       ...options
     };
 
-    const qRound = createQuestionRound(level, roundOptions);
+    const qRound = createQuestionRound(validatedLevel, roundOptions);
 
     currentRound = {
-      level,
+      level: validatedLevel,
       a: factors.a,
       b: factors.b,
       aprendeModel: model,
@@ -171,7 +195,13 @@ import {
     if (viewId === 'fin') {
       guide.setState(GUIDE_STATES.CELEBRANDO);
       if (currentRound && currentRound.questionRound && currentRound.questionRound.summary) {
-        renderFinView(currentRound.questionRound.summary);
+        const progressionResult = closeRoundProgression(
+          progressionState,
+          currentRound,
+          typeof localStorage !== 'undefined' ? localStorage : null
+        );
+        updateLevelsView();
+        renderFinView(currentRound.questionRound.summary, progressionResult);
       }
       if (options.speak) {
         guide.playEffect('celebracion');
@@ -446,6 +476,54 @@ import {
   }
 
   /**
+   * Actualiza los estados visuales y de accesibilidad de las tarjetas de nivel en la vista Inicio
+   */
+  function updateLevelsView() {
+    LEVELS_CATALOG.forEach((item) => {
+      const btn = document.getElementById(`btn-level-${item.level}`);
+      if (!btn) return;
+      const unlocked = isLevelUnlocked(item.level, progressionState.highestUnlockedLevel);
+
+      if (unlocked) {
+        btn.disabled = false;
+        btn.removeAttribute('aria-disabled');
+        btn.classList.remove('level-locked');
+        btn.classList.add('level-unlocked');
+        btn.setAttribute('aria-label', `${item.ariaLabel}. Nivel disponible`);
+        const badge = btn.querySelector('.level-badge');
+        if (badge) {
+          badge.className = 'level-badge available-badge';
+          badge.removeAttribute('aria-hidden');
+          badge.textContent = 'Disponible';
+        }
+      } else {
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+        btn.classList.remove('level-unlocked');
+        btn.classList.add('level-locked');
+        btn.setAttribute('aria-label', `${item.ariaLabel}. Bloqueado`);
+        const badge = btn.querySelector('.level-badge');
+        if (badge) {
+          badge.className = 'level-badge locked-badge';
+          badge.setAttribute('aria-hidden', 'true');
+          badge.textContent = '🔒 Bloqueado';
+        }
+      }
+    });
+
+    const banner = document.getElementById('storage-status-banner');
+    if (banner) {
+      if (progressionLoadResult.warning) {
+        banner.hidden = false;
+        banner.textContent = progressionLoadResult.warning;
+      } else {
+        banner.hidden = true;
+        banner.textContent = '';
+      }
+    }
+  }
+
+  /**
    * Maneja el clic en el botón Continuar / Ver fin de ronda
    */
   function handleContinueClick() {
@@ -455,7 +533,13 @@ import {
 
     const adv = advanceRound(currentRound.questionRound);
     if (adv.isFinished) {
-      renderFinView(adv.summary);
+      const progressionResult = closeRoundProgression(
+        progressionState,
+        currentRound,
+        typeof localStorage !== 'undefined' ? localStorage : null
+      );
+      updateLevelsView();
+      renderFinView(adv.summary, progressionResult);
       navigateTo('fin', { speak: true });
     } else {
       renderCurrentQuestion(true);
@@ -465,7 +549,7 @@ import {
   /**
    * Renderiza el resumen accesible en la vista Fin de ronda (0..4 aciertos)
    */
-  function renderFinView(summary) {
+  function renderFinView(summary, progressionResult) {
     const scoreText = document.getElementById('fin-score-text');
     if (scoreText && summary) {
       scoreText.textContent = `Aciertos al primer intento: ${summary.firstAttemptSuccesses} de 4`;
@@ -481,6 +565,34 @@ import {
         message.textContent = '¡Buen esfuerzo! Puedes repetir la ronda para mejorar.';
       }
     }
+
+    const unlockText = document.getElementById('fin-unlock-text');
+    const btnNext = document.getElementById('btn-fin-next');
+    const result = progressionResult || (currentRound ? currentRound._progressionResult : null);
+
+    if (result && result.unlockedNewLevel && result.nextLevel) {
+      if (unlockText) {
+        unlockText.hidden = false;
+        unlockText.textContent = `🌟 ¡Desbloqueaste el Nivel ${result.nextLevel}!`;
+      }
+    } else {
+      if (unlockText) {
+        unlockText.hidden = true;
+        unlockText.textContent = '';
+      }
+    }
+
+    if (btnNext) {
+      const currentLevel = currentRound ? currentRound.level : 1;
+      const nextLevel = currentLevel + 1;
+      // Invariante de MVP: nunca ofrecer un Nivel 5
+      if (nextLevel <= MAX_LEVEL && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel) && summary && summary.firstAttemptSuccesses >= 3) {
+        btnNext.hidden = false;
+        btnNext.textContent = `Jugar Nivel ${nextLevel}`;
+      } else {
+        btnNext.hidden = true;
+      }
+    }
   }
 
   /**
@@ -488,6 +600,12 @@ import {
    */
   function toggleSound() {
     const isEnabled = guide.toggleSound();
+    progressionState.soundEnabled = isEnabled;
+    const saveRes = saveProgressionState(progressionState);
+    if (!saveRes.success && saveRes.warning) {
+      progressionLoadResult.warning = saveRes.warning;
+      updateLevelsView();
+    }
     syncSoundToggleButton(isEnabled);
   }
 
@@ -515,7 +633,11 @@ import {
    */
   function initApp() {
     // Sincronizar estado inicial del botón de sonido según preferencia persistida
+    guide.setSoundEnabled(progressionState.soundEnabled);
     syncSoundToggleButton(guide.isSoundEnabled());
+
+    // Actualizar visualmente la disponibilidad de los niveles
+    updateLevelsView();
 
     // 1. Navegación desde Inicio
     const btnStart = document.getElementById('btn-start-game');
@@ -523,20 +645,26 @@ import {
       btnStart.addEventListener('click', () => {
         guide.notifyUserGesture();
         guide.playEffect('clic');
-        startNewRound(1);
+        startNewRound(progressionState.highestUnlockedLevel);
         navigateTo('aprende', { speak: true });
       });
     }
 
-    const btnLevel1 = document.getElementById('btn-level-1');
-    if (btnLevel1) {
-      btnLevel1.addEventListener('click', () => {
-        guide.notifyUserGesture();
-        guide.playEffect('clic');
-        startNewRound(1);
-        navigateTo('aprende', { speak: true });
-      });
-    }
+    // Handlers unificados de niveles 1..4 (reemplazan el handler estático exclusivo del Nivel 1)
+    LEVELS_CATALOG.forEach((item) => {
+      const btn = document.getElementById(`btn-level-${item.level}`);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          if (!isLevelUnlocked(item.level, progressionState.highestUnlockedLevel)) {
+            return;
+          }
+          guide.notifyUserGesture();
+          guide.playEffect('clic');
+          startNewRound(item.level);
+          navigateTo('aprende', { speak: true });
+        });
+      }
+    });
 
     // 2. Navegación desde Aprende
     const btnAprendeContinue = document.getElementById('btn-aprende-continue');
@@ -596,6 +724,20 @@ import {
     }
 
     // 4. Navegación desde Fin de ronda
+    const btnFinNext = document.getElementById('btn-fin-next');
+    if (btnFinNext) {
+      btnFinNext.addEventListener('click', () => {
+        guide.notifyUserGesture();
+        guide.playEffect('clic');
+        const currentLevel = currentRound ? currentRound.level : 1;
+        const nextLevel = currentLevel + 1;
+        if (nextLevel <= MAX_LEVEL && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel)) {
+          startNewRound(nextLevel);
+          navigateTo('aprende', { speak: true });
+        }
+      });
+    }
+
     const btnFinRepeat = document.getElementById('btn-fin-repeat');
     if (btnFinRepeat) {
       btnFinRepeat.addEventListener('click', () => {
@@ -612,6 +754,7 @@ import {
       btnFinHome.addEventListener('click', () => {
         guide.notifyUserGesture();
         guide.playEffect('clic');
+        updateLevelsView();
         navigateTo('inicio');
       });
     }
@@ -623,6 +766,7 @@ import {
         e.preventDefault();
         guide.notifyUserGesture();
         guide.playEffect('clic');
+        updateLevelsView();
         navigateTo('inicio');
       });
     }
@@ -667,6 +811,21 @@ import {
       getCurrentQuestion: () => (currentRound && currentRound.questionRound ? currentRound.questionRound.questions[currentRound.questionRound.currentIndex] : null),
       renderCurrentQuestion,
       renderFinView,
+      updateLevelsView,
+      getProgressionState: () => ({ ...progressionState }),
+      setHighestUnlockedLevel: (lvl) => {
+        progressionState.highestUnlockedLevel = normalizeHighestUnlockedLevel(lvl);
+        saveProgressionState(progressionState);
+        updateLevelsView();
+      },
+      resetProgression: () => {
+        progressionState = createInitialProgressionState();
+        saveProgressionState(progressionState);
+        updateLevelsView();
+      },
+      closeRoundProgression: (round) => closeRoundProgression(progressionState, round, typeof localStorage !== 'undefined' ? localStorage : null),
+      LEVELS_CATALOG,
+      isLevelUnlocked: (lvl) => isLevelUnlocked(lvl, progressionState.highestUnlockedLevel),
       setForcedRoundOptions: (opts) => {
         forcedRoundOptions = opts;
       },

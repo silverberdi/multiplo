@@ -703,6 +703,26 @@ html, body {
   margin: 0;
 }
 
+.summary-unlock-text {
+  font-family: var(--font-title);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-green);
+  margin: var(--space-xs) 0 0 0;
+}
+
+.storage-banner {
+  background-color: #FFF3CD;
+  border: 2px solid #FFEEBA;
+  color: #856404;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  margin: var(--space-sm) auto;
+  max-width: 480px;
+  text-align: center;
+}
+
 /* 11. Pie de página */
 .app-footer {
   text-align: center;

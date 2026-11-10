@@ -27,6 +27,12 @@ import {
   MANZANA_ASSET
 } from './aprende.js';
 
+import {
+  LEVELS_CATALOG
+} from './progression.js';
+
+export { LEVELS_CATALOG };
+
 export const LEVEL_TO_TABLE = Object.freeze({
   1: 2,
   2: 3,
