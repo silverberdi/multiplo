@@ -584,12 +584,16 @@ export function advanceRound(round) {
 
   // Finalizar ronda: calcular resumen inmutable
   round.isFinished = true;
-  const firstAttemptSuccesses = round.questions.filter((q) => q.firstAttemptCorrect === true).length;
+  const firstAttemptCorrect = Object.freeze(round.questions.map((q) => Boolean(q.firstAttemptCorrect)));
+  const firstAttemptSuccesses = firstAttemptCorrect.filter(Boolean).length;
   round.summary = Object.freeze({
     level: round.level,
     a: round.a,
     totalQuestions: round.questions.length, // 4
-    firstAttemptSuccesses,                  // 0..4
+    firstAttemptCorrect,                    // Cuatro indicadores inmutables de primer intento
+    firstAttempts: firstAttemptCorrect,     // Alias de conveniencia
+    firstAttemptSuccesses,                  // 0..4 aciertos al primer intento
+    stars: firstAttemptSuccesses,           // 0..4 estrellas equivalentes
     passed: firstAttemptSuccesses >= 3      // Umbral 3/4 para información pedagógica
   });
 

@@ -194,6 +194,7 @@ import {
     // Configurar estado inicial de la mascota según la vista
     if (viewId === 'fin') {
       guide.setState(GUIDE_STATES.CELEBRANDO);
+      let finSpoken = GUIDE_SCRIPT.cierre;
       if (currentRound && currentRound.questionRound && currentRound.questionRound.summary) {
         const progressionResult = closeRoundProgression(
           progressionState,
@@ -201,11 +202,14 @@ import {
           typeof localStorage !== 'undefined' ? localStorage : null
         );
         updateLevelsView();
-        renderFinView(currentRound.questionRound.summary, progressionResult);
+        const finInfo = renderFinView(currentRound.questionRound.summary, progressionResult);
+        if (finInfo && finInfo.spokenText) {
+          finSpoken = finInfo.spokenText;
+        }
       }
       if (options.speak) {
         guide.playEffect('celebracion');
-        guide.speakInstruction(GUIDE_SCRIPT.cierre, { returnState: GUIDE_STATES.CELEBRANDO });
+        guide.speakInstruction(finSpoken, { returnState: GUIDE_STATES.CELEBRANDO });
       }
     } else if (viewId === 'aprende') {
       if (!currentRound) {
@@ -533,13 +537,6 @@ import {
 
     const adv = advanceRound(currentRound.questionRound);
     if (adv.isFinished) {
-      const progressionResult = closeRoundProgression(
-        progressionState,
-        currentRound,
-        typeof localStorage !== 'undefined' ? localStorage : null
-      );
-      updateLevelsView();
-      renderFinView(adv.summary, progressionResult);
       navigateTo('fin', { speak: true });
     } else {
       renderCurrentQuestion(true);
@@ -547,27 +544,111 @@ import {
   }
 
   /**
+   * Renderiza las cuatro posiciones de estrellas premio de forma accesible
+   */
+  function renderFinStars(container, summary) {
+    if (!container) return;
+    container.innerHTML = '';
+
+    const firstAttempts = summary && Array.isArray(summary.firstAttemptCorrect)
+      ? summary.firstAttemptCorrect
+      : (summary && Number.isInteger(summary.firstAttemptSuccesses)
+        ? Array.from({ length: 4 }, (_, idx) => idx < summary.firstAttemptSuccesses)
+        : [false, false, false, false]);
+
+    firstAttempts.forEach((isEarned, idx) => {
+      const qNum = idx + 1;
+      const slot = document.createElement('div');
+      slot.className = `star-slot ${isEarned ? 'star-slot-earned' : 'star-slot-unearned'}`;
+      slot.setAttribute('data-star-index', String(qNum));
+      slot.setAttribute('data-earned', String(Boolean(isEarned)));
+
+      const img = document.createElement('img');
+      img.src = 'assets/icons/estrella-premio.svg';
+      img.alt = isEarned ? `Pregunta ${qNum}: estrella obtenida` : `Pregunta ${qNum}: sin estrella`;
+      img.className = `star-icon ${isEarned ? 'star-icon-earned' : 'star-icon-unearned'}`;
+      img.width = 56;
+      img.height = 56;
+      slot.appendChild(img);
+
+      const badge = document.createElement('span');
+      badge.className = `star-badge ${isEarned ? 'star-badge-earned' : 'star-badge-unearned'}`;
+      badge.setAttribute('aria-hidden', 'true');
+      badge.textContent = isEarned ? '★ Obtenida' : '☆ Sin estrella';
+      slot.appendChild(badge);
+
+      const sr = document.createElement('span');
+      sr.className = 'sr-only';
+      sr.textContent = isEarned
+        ? `Pregunta ${qNum}: estrella obtenida al primer intento`
+        : `Pregunta ${qNum}: no obtenida al primer intento`;
+      slot.appendChild(sr);
+
+      container.appendChild(slot);
+    });
+  }
+
+  /**
    * Renderiza el resumen accesible en la vista Fin de ronda (0..4 aciertos)
    */
   function renderFinView(summary, progressionResult) {
+    const stars = summary ? Number(summary.firstAttemptSuccesses) || 0 : 0;
+    const currentLevel = currentRound ? currentRound.level : 1;
+    const nextLevel = currentLevel + 1;
+
+    // 1. Cuatro posiciones de estrella premio
+    const starsContainer = document.getElementById('fin-stars-container');
+    if (starsContainer) {
+      renderFinStars(starsContainer, summary);
+    }
+
+    // 2. Conteo visible de estrellas
+    const starsCount = document.getElementById('fin-stars-count');
+    if (starsCount) {
+      starsCount.textContent = `${stars} de 4 estrellas`;
+    }
+
+    // 3. Resumen accesible de aciertos al primer intento
     const scoreText = document.getElementById('fin-score-text');
-    if (scoreText && summary) {
-      scoreText.textContent = `Aciertos al primer intento: ${summary.firstAttemptSuccesses} de 4`;
+    if (scoreText) {
+      scoreText.textContent = `Aciertos al primer intento: ${stars} de 4`;
     }
 
+    // 4. Encabezado, mensaje positivo y locución hablada según estrellas
+    const heading = document.getElementById('heading-fin');
     const message = document.getElementById('fin-summary-message');
-    if (message && summary) {
-      if (summary.firstAttemptSuccesses === 4) {
-        message.textContent = '¡Excelente trabajo! Acertaste todas al primer intento.';
-      } else if (summary.firstAttemptSuccesses >= 3) {
-        message.textContent = '¡Muy bien hecho! Sigue practicando.';
+    let spokenText = '';
+
+    if (stars === 4) {
+      if (heading) heading.textContent = '¡Fantástico!';
+      if (message) message.textContent = '¡Excelente trabajo! Acertaste todas al primer intento.';
+      spokenText = '¡Fantástico! Acertaste todas las preguntas al primer intento.';
+    } else if (stars === 3) {
+      if (heading) heading.textContent = '¡Muy bien hecho!';
+      if (nextLevel <= MAX_LEVEL) {
+        if (message) message.textContent = '¡Muy bien hecho! Desbloqueaste el siguiente nivel.';
+        spokenText = '¡Muy bien hecho! Desbloqueaste el siguiente nivel.';
       } else {
-        message.textContent = '¡Buen esfuerzo! Puedes repetir la ronda para mejorar.';
+        if (message) message.textContent = '¡Muy bien hecho! Completaste el Nivel 4 con éxito.';
+        spokenText = '¡Muy bien hecho! Completaste el Nivel cuatro con éxito.';
       }
+    } else if (stars === 2) {
+      if (heading) heading.textContent = '¡Buen esfuerzo!';
+      if (message) message.textContent = '¡Buen esfuerzo! Puedes repetir la ronda para ganar más estrellas.';
+      spokenText = '¡Buen esfuerzo! Puedes repetir la ronda para ganar más estrellas.';
+    } else if (stars === 1) {
+      if (heading) heading.textContent = '¡Buen esfuerzo!';
+      if (message) message.textContent = '¡Buen esfuerzo! Gracias por participar. Puedes repetir la ronda cuando quieras.';
+      spokenText = '¡Buen esfuerzo! Gracias por participar. Puedes repetir la ronda cuando quieras.';
+    } else {
+      // 0 de 4
+      if (heading) heading.textContent = '¡Buen esfuerzo!';
+      if (message) message.textContent = '¡Buen esfuerzo! Gracias por jugar y participar. Puedes repetir la ronda cuando quieras.';
+      spokenText = '¡Buen esfuerzo! Gracias por jugar. Puedes repetir la ronda cuando quieras.';
     }
 
+    // 5. Mensaje de desbloqueo si aplica
     const unlockText = document.getElementById('fin-unlock-text');
-    const btnNext = document.getElementById('btn-fin-next');
     const result = progressionResult || (currentRound ? currentRound._progressionResult : null);
 
     if (result && result.unlockedNewLevel && result.nextLevel) {
@@ -582,17 +663,20 @@ import {
       }
     }
 
+    // 6. Botón de Siguiente nivel: solo para 3/4 o 4/4 cuando exista un nivel posterior
+    const btnNext = document.getElementById('btn-fin-next');
     if (btnNext) {
-      const currentLevel = currentRound ? currentRound.level : 1;
-      const nextLevel = currentLevel + 1;
       // Invariante de MVP: nunca ofrecer un Nivel 5
-      if (nextLevel <= MAX_LEVEL && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel) && summary && summary.firstAttemptSuccesses >= 3) {
+      if (nextLevel <= MAX_LEVEL && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel) && stars >= 3) {
         btnNext.hidden = false;
-        btnNext.textContent = `Jugar Nivel ${nextLevel}`;
+        btnNext.textContent = 'Siguiente nivel';
+        btnNext.setAttribute('aria-label', `Siguiente nivel: Tabla del ${getLevelConfig(nextLevel).table}`);
       } else {
         btnNext.hidden = true;
       }
     }
+
+    return { spokenText, stars };
   }
 
   /**
@@ -811,6 +895,7 @@ import {
       getCurrentQuestion: () => (currentRound && currentRound.questionRound ? currentRound.questionRound.questions[currentRound.questionRound.currentIndex] : null),
       renderCurrentQuestion,
       renderFinView,
+      renderFinStars,
       updateLevelsView,
       getProgressionState: () => ({ ...progressionState }),
       setHighestUnlockedLevel: (lvl) => {
