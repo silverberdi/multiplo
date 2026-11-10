@@ -73,14 +73,19 @@ La experiencia SHALL permitir repetir la última instrucción, SHALL impedir dis
 La experiencia SHALL representar los estados normal, hablando, celebrando y pensando con los SVG aprobados de la mascota. Ante un error de una pregunta evaluable SHALL invitar a otro intento con lenguaje amable, SHALL conservar la actividad y SHALL poder mostrar una pista sin regaño, castigo, pérdida de progreso ni dependencia exclusiva del color. Ante un acierto SHALL comunicarlo con feedback breve y permitir continuar sin convertir un reintento correcto en un acierto de primer intento.
 
 #### Scenario: Estados visuales de la mascota
-- **GIVEN** la estrella guía al niño de seis años
-- **WHEN** se muestra su estado visual
-- **THEN** puede mostrarse normal al esperar, hablando al narrar, celebrando al acertar o cerrar una ronda, y pensando al ofrecer una pista o reaccionar a un intento fallido
+- **GIVEN** la estrella guía una pregunta del motor
+- **WHEN** espera una respuesta, ofrece una pista, reacciona a un error o celebra un acierto/cierre
+- **THEN** puede mostrarse normal, pensando, pensando o celebrando respectivamente, usando los SVG versionados y manteniendo texto comprensible
 
 #### Scenario: Retroalimentación empática ante un error
 - **GIVEN** el niño da una respuesta fallida
 - **WHEN** la estrella reacciona
 - **THEN** invita a intentarlo otra vez, puede ofrecer Pista, conserva la pregunta y no regaña, castiga ni descuenta progreso
+
+#### Scenario: Retroalimentación empática
+- **GIVEN** el niño da una respuesta fallida
+- **WHEN** la estrella reacciona
+- **THEN** invita a otro intento con lenguaje amable, conserva la actividad y no regaña ni castiga
 
 #### Scenario: Feedback de acierto tardío
 - **GIVEN** el niño falló el primer intento y después selecciona la respuesta correcta
@@ -105,21 +110,3 @@ La experiencia SHALL asociar acierto, intento, celebración y clic con sus respe
 - **GIVEN** un archivo de efecto falta, no carga o el navegador rechaza su reproducción
 - **WHEN** ocurre el evento asociado
 - **THEN** el texto, la voz disponible y la interacción continúan sin bloqueo ni error que obligue a abandonar la actividad
-
-### Requirement: El guion de la estrella cubre el recorrido breve del MVP
-
-La guía SHALL disponer de textos equivalentes a un saludo, una demostración de grupos, una pregunta, un acierto, una invitación a contar otra vez y un cierre de aventura. Las frases podrán adaptarse al contexto matemático, pero SHALL conservar lenguaje breve, positivo y comprensible en español.
-
-#### Scenario: Guion de ejemplo
-- **GIVEN** la estrella guía la actividad
-- **WHEN** presenta el guion de ejemplo
-- **THEN** puede comunicar «¡Hola! Vamos a jugar», «Mira: tres grupos de dos», «¿Cuántos hay en total?», «¡Muy bien!», «Cuenta otra vez» y «¡Terminaste la aventura!» mediante texto y voz cuando esta esté disponible
-
-### Requirement: La guía usa los recursos multimedia versionados del MVP
-
-La experiencia SHALL considerar los cuatro SVG de mascota y los cuatro WAV enumerados en `docs/ASSETS.md`, cargándolos desde los recursos versionados del repositorio sin depender de un servicio multimedia externo.
-
-#### Scenario: Recursos multimedia vinculados
-- **GIVEN** se consultan los recursos multimedia vinculados
-- **WHEN** se prepara la guía de la estrella
-- **THEN** se consideran `normal.svg`, `hablando.svg`, `celebrando.svg`, `pensando.svg`, `acierto.wav`, `intento.wav`, `celebracion.wav`, `clic.wav` y la Guía de recursos de `ASSETS.md`
