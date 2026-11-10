@@ -159,6 +159,19 @@ html, body {
   outline-offset: 2px;
 }
 
+/* Utilidad accesible: oculto a la vista pero disponible para tecnologías de asistencia */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* 4. Contenedor principal de vistas */
 .main-container {
   flex: 1 0 auto;
@@ -686,6 +699,86 @@ html, body {
   color: var(--color-text-dark);
 }
 
+.fin-stars-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-md);
+  margin: var(--space-md) 0;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.star-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs);
+  border-radius: var(--radius-md);
+  min-width: 72px;
+  min-height: 88px;
+  background: var(--color-gray-soft);
+  border: 2px solid var(--color-gray-border);
+  box-shadow: 0 4px 8px var(--color-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.star-slot-earned {
+  background: #FFF9E6;
+  border-color: var(--color-yellow-dark);
+  box-shadow: 0 6px 14px rgba(224, 159, 33, 0.25);
+}
+
+.star-slot-unearned {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.star-icon {
+  display: block;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.star-icon-earned {
+  filter: drop-shadow(0 2px 4px rgba(215, 140, 19, 0.4));
+}
+
+.star-icon-unearned {
+  filter: grayscale(1) opacity(0.4);
+}
+
+.star-badge {
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-top: 4px;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.star-badge-earned {
+  color: #8C5B00;
+  background: var(--color-yellow);
+}
+
+.star-badge-unearned {
+  color: var(--color-locked-text);
+  background: var(--color-gray-border);
+}
+
+.fin-stars-count {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  margin: 0 0 var(--space-xs) 0;
+}
+
 .summary-box {
   background: var(--color-gray-soft);
   border: 2px solid var(--color-gray-border);
@@ -709,6 +802,19 @@ html, body {
   font-weight: 800;
   color: var(--color-green);
   margin: var(--space-xs) 0 0 0;
+}
+
+.fin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: center;
+  width: 100%;
+}
+
+.fin-actions .btn {
+  max-width: 380px;
+  width: 100%;
 }
 
 .storage-banner {
@@ -813,6 +919,39 @@ html, body {
 
   .game-actions .btn {
     width: 100%;
+  }
+
+  .fin-stars-container {
+    gap: var(--space-xs);
+  }
+
+  .star-slot {
+    min-width: 54px;
+    min-height: 72px;
+    padding: 2px 4px;
+  }
+
+  .star-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .star-badge {
+    font-size: 0.68rem;
+    padding: 1px 4px;
+  }
+
+  .fin-stars-count {
+    font-size: 1.25rem;
+  }
+
+  .fin-actions {
+    width: 100%;
+  }
+
+  .fin-actions .btn {
+    width: 100%;
+    max-width: 100%;
   }
 }
 

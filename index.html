@@ -187,13 +187,17 @@
           <h2 id="heading-fin" class="view-title">¡Fantástico!</h2>
           <p class="instruction-text congratulation-message" id="fin-summary-message">Completaste la ronda de cuatro preguntas.</p>
 
-          <!-- Resumen accesible de 0 a 4 aciertos al primer intento (sin markup de recompensa hasta Change #6) -->
+          <!-- Celebración de estrellas: cuatro posiciones dinámicas con estrella premio -->
+          <div class="fin-stars-container" id="fin-stars-container" role="group" aria-label="Estrellas obtenidas en la ronda"></div>
+
+          <!-- Resumen accesible de aciertos al primer intento y desbloqueo -->
           <div class="summary-box" id="fin-summary-box" role="region" aria-label="Resumen de aciertos de la ronda">
+            <p class="fin-stars-count" id="fin-stars-count">0 de 4 estrellas</p>
             <p class="summary-score-text" id="fin-score-text">Aciertos al primer intento: 0 de 4</p>
             <p class="summary-unlock-text" id="fin-unlock-text" hidden></p>
           </div>
 
-          <div class="actions-group">
+          <div class="actions-group fin-actions">
             <button id="btn-fin-next" class="btn btn-primary btn-large" type="button" hidden>
               Siguiente nivel
             </button>

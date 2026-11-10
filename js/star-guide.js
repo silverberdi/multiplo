@@ -192,6 +192,16 @@ export class StarGuideCoordinator {
     return this.soundEnabled;
   }
 
+  stopCurrentAudio() {
+    if (this.currentAudio && typeof this.currentAudio.pause === 'function') {
+      try {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+      } catch (_e) {}
+    }
+    this.currentAudio = null;
+  }
+
   cancelSpeech() {
     this.activeUtteranceId++;
     if (this.speechSynthesis && typeof this.speechSynthesis.cancel === 'function') {
@@ -200,6 +210,7 @@ export class StarGuideCoordinator {
       } catch (_e) {}
     }
     this.currentUtterance = null;
+    this.stopCurrentAudio();
     if (this.currentState === GUIDE_STATES.HABLANDO) {
       this.setState(GUIDE_STATES.NORMAL);
     }
@@ -284,6 +295,8 @@ export class StarGuideCoordinator {
    * Dispara un efecto sonoro respetando soundEnabled.
    */
   playEffect(name) {
-    return playAudioEffect(name, this.soundEnabled, this.audioFactory);
+    const audio = playAudioEffect(name, this.soundEnabled, this.audioFactory);
+    this.currentAudio = audio;
+    return audio;
   }
 }
