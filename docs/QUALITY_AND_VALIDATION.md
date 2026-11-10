@@ -94,6 +94,22 @@ Exigir **al menos una prueba real** de cada formato:
 
 Registrar navegador y sistema operativo reales probados, sin asumir que fueron validados antes de hacerlo. Probar voz y PWA en los navegadores donde esas capacidades existan; un navegador que no soporta PWA no debe fallar la aceptación de la versión web.
 
+### Registro de validación técnica — MVP-04 (Motor de preguntas evaluables)
+- **Fecha / Entorno:** Linux x86_64, Chromium/Google Chrome (Puppeteer-core headless/headed execution) y servidor estático local Node.js v22.
+- **Formatos y viewports verificados:**
+  1. *Celular:* 375×667 px (vertical) y 667×375 px (horizontal) — Sin desbordamiento horizontal (`scrollWidth <= clientWidth`), botones táctiles con altura mínima >= 44px/52px.
+  2. *Tablet:* 768×1024 px — Cuadrícula responsive de alternativas y grupos visuales de hasta 5×5 manzanas sin overflow.
+  3. *Computador:* 1280×800 px — Interacción fluida con cursor/mouse, teclado y estados focus-visible.
+- **Escenarios comprobados:**
+  - *Voz activa y fallback sin voz:* Ejecución normal con `speechSynthesis` y degradación elegante al eliminar la API; los textos visibles y la interacción se mantienen sin bloqueo (Q-09).
+  - *Modo silencioso:* El conmutador único silencia tanto locución como efectos WAV (`intento.wav`, `acierto.wav`); el flujo visual y la navegación continúan idénticos.
+  - *Pistas contextuales:* En pregunta 4 (multiplicación sin objetos por defecto), pulsar «💡 Pista» revela los `a` grupos de `b` manzanas sin mutar la operación ni las alternativas. En pregunta 5 (selección de operación), la pista visual muestra los grupos correspondientes a la operación objetivo.
+  - *Evaluación pedagógica:* Acierto inicial registra la pregunta como acertada; error inicial activa feedback empático «Cuenta otra vez», sonido `intento.wav` y estado `pensando`, permitiendo reintentos ilimitados. Al acertar en un reintento tardío, la pregunta permite continuar pero su registro de primer intento permanece inmutablemente como no acertado.
+  - *Evaluación por producto:* En la pregunta 5, la alternativa correcta se determina estrictamente por `a × b = producto objetivo`, no por la posición visual del botón.
+  - *Ronda incompleta:* Salir al Inicio desde Juego no corrompe la sesión ni altera la siguiente ronda limpia.
+  - *Cierre de ronda:* Entrega a la vista Fin el resumen inmutable de 0–4 aciertos de primer intento, sin avance automático de nivel y habiendo retirado el texto/markup estático de recompensas previo al Change #6.
+- **Nota metodológica:** Esta validación corresponde a pruebas técnicas y heurísticas automatizadas/asistidas en entorno local; no constituye validación presencial con niños de seis años.
+
 ## 5. Sesión observacional con el niño
 Duración de una ronda: objetivo aproximado 3–5 minutos, sin cronómetro obligatorio.
 

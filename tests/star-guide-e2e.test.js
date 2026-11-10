@@ -98,22 +98,37 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     await page.click('#btn-aprende-continue');
     await page.waitForSelector('#view-juego.view-active');
 
-    // --- Vista Juego ---
-    // Texto de pregunta legible y visible (actualizado con la consigna de voz/guion)
-    const questionText = await page.$eval('#heading-juego', (el) => el.textContent.trim());
-    assert.equal(questionText, '¿Cuántos hay en total?');
+    // --- Vista Juego: Ronda real de cuatro preguntas cubriendo las cuatro modalidades ---
 
-    // Probar opción incorrecta (ej. botón con opción 4) -> Retroalimentación empática sin bloqueo
-    const btnOption4 = await page.$('.btn-option[data-option="4"]');
-    assert.ok(btnOption4, 'Debe existir opción 4');
-    await btnOption4.click();
+    // 1. Pregunta 1 de 4 (modalidad 2: visual, cuenta grupos)
+    const q1Progress = await page.$eval('#game-progress-text', (el) => el.textContent.trim());
+    assert.equal(q1Progress, 'Pregunta 1 de 4');
 
-    // Mascota debe pasar a pensando
-    const juegoMascotSrcThinking = await page.$eval('#mascot-img-juego', (el) => el.getAttribute('src'));
-    assert.ok(juegoMascotSrcThinking.includes('assets/mascot/pensando.svg'), 'Error debe cambiar mascota a pensando');
+    const questionText1 = await page.$eval('#heading-juego', (el) => el.textContent.trim());
+    assert.equal(questionText1, '¿Cuántas manzanas hay en total?');
 
-    const juegoStatusTextThinking = await page.$eval('#mascot-status-juego .status-text', (el) => el.textContent.trim());
-    assert.equal(juegoStatusTextThinking, 'Pensando');
+    // Grupos visibles en la modalidad visual (comprobación computada real)
+    const groupsVisible1 = await page.$eval('#juego-groups-container', (el) => {
+      const s = window.getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0 && !el.hasAttribute('hidden');
+    });
+    assert.ok(groupsVisible1, 'Los grupos deben ser visibles en la modalidad visual');
+
+    // Probar opción incorrecta -> Retroalimentación empática sin bloqueo
+    const wrongIdx1 = await page.evaluate(() => {
+      const q = window.__multiploApp.getCurrentQuestion();
+      return q.alternatives.findIndex((a) => !a.isCorrect);
+    });
+    const optionBtns1 = await page.$$('.btn-option');
+    await optionBtns1[wrongIdx1].click();
+
+    // Mascota pasa a pensando
+    const mascotThinking = await page.$eval('#mascot-img-juego', (el) => el.getAttribute('src'));
+    assert.ok(mascotThinking.includes('assets/mascot/pensando.svg'), 'Error debe cambiar mascota a pensando');
+
+    const statusThinking = await page.$eval('#mascot-status-juego .status-text', (el) => el.textContent.trim());
+    assert.equal(statusThinking, 'Pensando');
 
     // Mensaje empático en caja de feedback
     const feedbackRetryText = await page.$eval('#juego-feedback-box', (el) => el.textContent.trim());
@@ -121,26 +136,96 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
 
     // La actividad permanece activa, la pregunta sigue siendo la misma
     const questionAfterError = await page.$eval('#heading-juego', (el) => el.textContent.trim());
-    assert.equal(questionAfterError, '¿Cuántos hay en total?');
+    assert.equal(questionAfterError, '¿Cuántas manzanas hay en total?');
+
+    // Probar opción correcta tras reintento -> Acierto y celebración
+    const correctIdx1 = await page.evaluate(() => {
+      const q = window.__multiploApp.getCurrentQuestion();
+      return q.alternatives.findIndex((a) => a.isCorrect);
+    });
+    await optionBtns1[correctIdx1].click();
+
+    // Mascota pasa a celebrando
+    const mascotCelebrate = await page.$eval('#mascot-img-juego', (el) => el.getAttribute('src'));
+    assert.ok(mascotCelebrate.includes('assets/mascot/celebrando.svg'), 'Acierto debe cambiar mascota a celebrando');
+
+    const feedbackSuccessText = await page.$eval('#juego-feedback-box', (el) => el.textContent.trim());
+    assert.ok(feedbackSuccessText.includes('¡Muy bien!'), 'Debe mostrar felicitación empática');
+
+    // Continuar a la pregunta 2
+    await page.waitForSelector('#btn-juego-continue:not([hidden])');
+    await page.click('#btn-juego-continue');
+
+    // 2. Pregunta 2 de 4 (modalidad 3: visual, cuenta grupos)
+    const q2Progress = await page.$eval('#game-progress-text', (el) => el.textContent.trim());
+    assert.equal(q2Progress, 'Pregunta 2 de 4');
+
+    const correctIdx2 = await page.evaluate(() => {
+      const q = window.__multiploApp.getCurrentQuestion();
+      return q.alternatives.findIndex((a) => a.isCorrect);
+    });
+    const optionBtns2 = await page.$$('.btn-option');
+    await optionBtns2[correctIdx2].click();
+    await page.waitForSelector('#btn-juego-continue:not([hidden])');
+    await page.click('#btn-juego-continue');
+
+    // 3. Pregunta 3 de 4 (modalidad 4: multiplicación sin objetos por defecto, con Pista)
+    const q3Progress = await page.$eval('#game-progress-text', (el) => el.textContent.trim());
+    assert.equal(q3Progress, 'Pregunta 3 de 4');
+
+    // Grupos ocultos por defecto (comprobación computada real)
+    const groupsHidden3 = await page.$eval('#juego-groups-container', (el) => {
+      const s = window.getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return (s.display === 'none' || s.visibility === 'hidden' || r.width === 0 || r.height === 0 || el.hasAttribute('hidden'));
+    });
+    assert.ok(groupsHidden3, 'En modalidad 4 los grupos deben estar ocultos por defecto');
 
     // Probar botón de pista (💡 Pista)
     await page.click('#btn-juego-hint');
     const feedbackHintText = await page.$eval('#juego-feedback-box', (el) => el.textContent.trim());
     assert.ok(feedbackHintText.includes('Pista'), 'Debe mostrar mensaje de pista comprensible');
 
-    // Probar opción correcta (botón con opción 6) -> Acierto y celebración
-    const btnOption6 = await page.$('.btn-option[data-option="6"]');
-    await btnOption6.click();
+    const groupsRevealed3 = await page.$eval('#juego-groups-container', (el) => {
+      const s = window.getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0 && !el.hasAttribute('hidden');
+    });
+    assert.ok(groupsRevealed3, 'Al pulsar Pista los grupos de manzanas deben mostrarse');
 
-    // Mascota pasa a celebrando
-    const juegoMascotSrcCelebrate = await page.$eval('#mascot-img-juego', (el) => el.getAttribute('src'));
-    assert.ok(juegoMascotSrcCelebrate.includes('assets/mascot/celebrando.svg'), 'Acierto debe cambiar mascota a celebrando');
+    const correctIdx3 = await page.evaluate(() => {
+      const q = window.__multiploApp.getCurrentQuestion();
+      return q.alternatives.findIndex((a) => a.isCorrect);
+    });
+    const optionBtns3 = await page.$$('.btn-option');
+    await optionBtns3[correctIdx3].click();
+    await page.waitForSelector('#btn-juego-continue:not([hidden])');
+    await page.click('#btn-juego-continue');
 
-    const feedbackSuccessText = await page.$eval('#juego-feedback-box', (el) => el.textContent.trim());
-    assert.ok(feedbackSuccessText.includes('¡Muy bien!'), 'Debe mostrar felicitación empática');
+    // 4. Pregunta 4 de 4 (modalidad 5: selección de operación que da el total)
+    const q4Progress = await page.$eval('#game-progress-text', (el) => el.textContent.trim());
+    assert.equal(q4Progress, 'Pregunta 4 de 4');
 
-    // Clic en "Ver fin de ronda"
-    await page.click('#btn-juego-next');
+    const questionText4 = await page.$eval('#heading-juego', (el) => el.textContent.trim());
+    assert.ok(questionText4.includes('¿Cuál multiplicación da'), 'Debe preguntar por la multiplicación que da el total');
+
+    // Evaluar que solo la operación con el producto objetivo es correcta
+    const targetProduct = await page.evaluate(() => window.__multiploApp.getCurrentQuestion().product);
+    const correctIdx4 = await page.evaluate(() => {
+      const q = window.__multiploApp.getCurrentQuestion();
+      return q.alternatives.findIndex((a) => a.product === q.product);
+    });
+    assert.ok(correctIdx4 >= 0, 'Debe haber exactamente una alternativa correcta por producto');
+
+    const optionBtns4 = await page.$$('.btn-option');
+    await optionBtns4[correctIdx4].click();
+
+    // El botón de acción en la última pregunta muestra "Ver fin de ronda"
+    const nextBtnLabel = await page.$eval('#btn-juego-continue', (el) => el.textContent.trim());
+    assert.equal(nextBtnLabel, 'Ver fin de ronda');
+
+    // Clic en "Ver fin de ronda" -> Navega a Vista Fin de ronda
+    await page.click('#btn-juego-continue');
     await page.waitForSelector('#view-fin.view-active');
 
     // --- Vista Fin ---
@@ -150,8 +235,18 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     const finStatusText = await page.$eval('#mascot-status-fin .status-text', (el) => el.textContent.trim());
     assert.equal(finStatusText, '¡Muy bien!');
 
-    const finInstruction = await page.$eval('#view-fin .instruction-text', (el) => el.textContent.trim());
-    assert.ok(finInstruction.includes('Ganaste tres estrellas'), 'Debe mostrar felicitación final');
+    // Resumen inmutable de primer intento: Q1 falló al primer intento, Q2, Q3, Q4 acertadas -> 3 de 4
+    const finScore = await page.$eval('#fin-score-text', (el) => el.textContent.trim());
+    assert.equal(finScore, 'Aciertos al primer intento: 3 de 4', 'Debe registrar 3 aciertos de primer intento');
+
+    // Verificar que el fallo inicial en Q1 se conservó de forma inmutable
+    const q1Result = await page.evaluate(() => window.__multiploApp.getCurrentRound().questions[0]);
+    assert.equal(q1Result.firstAttemptCorrect, false, 'El fallo inicial de Q1 debe conservarse inmutable');
+
+    // Verificar ausencia de texto o markup estático de recompensa previo a Change #6
+    const htmlFin = await page.$eval('#view-fin', (el) => el.innerHTML);
+    assert.ok(!htmlFin.includes('Ganaste tres estrellas'), 'No debe existir el texto estático sustituido');
+    assert.ok(!htmlFin.includes('reward-stars-container'), 'No debe existir el contenedor de estrellas sustituido');
 
     await page.close();
   });
@@ -201,16 +296,16 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
 
     // Verificar última instrucción
     const initialInstruction = await page.evaluate(() => window.__multiploApp.guide.getLastInstruction());
-    assert.equal(initialInstruction, '¿Cuántos hay en total?');
+    assert.equal(initialInstruction, '¿Cuántas manzanas hay en total?');
 
     // Click en botón repetir en juego
     await page.click('#btn-juego-sound');
 
     // Verificar que la instrucción sigue siendo la misma y la pregunta no avanzó
     const repeatedInstruction = await page.evaluate(() => window.__multiploApp.guide.getLastInstruction());
-    assert.equal(repeatedInstruction, '¿Cuántos hay en total?');
+    assert.equal(repeatedInstruction, '¿Cuántas manzanas hay en total?');
     const currentQuestionText = await page.$eval('#heading-juego', (el) => el.textContent.trim());
-    assert.equal(currentQuestionText, '¿Cuántos hay en total?');
+    assert.equal(currentQuestionText, '¿Cuántas manzanas hay en total?');
 
     // Cambiar de actividad detiene la voz anterior
     let cancelled = false;

@@ -1,6 +1,6 @@
 /**
- * Múltiplo — Base web estática, navegación y guía de la estrella
- * Alcance: MVP-01 y MVP-02 (Shell navegable + Estrella guía con voz nativa en español y efectos)
+ * Múltiplo — Base web estática, navegación, guía de la estrella y motor de juego
+ * Alcance: MVP-01 a MVP-04 (Shell + Guía + Demostración Aprende + Motor de preguntas evaluables)
  * Sin backend, sin cuentas, sin analítica ni persistencia de progreso ficticia.
  */
 
@@ -16,8 +16,18 @@ import {
 import {
   createAprendeModel,
   selectAprendeFactors,
-  renderAprende
+  renderAprende,
+  MANZANA_ASSET
 } from './aprende.js';
+
+import {
+  createQuestionRound,
+  evaluateAnswer,
+  revealHint,
+  advanceRound,
+  MODALITIES,
+  getLevelA
+} from './question-engine.js';
 
 (function () {
   'use strict';
@@ -26,9 +36,10 @@ import {
   const VALID_VIEWS = ['inicio', 'aprende', 'juego', 'fin'];
   let currentView = 'inicio';
 
-  // Estado de la ronda actual (nivel, modelo de demostración Aprende, estrellas y preguntas)
+  // Estado de la ronda actual (nivel, demo Aprende, ronda de preguntas y resumen)
   let currentRound = null;
   let forcedAprendeFactors = null;
+  let forcedRoundOptions = null;
 
   /**
    * Inicia una nueva ronda para un nivel dado con factores derivados o seleccionados.
@@ -48,14 +59,33 @@ import {
     }
 
     const model = createAprendeModel(factors.a, factors.b);
+    const roundOptions = {
+      ...(forcedRoundOptions || {}),
+      ...options
+    };
+
+    const qRound = createQuestionRound(level, roundOptions);
+
     currentRound = {
       level,
       a: factors.a,
       b: factors.b,
       aprendeModel: model,
+      questionRound: qRound,
       demonstrationShown: false,
-      stars: 0 // Invariante: las estrellas se obtienen en preguntas evaluables, nunca en Aprende
+      demoShown: false,
+      stars: 0, // Invariante: las estrellas se obtienen en preguntas evaluables, nunca en Aprende
+      get questions() {
+        return this.questionRound ? this.questionRound.questions : [];
+      },
+      get currentIndex() {
+        return this.questionRound ? this.questionRound.currentIndex : 0;
+      },
+      get summary() {
+        return this.questionRound ? this.questionRound.summary : null;
+      }
     };
+
     return currentRound;
   }
 
@@ -91,15 +121,13 @@ import {
   }
 
   /**
-   * Actualiza el texto de instrucción si la vista lo requiere
+   * Actualiza el texto de instrucción si la vista lo requiere.
+   * En la vista Juego, el encabezado conserva la notación matemática exigida ('¿Cuánto es a × b?'
+   * y '¿Cuál multiplicación da N?') fijada por renderCurrentQuestion, por lo que no se sobrescribe
+   * con la locución fonética hablada en palabras (spokenPrompt).
    */
   function updateInstructionDisplay(viewId, text) {
-    if (viewId === 'juego') {
-      const heading = document.getElementById('heading-juego');
-      if (heading && text.startsWith('¿')) {
-        heading.textContent = text;
-      }
-    }
+    // Conservar encabezado con notación matemática en la vista Juego sin sobrescribirlo
   }
 
   /**
@@ -142,6 +170,9 @@ import {
     // Configurar estado inicial de la mascota según la vista
     if (viewId === 'fin') {
       guide.setState(GUIDE_STATES.CELEBRANDO);
+      if (currentRound && currentRound.questionRound && currentRound.questionRound.summary) {
+        renderFinView(currentRound.questionRound.summary);
+      }
       if (options.speak) {
         guide.playEffect('celebracion');
         guide.speakInstruction(GUIDE_SCRIPT.cierre, { returnState: GUIDE_STATES.CELEBRANDO });
@@ -157,26 +188,80 @@ import {
       }
 
       currentRound.demonstrationShown = true;
+      currentRound.demoShown = true;
       guide.setState(GUIDE_STATES.NORMAL);
 
       if (options.speak && currentRound.aprendeModel) {
         guide.speakInstruction(currentRound.aprendeModel.narrationText, { returnState: GUIDE_STATES.NORMAL });
       }
     } else if (viewId === 'juego') {
-      guide.setState(GUIDE_STATES.NORMAL);
-      resetJuegoState();
-      if (options.speak) {
-        guide.speakInstruction(GUIDE_SCRIPT.pregunta, { returnState: GUIDE_STATES.NORMAL });
+      if (!currentRound || !currentRound.questionRound) {
+        startNewRound(1);
       }
+      guide.setState(GUIDE_STATES.NORMAL);
+      renderCurrentQuestion(Boolean(options.speak));
     } else {
       guide.setState(GUIDE_STATES.NORMAL);
     }
   }
 
   /**
-   * Restablece el estado de opciones y feedback en la vista de juego
+   * Renderiza grupos visuales en el contenedor de grupos de Juego
    */
-  function resetJuegoState() {
+  function renderJuegoGroups(container, groups, ariaLabel) {
+    if (!container) return;
+    container.innerHTML = '';
+    container.setAttribute('aria-label', ariaLabel || 'Grupos de manzanas');
+
+    groups.forEach((group) => {
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'item-group';
+      groupDiv.setAttribute('aria-label', group.ariaLabel || `Grupo con ${group.itemCount} manzanas`);
+
+      for (let i = 0; i < group.itemCount; i++) {
+        const img = document.createElement('img');
+        img.src = group.asset || MANZANA_ASSET;
+        img.alt = 'Manzana roja';
+        img.className = 'object-img';
+        img.width = 48;
+        img.height = 48;
+        groupDiv.appendChild(img);
+      }
+
+      container.appendChild(groupDiv);
+    });
+  }
+
+  /**
+   * Renderiza la pregunta actual en la vista de juego
+   */
+  function renderCurrentQuestion(shouldSpeak = false) {
+    if (!currentRound || !currentRound.questionRound) return;
+    const qRound = currentRound.questionRound;
+    const currentQ = qRound.questions[qRound.currentIndex];
+    if (!currentQ) return;
+
+    // 1. Progreso: "Pregunta 1 de 4", etc.
+    const progressText = document.getElementById('game-progress-text');
+    if (progressText) {
+      progressText.textContent = `Pregunta ${currentQ.index + 1} de 4`;
+    }
+
+    // 2. Encabezado / Consigna
+    const heading = document.getElementById('heading-juego');
+    if (heading) {
+      heading.textContent = currentQ.prompt;
+    }
+
+    const instructionText = document.getElementById('juego-instruction-text');
+    if (instructionText) {
+      instructionText.textContent = currentQ.instruction;
+    }
+
+    // 3. Mascota
+    guide.setState(GUIDE_STATES.NORMAL);
+
+    // 4. Limpiar caja de feedback
     const feedbackBox = document.getElementById('juego-feedback-box');
     if (feedbackBox) {
       feedbackBox.hidden = true;
@@ -184,10 +269,218 @@ import {
       feedbackBox.className = 'feedback-box';
     }
 
-    const optionButtons = document.querySelectorAll('.btn-option');
-    optionButtons.forEach((btn) => {
-      btn.classList.remove('selected', 'option-correct', 'option-retry');
-    });
+    // 5. Grupos visuales
+    const groupsContainer = document.getElementById('juego-groups-container');
+    if (groupsContainer) {
+      if (currentQ.hasVisualGroups || currentQ.hintShown) {
+        renderJuegoGroups(groupsContainer, currentQ.groups, currentQ.groupsAriaLabel);
+        groupsContainer.hidden = false;
+      } else {
+        groupsContainer.innerHTML = '';
+        groupsContainer.hidden = true;
+      }
+    }
+
+    // 6. Botón de pista
+    const btnHint = document.getElementById('btn-juego-hint');
+    if (btnHint) {
+      if (currentQ.hintAvailable) {
+        btnHint.hidden = false;
+        btnHint.disabled = false;
+      } else {
+        btnHint.hidden = true;
+      }
+    }
+
+    // 7. Botón de continuar / siguiente
+    const btnContinue = document.getElementById('btn-juego-continue');
+    if (btnContinue) {
+      if (currentQ.isResolved) {
+        btnContinue.hidden = false;
+        btnContinue.textContent = (currentQ.index === 3) ? 'Ver fin de ronda' : 'Continuar';
+      } else {
+        btnContinue.hidden = true;
+      }
+    }
+
+    // 8. Opciones de respuesta dinámicas
+    const optionsGrid = document.getElementById('juego-options-grid');
+    if (optionsGrid) {
+      optionsGrid.innerHTML = '';
+
+      currentQ.alternatives.forEach((alt) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-option';
+        btn.type = 'button';
+
+        if (currentQ.modalidad === MODALITIES.PREGUNTA_5) {
+          btn.setAttribute('data-option', String(alt.product));
+          btn.setAttribute('data-operation', alt.label);
+          btn.setAttribute('aria-label', alt.ariaLabel || alt.label);
+
+          const span = document.createElement('span');
+          span.className = 'option-operation';
+          span.textContent = alt.label;
+          btn.appendChild(span);
+        } else {
+          btn.setAttribute('data-option', String(alt.value));
+          btn.setAttribute('aria-label', String(alt.value));
+
+          const span = document.createElement('span');
+          span.className = 'option-number';
+          span.textContent = alt.label;
+          btn.appendChild(span);
+        }
+
+        if (currentQ.isResolved) {
+          btn.disabled = true;
+          if (alt.isCorrect) {
+            btn.classList.add('option-correct');
+          }
+        }
+
+        btn.addEventListener('click', () => handleOptionSelect(alt, btn));
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    // 9. Locución si se solicita
+    if (shouldSpeak) {
+      guide.speakInstruction(currentQ.spokenPrompt, { returnState: GUIDE_STATES.NORMAL });
+    }
+  }
+
+  /**
+   * Maneja la interacción con una opción de respuesta
+   */
+  function handleOptionSelect(option, btn) {
+    if (!currentRound || !currentRound.questionRound) return;
+    const qRound = currentRound.questionRound;
+    const currentQ = qRound.questions[qRound.currentIndex];
+    if (!currentQ || currentQ.isResolved) return;
+
+    guide.notifyUserGesture();
+
+    const evalResult = evaluateAnswer(qRound, option);
+    const feedbackBox = document.getElementById('juego-feedback-box');
+    const optionsGrid = document.getElementById('juego-options-grid');
+    const btnContinue = document.getElementById('btn-juego-continue');
+
+    // Quitar selección previa de otros botones
+    if (optionsGrid) {
+      const allBtns = optionsGrid.querySelectorAll('.btn-option');
+      allBtns.forEach((b) => b.classList.remove('selected'));
+    }
+    btn.classList.add('selected');
+
+    if (evalResult.isCorrect) {
+      // Acierto
+      btn.classList.add('option-correct');
+
+      // Deshabilitar todas las opciones para evitar selecciones posteriores
+      if (optionsGrid) {
+        const allBtns = optionsGrid.querySelectorAll('.btn-option');
+        allBtns.forEach((b) => {
+          b.disabled = true;
+        });
+      }
+
+      guide.playEffect('acierto');
+      guide.setState(GUIDE_STATES.CELEBRANDO);
+      guide.speakInstruction(GUIDE_SCRIPT.acierto, { returnState: GUIDE_STATES.CELEBRANDO });
+
+      if (feedbackBox) {
+        feedbackBox.hidden = false;
+        feedbackBox.className = 'feedback-box feedback-success';
+        feedbackBox.textContent = '¡Muy bien! Respuesta correcta.';
+      }
+
+      if (btnContinue) {
+        btnContinue.hidden = false;
+        btnContinue.textContent = evalResult.isLastQuestion ? 'Ver fin de ronda' : 'Continuar';
+        btnContinue.focus();
+      }
+    } else {
+      // Reintento no punitivo
+      btn.classList.add('option-retry');
+
+      guide.playEffect('intento');
+      guide.setState(GUIDE_STATES.PENSANDO);
+      guide.speakInstruction(GUIDE_SCRIPT.reintento, { returnState: GUIDE_STATES.PENSANDO });
+
+      if (feedbackBox) {
+        feedbackBox.hidden = false;
+        feedbackBox.className = 'feedback-box feedback-retry';
+        feedbackBox.textContent = 'Cuenta otra vez. Mira cada grupo con calma.';
+      }
+    }
+  }
+
+  /**
+   * Maneja el clic en el botón de pista
+   */
+  function handleHintClick() {
+    if (!currentRound || !currentRound.questionRound) return;
+    guide.notifyUserGesture();
+
+    const hintInfo = revealHint(currentRound.questionRound);
+    if (!hintInfo) return;
+
+    guide.playEffect('clic');
+    guide.setState(GUIDE_STATES.PENSANDO);
+
+    const feedbackBox = document.getElementById('juego-feedback-box');
+    if (feedbackBox) {
+      feedbackBox.hidden = false;
+      feedbackBox.className = 'feedback-box feedback-hint';
+      feedbackBox.textContent = hintInfo.hintText;
+    }
+
+    const groupsContainer = document.getElementById('juego-groups-container');
+    if (groupsContainer) {
+      renderJuegoGroups(groupsContainer, hintInfo.groups, hintInfo.groupsAriaLabel);
+      groupsContainer.hidden = false;
+    }
+
+    guide.speakInstruction(hintInfo.hintText, { returnState: GUIDE_STATES.PENSANDO });
+  }
+
+  /**
+   * Maneja el clic en el botón Continuar / Ver fin de ronda
+   */
+  function handleContinueClick() {
+    if (!currentRound || !currentRound.questionRound) return;
+    guide.notifyUserGesture();
+    guide.playEffect('clic');
+
+    const adv = advanceRound(currentRound.questionRound);
+    if (adv.isFinished) {
+      renderFinView(adv.summary);
+      navigateTo('fin', { speak: true });
+    } else {
+      renderCurrentQuestion(true);
+    }
+  }
+
+  /**
+   * Renderiza el resumen accesible en la vista Fin de ronda (0..4 aciertos)
+   */
+  function renderFinView(summary) {
+    const scoreText = document.getElementById('fin-score-text');
+    if (scoreText && summary) {
+      scoreText.textContent = `Aciertos al primer intento: ${summary.firstAttemptSuccesses} de 4`;
+    }
+
+    const message = document.getElementById('fin-summary-message');
+    if (message && summary) {
+      if (summary.firstAttemptSuccesses === 4) {
+        message.textContent = '¡Excelente trabajo! Acertaste todas al primer intento.';
+      } else if (summary.firstAttemptSuccesses >= 3) {
+        message.textContent = '¡Muy bien hecho! Sigue practicando.';
+      } else {
+        message.textContent = '¡Buen esfuerzo! Puedes repetir la ronda para mejorar.';
+      }
+    }
   }
 
   /**
@@ -214,60 +507,6 @@ import {
     const iconSpan = btn.querySelector('.sound-icon');
     if (iconSpan) {
       iconSpan.textContent = isEnabled ? '🔊' : '🔇';
-    }
-  }
-
-  /**
-   * Maneja la interacción con las opciones de respuesta del juego
-   */
-  function handleOptionClick(btn) {
-    guide.notifyUserGesture();
-    const optionVal = btn.getAttribute('data-option');
-    const feedbackBox = document.getElementById('juego-feedback-box');
-    const optionButtons = document.querySelectorAll('.btn-option');
-
-    optionButtons.forEach((b) => b.classList.remove('selected'));
-    btn.classList.add('selected');
-
-    if (optionVal === '6') {
-      // Acierto (3 grupos de 2 = 6)
-      guide.playEffect('acierto');
-      guide.setState(GUIDE_STATES.CELEBRANDO);
-      guide.speakInstruction(GUIDE_SCRIPT.acierto, { returnState: GUIDE_STATES.CELEBRANDO });
-
-      if (feedbackBox) {
-        feedbackBox.hidden = false;
-        feedbackBox.className = 'feedback-box feedback-success';
-        feedbackBox.textContent = '¡Muy bien! Tres grupos de dos manzanas son seis.';
-      }
-    } else {
-      // Reintento no punitivo (conserva la actividad, invita a reintentar)
-      guide.playEffect('intento');
-      guide.setState(GUIDE_STATES.PENSANDO);
-      guide.speakInstruction(GUIDE_SCRIPT.reintento, { returnState: GUIDE_STATES.PENSANDO });
-
-      if (feedbackBox) {
-        feedbackBox.hidden = false;
-        feedbackBox.className = 'feedback-box feedback-retry';
-        feedbackBox.textContent = 'Cuenta otra vez. Mira cada grupo con calma.';
-      }
-    }
-  }
-
-  /**
-   * Maneja el clic en el botón de pista
-   */
-  function handleHintClick() {
-    guide.notifyUserGesture();
-    guide.playEffect('clic');
-    guide.setState(GUIDE_STATES.PENSANDO);
-    guide.speakInstruction(GUIDE_SCRIPT.pista, { returnState: GUIDE_STATES.PENSANDO });
-
-    const feedbackBox = document.getElementById('juego-feedback-box');
-    if (feedbackBox) {
-      feedbackBox.hidden = false;
-      feedbackBox.className = 'feedback-box feedback-hint';
-      feedbackBox.textContent = '💡 Pista: Cada grupo tiene 2 manzanas. Cuenta: 2, 4, 6.';
     }
   }
 
@@ -328,13 +567,9 @@ import {
     }
 
     // 3. Navegación desde Juego
-    const btnJuegoNext = document.getElementById('btn-juego-next');
-    if (btnJuegoNext) {
-      btnJuegoNext.addEventListener('click', () => {
-        guide.notifyUserGesture();
-        guide.playEffect('clic');
-        navigateTo('fin', { speak: true });
-      });
+    const btnJuegoContinue = document.getElementById('btn-juego-continue');
+    if (btnJuegoContinue) {
+      btnJuegoContinue.addEventListener('click', handleContinueClick);
     }
 
     const btnJuegoBack = document.getElementById('btn-juego-back');
@@ -359,12 +594,6 @@ import {
     if (btnJuegoHint) {
       btnJuegoHint.addEventListener('click', handleHintClick);
     }
-
-    // Opciones del juego
-    const optionButtons = document.querySelectorAll('.btn-option');
-    optionButtons.forEach((btn) => {
-      btn.addEventListener('click', () => handleOptionClick(btn));
-    });
 
     // 4. Navegación desde Fin de ronda
     const btnFinRepeat = document.getElementById('btn-fin-repeat');
@@ -434,6 +663,16 @@ import {
       startNewRound,
       getCurrentRound: () => currentRound,
       getAprendeModel: () => (currentRound ? currentRound.aprendeModel : null),
+      getQuestionRound: () => (currentRound ? currentRound.questionRound : null),
+      getCurrentQuestion: () => (currentRound && currentRound.questionRound ? currentRound.questionRound.questions[currentRound.questionRound.currentIndex] : null),
+      renderCurrentQuestion,
+      renderFinView,
+      setForcedRoundOptions: (opts) => {
+        forcedRoundOptions = opts;
+      },
+      clearForcedRoundOptions: () => {
+        forcedRoundOptions = null;
+      },
       setAprendeFactors: (a, b) => {
         forcedAprendeFactors = { a, b };
         if (currentRound) {
