@@ -110,6 +110,24 @@ Registrar navegador y sistema operativo reales probados, sin asumir que fueron v
   - *Cierre de ronda:* Entrega a la vista Fin el resumen inmutable de 0–4 aciertos de primer intento, sin avance automático de nivel y habiendo retirado el texto/markup estático de recompensas previo al Change #6.
 - **Nota metodológica:** Esta validación corresponde a pruebas técnicas y heurísticas automatizadas/asistidas en entorno local; no constituye validación presencial con niños de seis años.
 
+### Registro de validación técnica — MVP-05 (Progresión de niveles 1 a 4, desbloqueo y persistencia local)
+- **Fecha / Entorno:** Linux x86_64, Chromium/Google Chrome (Puppeteer-core) y servidor estático local Node.js v22.
+- **Formatos y viewports verificados:**
+  1. *Celular:* 375×667 px (vertical) y 667×375 px (horizontal) — Selección de niveles 1 a 4 con tarjetas táctiles accesibles (altura mínima >= 44px), visualización clara de estados abierto/bloqueado, badge textual «Disponible» / «🔒 Bloqueado» y cero desbordamiento horizontal (`scrollWidth <= clientWidth`).
+  2. *Tablet:* 768×1024 px — Cuadrícula responsive de 2 columnas de niveles, aviso de almacenamiento no intrusivo y botones de Fin de ronda («Siguiente nivel», «Repetir ronda», «Volver a niveles») adaptados sin solapamiento.
+  3. *Computador:* 1280×800 px — Navegación completa mediante mouse y teclado (focus-visible, tabulación natural en niveles disponibles, niveles bloqueados con `disabled` y `aria-disabled="true"`).
+- **Escenarios comprobados:**
+  - *Estado inicial:* Nivel 1 desbloqueado y disponible; niveles 2, 3 y 4 bloqueados sin lógica ni progreso ficticio. El desbloqueo es estrictamente secuencial y prefijo.
+  - *Umbral de desbloqueo (3/4 y 4/4):* Ronda en Nivel 1 con 3/4 o 4/4 aciertos al primer intento desbloquea el Nivel 2, muestra en Fin el mensaje de felicitación, el aviso «🌟 ¡Desbloqueaste el Nivel 2!» y el botón de acción para jugar el Nivel 2.
+  - *Umbral insuficiente con respuestas corregidas:* Ronda con 2 aciertos iniciales y 2 corregidos tras reintento resulta en 2/4 de primer intento; el Nivel 2 permanece bloqueado y se ofrece repetir la ronda sin penalización adicional.
+  - *Conservación ante fallos:* Jugar un nivel ya abierto y fallar no bloquea ni revierte niveles previamente desbloqueados.
+  - *Cierre de Nivel 4 (invariante de MVP):* Completar el Nivel 4 (tabla del 5) con 4/4 aciertos permite repetir o volver a niveles anteriores y nunca muestra ni ofrece un inexistente Nivel 5.
+  - *Persistencia en localStorage:* Escritura y recarga en el mismo navegador conservan el nivel máximo alcanzado y la preferencia de sonido (`multiplo_progression_v1` y `multiplo_sound_enabled`).
+  - *Aislamiento entre navegadores/contextos:* El progreso desbloqueado en un contexto de navegador no se fuga ni afecta a una sesión independiente o incógnita.
+  - *Tolerancia y degradación elegante:* Ante `SecurityError`, almacenamiento bloqueado, cuota excedida o JSON corrupto en `localStorage`, la aplicación absorbe el error, inicia de forma segura en memoria en Nivel 1, muestra un aviso breve para adulto y permite jugar la ronda completa sin llamadas de red.
+  - *Sonido persistido y voz:* El conmutador silencia efectos y locución, se almacena de forma defensiva y no impide el avance pedagógico de la ronda.
+- **Nota metodológica:** Esta validación corresponde a pruebas técnicas deterministas y heurísticas automatizadas en entorno local; no constituye despliegue en producción ni validación presencial con niños de seis años.
+
 ## 5. Sesión observacional con el niño
 Duración de una ronda: objetivo aproximado 3–5 minutos, sin cronómetro obligatorio.
 

@@ -53,6 +53,7 @@
           </div>
           <h1 id="heading-inicio" class="view-title">¡Hola! Soy Múltiplo</h1>
           <p class="instruction-text">¡Vamos a aprender jugando!</p>
+          <div id="storage-status-banner" class="storage-banner" role="status" aria-live="polite" hidden></div>
 
           <div class="actions-group">
             <button id="btn-start-game" class="btn btn-primary btn-large" type="button">
@@ -189,13 +190,17 @@
           <!-- Resumen accesible de 0 a 4 aciertos al primer intento (sin markup de recompensa hasta Change #6) -->
           <div class="summary-box" id="fin-summary-box" role="region" aria-label="Resumen de aciertos de la ronda">
             <p class="summary-score-text" id="fin-score-text">Aciertos al primer intento: 0 de 4</p>
+            <p class="summary-unlock-text" id="fin-unlock-text" hidden></p>
           </div>
 
           <div class="actions-group">
+            <button id="btn-fin-next" class="btn btn-primary btn-large" type="button" hidden>
+              Siguiente nivel
+            </button>
             <button id="btn-fin-repeat" class="btn btn-secondary btn-large" type="button">
               Repetir ronda
             </button>
-            <button id="btn-fin-home" class="btn btn-primary btn-large" type="button">
+            <button id="btn-fin-home" class="btn btn-secondary" type="button">
               Volver a niveles
             </button>
           </div>
