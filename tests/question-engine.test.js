@@ -116,6 +116,78 @@ test('1.3 Selección reproducible de operaciones y variación de parejas', () =>
   const deterministicB = [1, 3, 2, 5];
   const roundDet = createQuestionRound(2, { bValues: deterministicB });
   assert.deepEqual(roundDet.questions.map((q) => q.b), deterministicB);
+
+  // Tolerancia estricta a localStorage ausente, corrupto o restringido (revisión OpenSpec)
+  // Caso 1: entrada con '[null]'
+  const mockStorageCorrupt1 = {
+    getItem: () => '[null]',
+    setItem: () => {}
+  };
+  const historyCorrupt1 = readFailedHistory(mockStorageCorrupt1);
+  assert.deepEqual(historyCorrupt1, [], 'Historial con [null] debe sanearse y retornar array vacío');
+  const bValuesCorrupt1 = selectRoundBValues(1, { storage: mockStorageCorrupt1 });
+  assert.equal(bValuesCorrupt1.length, 4);
+  assert.equal(new Set(bValuesCorrupt1).size, 4);
+  const roundCorrupt1 = createQuestionRound(1, { storage: mockStorageCorrupt1 });
+  assert.equal(roundCorrupt1.questions.length, 4);
+
+  // Caso 2: entrada con '[{"a":2},null]'
+  const mockStorageCorrupt2 = {
+    getItem: () => '[{"a":2},null]',
+    setItem: () => {}
+  };
+  const historyCorrupt2 = readFailedHistory(mockStorageCorrupt2);
+  assert.deepEqual(historyCorrupt2, [], 'Historial con [{"a":2},null] debe sanearse y retornar array vacío');
+  const bValuesCorrupt2 = selectRoundBValues(1, { storage: mockStorageCorrupt2 });
+  assert.equal(bValuesCorrupt2.length, 4);
+  assert.equal(new Set(bValuesCorrupt2).size, 4);
+  const roundCorrupt2 = createQuestionRound(1, { storage: mockStorageCorrupt2 });
+  assert.equal(roundCorrupt2.questions.length, 4);
+
+  // Caso 3: inyección directa de failedHistory corrupto con nulls y objetos incompletos
+  assert.doesNotThrow(() => {
+    const bVals = selectRoundBValues(1, { failedHistory: [null, { a: 2 }, undefined, 123, 'corrupted'] });
+    assert.equal(bVals.length, 4);
+    assert.equal(new Set(bVals).size, 4);
+  });
+
+  // Caso 4: elementos mixtos válidos e inválidos (ej. [{"a":2,"b":3},null])
+  const mockStorageMixed = {
+    getItem: () => '[{"a":2,"b":3},null]',
+    setItem: () => {}
+  };
+  const historyMixed = readFailedHistory(mockStorageMixed);
+  assert.equal(historyMixed.length, 1);
+  assert.equal(historyMixed[0].a, 2);
+  assert.equal(historyMixed[0].b, 3);
+  const roundMixed = createQuestionRound(1, { storage: mockStorageMixed });
+  assert.equal(roundMixed.questions.length, 4);
+
+  // Caso 5: emulación global de localStorage para verificar invocación sin storage explícito
+  const prevGlobalStorage = globalThis.localStorage;
+  try {
+    globalThis.localStorage = {
+      getItem: () => '[null]',
+      setItem: () => {}
+    };
+    assert.deepEqual(readFailedHistory(), []);
+    const rNull = createQuestionRound(1);
+    assert.equal(rNull.questions.length, 4);
+
+    globalThis.localStorage = {
+      getItem: () => '[{"a":2},null]',
+      setItem: () => {}
+    };
+    assert.deepEqual(readFailedHistory(), []);
+    const rMissingB = createQuestionRound(1);
+    assert.equal(rMissingB.questions.length, 4);
+  } finally {
+    if (prevGlobalStorage === undefined) {
+      delete globalThis.localStorage;
+    } else {
+      globalThis.localStorage = prevGlobalStorage;
+    }
+  }
 });
 
 test('1.4 Alternativas con cardinalidad y unicidad garantizadas', () => {

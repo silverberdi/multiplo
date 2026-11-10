@@ -44,7 +44,20 @@ export const MODALITIES = Object.freeze({
   PREGUNTA_5: 5  // selección de operación
 });
 
-const FAILED_OPS_STORAGE_KEY = 'multiplo_failed_operations';
+export const FAILED_OPS_STORAGE_KEY = 'multiplo_failed_operations';
+
+/**
+ * Valida si una entrada de historial de operación fallada es válida.
+ * Descarta elementos que no sean objetos con 'a' y 'b' válidos.
+ */
+function isValidFailedEntry(op) {
+  return Boolean(
+    op &&
+    typeof op === 'object' &&
+    Number.isInteger(op.a) &&
+    VALID_B_VALUES.includes(op.b)
+  );
+}
 
 /**
  * Obtiene el primer factor 'a' correspondiente al número de nivel (1..4).
@@ -73,16 +86,18 @@ export function getAllValidPairs() {
 
 /**
  * Lee de forma segura el historial local de operaciones falladas.
+ * Tolera almacenamiento ausente, corrupto o restringido.
  */
-export function readFailedHistory() {
-  if (typeof localStorage === 'undefined') {
+export function readFailedHistory(storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+  if (!storage) {
     return [];
   }
   try {
-    const raw = localStorage.getItem(FAILED_OPS_STORAGE_KEY);
+    const raw = storage.getItem(FAILED_OPS_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(isValidFailedEntry);
   } catch (_e) {
     return [];
   }
@@ -91,14 +106,14 @@ export function readFailedHistory() {
 /**
  * Registra una operación fallada en el historial local (tolerante a fallos).
  */
-export function recordFailedOperation(a, b) {
-  if (typeof localStorage === 'undefined') return;
+export function recordFailedOperation(a, b, storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+  if (!storage) return;
   try {
-    const current = readFailedHistory();
+    const current = readFailedHistory(storage);
     const exists = current.some((op) => op.a === a && op.b === b);
     if (!exists) {
       const updated = [...current, { a, b, failedAt: Date.now() }];
-      localStorage.setItem(FAILED_OPS_STORAGE_KEY, JSON.stringify(updated.slice(-20)));
+      storage.setItem(FAILED_OPS_STORAGE_KEY, JSON.stringify(updated.slice(-20)));
     }
   } catch (_e) {
     // Tolerancia a fallos de almacenamiento
@@ -108,12 +123,12 @@ export function recordFailedOperation(a, b) {
 /**
  * Limpia el registro de una operación una vez que se acierta al primer intento.
  */
-export function clearFailedOperation(a, b) {
-  if (typeof localStorage === 'undefined') return;
+export function clearFailedOperation(a, b, storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+  if (!storage) return;
   try {
-    const current = readFailedHistory();
+    const current = readFailedHistory(storage);
     const updated = current.filter((op) => !(op.a === a && op.b === b));
-    localStorage.setItem(FAILED_OPS_STORAGE_KEY, JSON.stringify(updated));
+    storage.setItem(FAILED_OPS_STORAGE_KEY, JSON.stringify(updated));
   } catch (_e) {
     // Tolerancia a fallos de almacenamiento
   }
@@ -140,13 +155,16 @@ export function selectRoundBValues(level, options = {}) {
   const randomFn = typeof options.randomFn === 'function' ? options.randomFn : Math.random;
 
   // Determinar candidatos fallados para este factor 'a'
-  const failedOps = Array.isArray(options.failedHistory)
+  const storage = options.storage || (typeof localStorage !== 'undefined' ? localStorage : null);
+  const rawFailed = Array.isArray(options.failedHistory)
     ? options.failedHistory
-    : readFailedHistory();
+    : readFailedHistory(storage);
+
+  const failedOps = rawFailed.filter(isValidFailedEntry);
 
   const failedBSet = new Set(
     failedOps
-      .filter((op) => op.a === a && VALID_B_VALUES.includes(op.b))
+      .filter((op) => op.a === a)
       .map((op) => op.b)
   );
 

@@ -364,4 +364,56 @@ test('E2E Question Round Engine: Modalidades, pistas, primer intento inmutable, 
 
     await page.close();
   });
+
+  await t.test('5. Tolerancia a localStorage corrupto: inicio de juego y creación de ronda con "[null]" y "[{\\"a\\":2},null]"', async () => {
+    const page = await browser.newPage();
+
+    // Probar con '[null]'
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+      localStorage.setItem('multiplo_failed_operations', '[null]');
+    });
+
+    // Iniciar juego desde inicio: no debe lanzar TypeError y debe crear la ronda
+    await page.click('#btn-start-game');
+    await page.waitForSelector('#view-aprende.view-active');
+
+    // Continuar a la vista Juego
+    await page.click('#btn-aprende-continue');
+    await page.waitForSelector('#view-juego.view-active');
+
+    // Verificar que la ronda y preguntas se crearon correctamente
+    assert.equal(await page.$eval('#game-progress-text', (el) => el.textContent.trim()), 'Pregunta 1 de 4');
+    const qCount1 = await page.evaluate(() => window.__multiploApp.getCurrentRound().questions.length);
+    assert.equal(qCount1, 4, 'La ronda debe tener 4 preguntas a pesar de "[null]" en localStorage');
+
+    // Volver a inicio
+    await page.click('#btn-juego-back');
+    await page.waitForSelector('#view-inicio.view-active');
+
+    // Probar con '[{"a":2},null]'
+    await page.evaluate(() => {
+      localStorage.setItem('multiplo_failed_operations', '[{"a":2},null]');
+    });
+
+    // Iniciar juego nuevamente
+    await page.click('#btn-start-game');
+    await page.waitForSelector('#view-aprende.view-active');
+
+    // Continuar a Juego
+    await page.click('#btn-aprende-continue');
+    await page.waitForSelector('#view-juego.view-active');
+
+    // Verificar que la ronda y preguntas se crearon correctamente
+    assert.equal(await page.$eval('#game-progress-text', (el) => el.textContent.trim()), 'Pregunta 1 de 4');
+    const qCount2 = await page.evaluate(() => window.__multiploApp.getCurrentRound().questions.length);
+    assert.equal(qCount2, 4, 'La ronda debe tener 4 preguntas a pesar de "[{\\"a\\":2},null]" en localStorage');
+
+    // Limpiar localStorage
+    await page.evaluate(() => {
+      localStorage.removeItem('multiplo_failed_operations');
+    });
+
+    await page.close();
+  });
 });
