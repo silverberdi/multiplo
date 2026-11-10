@@ -7,7 +7,7 @@ Define el motor de preguntas que convierte una ronda del MVP en cuatro actividad
 
 ### Requirement: La ronda presenta cuatro preguntas evaluables en el orden del MVP
 
-El motor SHALL presentar, después de la única demostración Aprende, exactamente cuatro preguntas evaluables y SHALL respetar la numeración y modalidad obligatorias: la pregunta 2 cuenta grupos visuales y elige el total; la pregunta 3 cuenta grupos visuales y elige el total; la pregunta 4 resuelve `a×b` sin objetos visibles por defecto y ofrece una pista; la pregunta 5 elige cuál de tres multiplicaciones produce el total indicado. Completar una pregunta SHALL cerrar únicamente esa pregunta y no cambiar automáticamente de nivel.
+El motor SHALL presentar, después de la única demostración Aprende, exactamente cuatro preguntas evaluables y SHALL respetar la numeración y modalidad obligatorias: la pregunta 2 cuenta grupos visuales y elige el total; la pregunta 3 cuenta grupos visuales y elige el total; la pregunta 4 resuelve `a×b` sin objetos visibles por defecto y ofrece una pista; la pregunta 5 elige cuál de tres multiplicaciones produce el total indicado. Completar una pregunta SHALL cerrar únicamente esa pregunta y no cambiar automáticamente de nivel. Al cerrar la cuarta pregunta, el motor SHALL entregar el resumen inmutable de aciertos del primer intento para que la progresión determine si corresponde desbloquear el siguiente nivel; esa decisión SHALL ocurrir después del cierre de ronda y no durante una respuesta individual.
 
 #### Scenario: Ejecuta las preguntas evaluables de una ronda
 - **GIVEN** una ronda tiene una demostración no evaluable y cuatro preguntas evaluables
@@ -23,6 +23,11 @@ El motor SHALL presentar, después de la única demostración Aprende, exactamen
 - **GIVEN** el niño termina una pregunta o alcanza el final de la ronda
 - **WHEN** el motor procesa la respuesta correcta y la navegación siguiente
 - **THEN** permanece en la pregunta siguiente o en el cierre de ronda y nunca pasa automáticamente al nivel posterior sin cerrar la ronda
+
+#### Scenario: Entrega el resultado inicial al cerrar
+- **GIVEN** se completa la cuarta pregunta de una ronda
+- **WHEN** el motor cierra la ronda
+- **THEN** entrega una sola vez el resumen de 0 a 4 aciertos del primer intento y la progresión puede usarlo para evaluar el umbral de desbloqueo
 
 ### Requirement: Genera factores y alternativas válidas
 
