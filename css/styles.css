@@ -52,6 +52,11 @@
   box-sizing: border-box;
 }
 
+/* Garantizar que el atributo hidden tenga precedencia absoluta sobre reglas de componentes como .btn o .juego-groups-container */
+[hidden] {
+  display: none !important;
+}
+
 html, body {
   margin: 0;
   padding: 0;

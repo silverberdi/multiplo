@@ -107,8 +107,12 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     const questionText1 = await page.$eval('#heading-juego', (el) => el.textContent.trim());
     assert.equal(questionText1, '¿Cuántas manzanas hay en total?');
 
-    // Grupos visibles en la modalidad visual
-    const groupsVisible1 = await page.$eval('#juego-groups-container', (el) => !el.hidden);
+    // Grupos visibles en la modalidad visual (comprobación computada real)
+    const groupsVisible1 = await page.$eval('#juego-groups-container', (el) => {
+      const s = window.getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0 && !el.hasAttribute('hidden');
+    });
     assert.ok(groupsVisible1, 'Los grupos deben ser visibles en la modalidad visual');
 
     // Probar opción incorrecta -> Retroalimentación empática sin bloqueo
@@ -169,8 +173,12 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     const q3Progress = await page.$eval('#game-progress-text', (el) => el.textContent.trim());
     assert.equal(q3Progress, 'Pregunta 3 de 4');
 
-    // Grupos ocultos por defecto
-    const groupsHidden3 = await page.$eval('#juego-groups-container', (el) => el.hidden);
+    // Grupos ocultos por defecto (comprobación computada real)
+    const groupsHidden3 = await page.$eval('#juego-groups-container', (el) => {
+      const s = window.getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return (s.display === 'none' || s.visibility === 'hidden' || r.width === 0 || r.height === 0 || el.hasAttribute('hidden'));
+    });
     assert.ok(groupsHidden3, 'En modalidad 4 los grupos deben estar ocultos por defecto');
 
     // Probar botón de pista (💡 Pista)
@@ -178,7 +186,11 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     const feedbackHintText = await page.$eval('#juego-feedback-box', (el) => el.textContent.trim());
     assert.ok(feedbackHintText.includes('Pista'), 'Debe mostrar mensaje de pista comprensible');
 
-    const groupsRevealed3 = await page.$eval('#juego-groups-container', (el) => !el.hidden);
+    const groupsRevealed3 = await page.$eval('#juego-groups-container', (el) => {
+      const s = window.getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0 && !el.hasAttribute('hidden');
+    });
     assert.ok(groupsRevealed3, 'Al pulsar Pista los grupos de manzanas deben mostrarse');
 
     const correctIdx3 = await page.evaluate(() => {

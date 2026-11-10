@@ -121,15 +121,13 @@ import {
   }
 
   /**
-   * Actualiza el texto de instrucción si la vista lo requiere
+   * Actualiza el texto de instrucción si la vista lo requiere.
+   * En la vista Juego, el encabezado conserva la notación matemática exigida ('¿Cuánto es a × b?'
+   * y '¿Cuál multiplicación da N?') fijada por renderCurrentQuestion, por lo que no se sobrescribe
+   * con la locución fonética hablada en palabras (spokenPrompt).
    */
   function updateInstructionDisplay(viewId, text) {
-    if (viewId === 'juego') {
-      const heading = document.getElementById('heading-juego');
-      if (heading && text && text.startsWith('¿')) {
-        heading.textContent = text;
-      }
-    }
+    // Conservar encabezado con notación matemática en la vista Juego sin sobrescribirlo
   }
 
   /**
