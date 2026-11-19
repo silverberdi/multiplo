@@ -59,6 +59,7 @@ import {
   let currentRound = null;
   let forcedAprendeFactors = null;
   let forcedRoundOptions = null;
+  let startingFromHome = false;
 
   /**
    * Inicia una nueva ronda para un nivel dado con factores derivados o seleccionados.
@@ -113,6 +114,26 @@ import {
     return currentRound;
   }
 
+  function hasPreviousProgress() {
+    if (progressionState.highestUnlockedLevel > MIN_LEVEL) return true;
+    return Object.values(progressionState.tables || {}).some((table) =>
+      table.recentRounds?.length || table.coveredFactors?.length || table.failedOperations?.length
+    );
+  }
+
+  function prepareWelcomeCopy(isReturning) {
+    const heading = document.getElementById('heading-inicio');
+    const subtitle = document.querySelector('#view-inicio .instruction-text');
+    if (isReturning) {
+      if (heading) heading.textContent = '¡Qué bueno verte de nuevo!';
+      if (subtitle) subtitle.textContent = '¿Jugamos otra ronda?';
+      return { text: '¡Qué bueno verte de nuevo! ¿Jugamos otra ronda?', event: 'bienvenidaRegreso' };
+    }
+    if (heading) heading.textContent = '¡Hola! Soy Múltiplo';
+    if (subtitle) subtitle.textContent = '¡Qué alegría jugar contigo!';
+    return { text: '¡Hola! Soy Múltiplo. ¡Qué alegría jugar contigo!', event: 'bienvenida' };
+  }
+
   // Inicializar el coordinador de la guía
   const guide = new StarGuideCoordinator({
     onStateChange: (state, info) => {
@@ -122,14 +143,6 @@ import {
       updateInstructionDisplay(currentView, text);
     }
   });
-
-  // Fola solo se consume desde la carpeta estática preparada; no se descarga en runtime.
-  // Si la carpeta no está publicada, la guía conserva texto e imágenes sin fingir audio.
-  if (typeof fetch === 'function') {
-    fetch('assets/audio/fola/manifest.json', { method: 'HEAD', cache: 'no-store' })
-      .then((response) => guide.setFolaAvailable(response.ok))
-      .catch(() => guide.setFolaAvailable(false));
-  }
 
   /**
    * Actualiza los elementos visuales de la mascota (imagen, texto alternativo y etiqueta accesible)
@@ -198,6 +211,11 @@ import {
     });
 
     currentView = viewId;
+    if (viewId === 'inicio') {
+      startingFromHome = false;
+      const startButton = document.getElementById('btn-start-game');
+      if (startButton) startButton.disabled = false;
+    }
 
     // Configurar estado inicial de la mascota según la vista
     if (viewId === 'fin') {
@@ -756,10 +774,17 @@ import {
     const btnStart = document.getElementById('btn-start-game');
     if (btnStart) {
       btnStart.addEventListener('click', () => {
+        if (startingFromHome) return;
+        startingFromHome = true;
+        btnStart.disabled = true;
         guide.notifyUserGesture();
-        guide.playEffect('clic');
-        startNewRound(progressionState.highestUnlockedLevel);
-        navigateTo('aprende', { speak: true });
+        const welcome = prepareWelcomeCopy(hasPreviousProgress());
+        const beginRound = () => {
+          startNewRound(progressionState.highestUnlockedLevel);
+          navigateTo('aprende', { speak: true });
+        };
+        const audio = guide.speakInstruction(welcome.text, { event: welcome.event, onComplete: beginRound });
+        if (!audio) beginRound();
       });
     }
 

@@ -4,6 +4,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import puppeteer from 'puppeteer-core';
+import { chromeExecutablePath } from './chrome-executable.js';
 
 const root = process.cwd();
 function server() {
@@ -20,7 +21,7 @@ function server() {
 test('v1.2 E2E Chromium: tablas 1..10, Aprende 10×10, ronda mixta y responsive', async (t) => {
   const httpServer = server();
   await new Promise((resolve) => httpServer.listen(0, '127.0.0.1', resolve));
-  const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox', '--disable-gpu'] });
+  const browser = await puppeteer.launch({ executablePath: chromeExecutablePath(), args: ['--no-sandbox', '--disable-gpu'] });
   t.after(async () => { await browser.close(); await new Promise((resolve) => httpServer.close(resolve)); });
   const page = await browser.newPage();
   await page.setViewport({ width: 360, height: 667, isMobile: true });

@@ -14,8 +14,10 @@ const EVENT_CLIPS = Object.freeze({
   pistaTablasAltas: 'evento_pista_tablas_altas', ayudaReintentar: 'evento_ayuda_reintentar', ayudaOtroIntento: 'evento_ayuda_otro_intento',
   ayudaSinPrisa: 'evento_ayuda_sin_prisa', acierto: 'evento_acierto_01', acierto2: 'evento_acierto_02', acierto3: 'evento_acierto_03', acierto4: 'evento_acierto_04', acierto5: 'evento_acierto_05', acierto6: 'evento_acierto_06', premioEstrella: 'evento_premio_estrella', siguienteEjercicio: 'evento_siguiente_ejercicio',
   finRonda: 'evento_fin_ronda', nivelNuevo: 'evento_nivel_nuevo', refuerzoRonda: 'evento_refuerzo_ronda', repetirNivel: 'evento_repetir_nivel',
-  despedida: 'evento_despedida', terminarTablaDiez: 'evento_terminar_tabla_diez'
+  terminarTablaDiez: 'evento_terminar_tabla_diez', despedida: 'evento_despedida'
 });
+
+const INVERSE_PRODUCTS = [1,2,3,4,5,6,7,8,9,10,12,14,15,16,18,20,21,24,25,27,28,30,32,35,36,40,42,45,48,49,50,54,56,60,63,64,70,72,80,81,90,100];
 
 export const FOLA_APPLICATION_IDS = Object.freeze([
   ...Object.values(EVENT_CLIPS),
@@ -23,7 +25,8 @@ export const FOLA_APPLICATION_IDS = Object.freeze([
   ...['pregunta', 'explicacion', 'operacion'].flatMap((kind) =>
     Array.from({ length: 10 }, (_, a) => Array.from({ length: 10 }, (_, b) => `${kind}_${String(a + 1).padStart(2, '0')}x${String(b + 1).padStart(2, '0')}`)).flat()
   ),
-  ...Array.from({ length: 25 }, (_, index) => `numero_${String(index + 1).padStart(3, '0')}`)
+  ...INVERSE_PRODUCTS.map((product) => `inversa_${String(product).padStart(3, '0')}`),
+  ...Array.from({ length: 100 }, (_, index) => `numero_${String(index + 1).padStart(3, '0')}`)
 ]);
 
 const NUMBERS = ['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno','treinta y dos','treinta y tres','treinta y cuatro','treinta y cinco','treinta y seis','treinta y siete','treinta y ocho','treinta y nueve','cuarenta','cuarenta y uno','cuarenta y dos','cuarenta y tres','cuarenta y cuatro','cuarenta y cinco','cuarenta y seis','cuarenta y siete','cuarenta y ocho','cuarenta y nueve','cincuenta','cincuenta y uno','cincuenta y dos','cincuenta y tres','cincuenta y cuatro','cincuenta y cinco','cincuenta y seis','cincuenta y siete','cincuenta y ocho','cincuenta y nueve','sesenta','sesenta y uno','sesenta y dos','sesenta y tres','sesenta y cuatro','sesenta y cinco','sesenta y seis','sesenta y siete','sesenta y ocho','sesenta y nueve','setenta','setenta y uno','setenta y dos','setenta y tres','setenta y cuatro','setenta y cinco','setenta y seis','setenta y siete','setenta y ocho','setenta y nueve','ochenta','ochenta y uno','ochenta y dos','ochenta y tres','ochenta y cuatro','ochenta y cinco','ochenta y seis','ochenta y siete','ochenta y ocho','ochenta y nueve','noventa','noventa y uno','noventa y dos','noventa y tres','noventa y cuatro','noventa y cinco','noventa y seis','noventa y siete','noventa y ocho','noventa y nueve','cien'];
@@ -45,8 +48,7 @@ export function clipFile(id) {
   }
   m = /^inversa_(\d+)$/.exec(id);
   if (m) {
-    const products = [1,2,3,4,5,6,7,8,9,10,12,14,15,16,18,20,21,24,25,27,28,30,32,35,36,40,42,45,48,49,50,54,56,60,63,64,70,72,80,81,90,100];
-    const inverseIndex = products.indexOf(Number(m[1]));
+    const inverseIndex = INVERSE_PRODUCTS.indexOf(Number(m[1]));
     if (inverseIndex >= 0) index = 348 + inverseIndex;
   }
   m = /^numero_(\d+)$/.exec(id);
@@ -77,6 +79,7 @@ export function selectFolaClip(event, context = {}, options = {}) {
     if (!Number.isInteger(a) || !Number.isInteger(b) || a < 1 || b < 1 || a > 10 || b > 10) return null;
   }
   if (['inversa', 'preguntaInversa'].includes(event) && (!Number.isInteger(producto) || producto < 1 || producto > 100)) return null;
+  if (event === 'numero' && (!Number.isInteger(context.numero ?? producto) || (context.numero ?? producto) < 1 || (context.numero ?? producto) > 100)) return null;
   const file = clipFile(id);
   if (!file) return null;
   if (options.expectedText && !isMathTextCompatible(options.expectedText, { a, b, producto })) return null;
@@ -90,7 +93,7 @@ export function isMathTextCompatible(text, { a, b, producto } = {}) {
     const expected = `${numberWord(a)} por ${numberWord(b)}`;
     const operation = new RegExp(`\\b${a}\\s*[×x]\\s*${b}\\b`);
     if (normalized.includes('por') && !normalized.includes(expected)) return false;
-    const groupMatch = normalized.match(/(\d+|[a-záéíóúüñ ]+)\s+grupos?\s+de\s+(\d+|[a-záéíóúüñ ]+)/);
+    const groupMatch = normalized.match(new RegExp(`\\b(${GROUP_COUNT_PATTERN})\\s+grupos?\\s+de\\s+(${GROUP_COUNT_PATTERN})\\b`));
     if (groupMatch) {
       const count = parseNumberWord(groupMatch[1]);
       const size = parseNumberWord(groupMatch[2]);
@@ -106,7 +109,13 @@ function parseNumberWord(value) {
   const trimmed = value.trim();
   const numeric = Number(trimmed);
   if (Number.isInteger(numeric)) return numeric;
+  if (trimmed === 'una' || trimmed === 'un') return 1;
   return NUMBERS.indexOf(trimmed);
 }
+
+const GROUP_NUMBER_WORDS = ['una', 'un', ...NUMBERS.slice(1, 11)]
+  .sort((left, right) => right.length - left.length)
+  .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+const GROUP_COUNT_PATTERN = `(?:10|[1-9]|${GROUP_NUMBER_WORDS.join('|')})`;
 
 export { EVENT_CLIPS };
