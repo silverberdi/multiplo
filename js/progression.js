@@ -17,46 +17,26 @@
  */
 
 export const PROGRESSION_STORAGE_KEY = 'multiplo_progression_v1';
+export const PROGRESSION_VERSION = 1.2;
+export const FAILED_OPS_STORAGE_KEY = 'multiplo_failed_operations';
+export const DOMAIN_ROUND_LIMIT = 3;
+export const DOMAIN_FACTORS_REQUIRED = 7;
 export const SOUND_STORAGE_KEY = 'multiplo_sound_enabled';
 
-export const LEVELS_CATALOG = Object.freeze([
-  Object.freeze({
-    level: 1,
-    table: 2,
-    a: 2,
-    factors: Object.freeze([1, 2, 3, 4, 5]),
-    name: 'Tabla del 2',
-    ariaLabel: 'Nivel 1: Tabla del 2'
-  }),
-  Object.freeze({
-    level: 2,
-    table: 3,
-    a: 3,
-    factors: Object.freeze([1, 2, 3, 4, 5]),
-    name: 'Tabla del 3',
-    ariaLabel: 'Nivel 2: Tabla del 3'
-  }),
-  Object.freeze({
-    level: 3,
-    table: 4,
-    a: 4,
-    factors: Object.freeze([1, 2, 3, 4, 5]),
-    name: 'Tabla del 4',
-    ariaLabel: 'Nivel 3: Tabla del 4'
-  }),
-  Object.freeze({
-    level: 4,
-    table: 5,
-    a: 5,
-    factors: Object.freeze([1, 2, 3, 4, 5]),
-    name: 'Tabla del 5',
-    ariaLabel: 'Nivel 4: Tabla del 5'
-  })
-]);
+export const LEVELS_CATALOG = Object.freeze(Array.from({ length: 10 }, (_, index) => {
+  const table = index + 1;
+  return Object.freeze({ level: table, table, a: table,
+    factors: Object.freeze(Array.from({ length: 10 }, (_, b) => b + 1)),
+    name: `Tabla del ${table}`, ariaLabel: `Tabla del ${table}` });
+}));
 
-export const UNLOCK_THRESHOLD = 3; // 3 de 4 aciertos al primer intento
-export const MAX_LEVEL = 4;
+export const UNLOCK_THRESHOLD = 3;
+export const MAX_LEVEL = 10;
 export const MIN_LEVEL = 1;
+
+function browserStorage() {
+  try { return typeof localStorage !== 'undefined' ? localStorage : null; } catch (_error) { return null; }
+}
 
 /**
  * Obtiene la configuración de un nivel desde el catálogo único.
@@ -94,6 +74,10 @@ export function getAllCatalogPairs() {
   return pairs;
 }
 
+export function emptyTableEvidence() {
+  return { recentRounds: [], coveredFactors: [], failedOperations: [] };
+}
+
 /**
  * Normaliza y valida el nivel máximo desbloqueado (1..4).
  * Si el valor no es un entero en [1, 4], retorna 1 (estado inicial seguro).
@@ -114,8 +98,10 @@ export function normalizeHighestUnlockedLevel(val) {
  */
 export function createInitialProgressionState() {
   return {
-    version: 1,
+    version: PROGRESSION_VERSION,
     highestUnlockedLevel: MIN_LEVEL,
+    openTables: [MIN_LEVEL],
+    tables: Object.fromEntries(LEVELS_CATALOG.map(({ table }) => [table, emptyTableEvidence()])),
     soundEnabled: true
   };
 }
@@ -160,14 +146,43 @@ export function validateAndNormalizeState(raw) {
     return initial;
   }
 
-  const highestUnlockedLevel = normalizeHighestUnlockedLevel(raw.highestUnlockedLevel);
+  const highestUnlockedLevel = normalizeHighestUnlockedLevel(raw.highestUnlockedLevel ?? raw.openTables?.length);
   const soundEnabled = typeof raw.soundEnabled === 'boolean' ? raw.soundEnabled : initial.soundEnabled;
+  const normalizeEvidence = (value) => {
+    const evidence = value && typeof value === 'object' ? value : {};
+    const recentRounds = Array.isArray(evidence.recentRounds) ? evidence.recentRounds
+      .filter((round) => round && Number.isInteger(round.initialSuccesses))
+      .slice(-DOMAIN_ROUND_LIMIT).map((round) => ({
+        initialSuccesses: Math.max(0, Math.min(4, round.initialSuccesses)),
+        currentInitialSuccesses: Math.max(0, Math.min(3, Number(round.currentInitialSuccesses ?? round.initialSuccesses))),
+        review: Boolean(round.review), factors: Array.isArray(round.factors) ? round.factors.filter((b) => Number.isInteger(b) && b >= 1 && b <= 10) : []
+      })) : [];
+    const coveredFactors = Array.isArray(evidence.coveredFactors) ? [...new Set(evidence.coveredFactors.filter((b) => Number.isInteger(b) && b >= 1 && b <= 10))].sort((a, b) => a - b) : [];
+    const failedOperations = Array.isArray(evidence.failedOperations) ? evidence.failedOperations.filter((op) => op && Number.isInteger(op.a) && Number.isInteger(op.b) && op.a >= 1 && op.a <= 10 && op.b >= 1 && op.b <= 10).slice(-20) : [];
+    return { recentRounds, coveredFactors, failedOperations };
+  };
 
   return {
-    version: 1,
+    version: PROGRESSION_VERSION,
     highestUnlockedLevel,
+    openTables: getUnlockedLevels(highestUnlockedLevel),
+    tables: Object.fromEntries(LEVELS_CATALOG.map(({ table }) => [table, normalizeEvidence(raw.tables?.[table])])),
     soundEnabled
   };
+}
+
+export function migrateLegacyProgression(raw, soundEnabled = true, failedOperations = []) {
+  const state = createInitialProgressionState();
+  const legacy = raw && typeof raw === 'object' ? raw : {};
+  const old = Number(legacy.highestUnlockedLevel ?? legacy.currentLevel ?? 1);
+  const highest = Number.isInteger(old) ? Math.min(MAX_LEVEL, Math.max(MIN_LEVEL, old + (old <= 4 ? 1 : 0))) : 1;
+  state.highestUnlockedLevel = highest;
+  state.openTables = getUnlockedLevels(highest);
+  state.soundEnabled = soundEnabled;
+  for (const op of Array.isArray(failedOperations) ? failedOperations : []) {
+    if (op && Number.isInteger(op.a) && Number.isInteger(op.b) && op.a >= 1 && op.a <= 10 && op.b >= 1 && op.b <= 10) state.tables[op.a].failedOperations.push({ a: op.a, b: op.b });
+  }
+  return state;
 }
 
 /**
@@ -176,7 +191,8 @@ export function validateAndNormalizeState(raw) {
  * @param {Storage|null} storage
  * @returns {{ state: Object, storageAvailable: boolean, warning: string | null }}
  */
-export function loadProgressionState(storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+export function loadProgressionState(storage = undefined) {
+  storage = storage === undefined ? browserStorage() : storage;
   const defaultState = createInitialProgressionState();
 
   if (!storage) {
@@ -209,7 +225,12 @@ export function loadProgressionState(storage = (typeof localStorage !== 'undefin
     }
 
     const parsed = JSON.parse(raw);
-    const state = validateAndNormalizeState(parsed);
+    const soundPref = storage.getItem(SOUND_STORAGE_KEY) !== 'false';
+    const legacyFailed = JSON.parse(storage.getItem(FAILED_OPS_STORAGE_KEY) || '[]');
+    const state = parsed?.version === PROGRESSION_VERSION
+      ? validateAndNormalizeState(parsed)
+      : migrateLegacyProgression(parsed, soundPref, legacyFailed);
+    if (parsed?.version !== PROGRESSION_VERSION) saveProgressionState(state, storage);
     return {
       state,
       storageAvailable: true,
@@ -233,7 +254,8 @@ export function loadProgressionState(storage = (typeof localStorage !== 'undefin
  * @param {Storage|null} storage
  * @returns {{ success: boolean, warning: string | null }}
  */
-export function saveProgressionState(state, storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+export function saveProgressionState(state, storage = undefined) {
+  storage = storage === undefined ? browserStorage() : storage;
   if (!storage) {
     return {
       success: false,
@@ -296,7 +318,7 @@ export function evaluateProgressionUnlock(currentHighestUnlocked, roundSummary) 
     };
   }
 
-  const playedLevel = Number(roundSummary.level);
+  const playedLevel = Number(roundSummary.table ?? roundSummary.level ?? roundSummary.a);
   const firstAttempts = Number(roundSummary.firstAttemptSuccesses);
 
   // El nivel jugado debe ser válido y estar actualmente disponible
@@ -309,11 +331,13 @@ export function evaluateProgressionUnlock(currentHighestUnlocked, roundSummary) 
     };
   }
 
-  const metThreshold = Number.isInteger(firstAttempts) && firstAttempts >= UNLOCK_THRESHOLD;
+  const currentAttempts = Number(roundSummary.currentInitialSuccesses ?? firstAttempts);
+  const metThreshold = Number.isInteger(currentAttempts) && currentAttempts >= (playedLevel === 1 ? 3 : 2);
   const targetNextLevel = playedLevel + 1;
   const hasSubsequentLevel = targetNextLevel <= MAX_LEVEL;
 
-  if (metThreshold && hasSubsequentLevel) {
+  const domain = roundSummary.domain || null;
+  if (metThreshold && hasSubsequentLevel && domain?.mastered) {
     const newMax = Math.max(currentMax, targetNextLevel);
     const unlockedNewLevel = newMax > currentMax;
     return {
@@ -333,6 +357,37 @@ export function evaluateProgressionUnlock(currentHighestUnlocked, roundSummary) 
   };
 }
 
+export function domainThreshold(table) { return Number(table) === 1 ? 3 : 2; }
+
+export function evaluateTableDomain(table, evidence) {
+  const rounds = Array.isArray(evidence?.recentRounds) ? evidence.recentRounds : [];
+  const factors = Array.isArray(evidence?.coveredFactors) ? [...new Set(evidence.coveredFactors)] : [];
+  const qualifyingRounds = rounds.filter((round) => !round.review && Number(round.currentInitialSuccesses ?? round.initialSuccesses) >= domainThreshold(table)).length;
+  return { table: Number(table), qualifyingRounds, coveredFactors: factors, hasEnoughRounds: qualifyingRounds >= 2, hasEnoughFactors: factors.length >= DOMAIN_FACTORS_REQUIRED, mastered: qualifyingRounds >= 2 && factors.length >= DOMAIN_FACTORS_REQUIRED };
+}
+
+export function recordRoundEvidence(state, summary) {
+  const table = Number(summary?.table ?? summary?.a ?? summary?.level);
+  const next = validateAndNormalizeState(state);
+  if (!Number.isInteger(table) || !next.tables[table]) return { state: next, domain: null, unlockedNewLevel: false, nextLevel: null };
+  const evidence = next.tables[table];
+  const factors = Array.isArray(summary.currentFactors) ? summary.currentFactors : [];
+  const correct = Array.isArray(summary.currentFirstAttemptCorrect) ? summary.currentFirstAttemptCorrect : [];
+  evidence.recentRounds.push({ initialSuccesses: Number(summary.firstAttemptSuccesses || 0), currentInitialSuccesses: Number(summary.currentInitialSuccesses ?? summary.firstAttemptSuccesses ?? 0), review: false, factors });
+  evidence.recentRounds = evidence.recentRounds.slice(-DOMAIN_ROUND_LIMIT);
+  factors.forEach((b, index) => { if (correct[index] && !evidence.coveredFactors.includes(b)) evidence.coveredFactors.push(b); });
+  evidence.coveredFactors.sort((a, b) => a - b);
+  for (const operation of Array.isArray(summary.failedOperations) ? summary.failedOperations : []) {
+    if (!evidence.failedOperations.some((item) => item.a === operation.a && item.b === operation.b)) evidence.failedOperations.push({ a: operation.a, b: operation.b, source: operation.source });
+  }
+  evidence.failedOperations = evidence.failedOperations.slice(-20);
+  const domain = evaluateTableDomain(table, evidence);
+  const nextLevel = table + 1;
+  const unlockedNewLevel = domain.mastered && nextLevel <= MAX_LEVEL && next.highestUnlockedLevel < nextLevel;
+  if (unlockedNewLevel) { next.highestUnlockedLevel = nextLevel; next.openTables = getUnlockedLevels(nextLevel); }
+  return { state: next, domain, unlockedNewLevel, nextLevel: unlockedNewLevel ? nextLevel : null };
+}
+
 /**
  * Cierre idempotente de ronda integrado con el estado de progresión.
  * Garantiza que una misma ronda se consume exactamente una vez.
@@ -349,7 +404,8 @@ export function evaluateProgressionUnlock(currentHighestUnlocked, roundSummary) 
  *   summary: Object | null
  * }}
  */
-export function closeRoundProgression(progressionState, round, storage = null) {
+export function closeRoundProgression(progressionState, round, storage = undefined) {
+  storage = storage === undefined ? browserStorage() : storage;
   if (!round) {
     return {
       highestUnlockedLevel: normalizeHighestUnlockedLevel(progressionState?.highestUnlockedLevel),
@@ -369,21 +425,17 @@ export function closeRoundProgression(progressionState, round, storage = null) {
   }
 
   const summary = round.summary || (round.questionRound ? round.questionRound.summary : null);
-  const result = evaluateProgressionUnlock(progressionState.highestUnlockedLevel, summary);
-
-  if (result.unlockedNewLevel) {
-    progressionState.highestUnlockedLevel = result.highestUnlockedLevel;
-    if (storage) {
-      saveProgressionState(progressionState, storage);
-    }
-  }
+  const result = recordRoundEvidence(progressionState, summary || {});
+  Object.assign(progressionState, result.state);
+  if (storage) saveProgressionState(progressionState, storage);
 
   const finalResult = {
     highestUnlockedLevel: progressionState.highestUnlockedLevel,
     unlockedNewLevel: result.unlockedNewLevel,
     nextLevel: result.nextLevel,
     alreadyProcessed: false,
-    summary
+    summary,
+    domain: result.domain
   };
 
   // Marcar ronda como consumida

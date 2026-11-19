@@ -207,7 +207,7 @@ import {
         const progressionResult = closeRoundProgression(
           progressionState,
           currentRound,
-          typeof localStorage !== 'undefined' ? localStorage : null
+          undefined
         );
         updateLevelsView();
         const finInfo = renderFinView(currentRound.questionRound.summary, progressionResult);
@@ -397,7 +397,7 @@ import {
         const listenAlternative = (event) => {
           event.stopPropagation();
           guide.notifyUserGesture();
-          guide.speakInstruction(alt.label, { event: currentQ.modalidad === MODALITIES.PREGUNTA_5 ? 'operacion' : 'numero', context: { a: currentRound.a, b: currentRound.b, producto: alt.product, numero: alt.value ?? alt.product }, returnState: GUIDE_STATES.NORMAL });
+          guide.speakInstruction(alt.label, { event: currentQ.modalidad === MODALITIES.PREGUNTA_5 ? 'operacion' : 'numero', context: { a: currentQ.a, b: currentQ.b, producto: alt.product, numero: alt.value ?? alt.product }, returnState: GUIDE_STATES.NORMAL });
         };
         listen.addEventListener('click', listenAlternative);
         listen.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); listenAlternative(event); } });
@@ -409,7 +409,7 @@ import {
     // 9. Locución si se solicita
     if (shouldSpeak) {
       const event = currentQ.modalidad === MODALITIES.PREGUNTA_5 ? 'inversa' : (currentQ.modalidad === MODALITIES.PREGUNTA_4 ? 'preguntaResultado' : 'pregunta');
-      guide.speakInstruction(currentQ.spokenPrompt, { event, context: { a: currentRound.a, b: currentRound.b, producto: currentQ.product }, returnState: GUIDE_STATES.NORMAL });
+      guide.speakInstruction(currentQ.spokenPrompt, { event, context: { a: currentQ.a, b: currentQ.b, producto: currentQ.product }, returnState: GUIDE_STATES.NORMAL });
     }
   }
 
@@ -450,7 +450,7 @@ import {
 
       guide.playEffect('acierto');
       guide.setState(GUIDE_STATES.CELEBRANDO);
-      guide.speakInstruction(GUIDE_SCRIPT.acierto, { event: 'acierto', context: { a: currentRound.a, b: currentRound.b, producto: currentQ.product }, returnState: GUIDE_STATES.CELEBRANDO });
+      guide.speakInstruction(GUIDE_SCRIPT.acierto, { event: 'acierto', context: { a: currentQ.a, b: currentQ.b, producto: currentQ.product }, returnState: GUIDE_STATES.CELEBRANDO });
 
       if (feedbackBox) {
         feedbackBox.hidden = false;
@@ -505,7 +505,7 @@ import {
       groupsContainer.hidden = false;
     }
 
-    guide.speakInstruction(hintInfo.hintText, { event: 'pistaPasoPaso', context: { a: currentRound.a, b: currentRound.b, producto: currentRound.a * currentRound.b }, returnState: GUIDE_STATES.PENSANDO });
+    guide.speakInstruction(hintInfo.hintText, { event: 'pistaPasoPaso', context: { a: hintInfo.a, b: hintInfo.b, producto: hintInfo.a * hintInfo.b }, returnState: GUIDE_STATES.PENSANDO });
   }
 
   /**
@@ -654,12 +654,12 @@ import {
       spokenText = '¡Fantástico! Acertaste todas las preguntas al primer intento.';
     } else if (stars === 3) {
       if (heading) heading.textContent = '¡Muy bien hecho!';
-      if (nextLevel <= MAX_LEVEL) {
+      if (progressionResult?.unlockedNewLevel && nextLevel <= MAX_LEVEL) {
         if (message) message.textContent = '¡Muy bien hecho! Desbloqueaste el siguiente nivel.';
         spokenText = '¡Muy bien hecho! Desbloqueaste el siguiente nivel.';
       } else {
-        if (message) message.textContent = '¡Muy bien hecho! Completaste el Nivel 4 con éxito.';
-        spokenText = '¡Muy bien hecho! Completaste el Nivel cuatro con éxito.';
+        if (message) message.textContent = '¡Muy bien hecho! Puedes repetir o practicar otra tabla disponible.';
+        spokenText = '¡Muy bien hecho! Puedes repetir o practicar otra tabla disponible.';
       }
     } else if (stars === 2) {
       if (heading) heading.textContent = '¡Buen esfuerzo!';
@@ -937,7 +937,7 @@ import {
         saveProgressionState(progressionState);
         updateLevelsView();
       },
-      closeRoundProgression: (round) => closeRoundProgression(progressionState, round, typeof localStorage !== 'undefined' ? localStorage : null),
+      closeRoundProgression: (round) => closeRoundProgression(progressionState, round),
       LEVELS_CATALOG,
       isLevelUnlocked: (lvl) => isLevelUnlocked(lvl, progressionState.highestUnlockedLevel),
       setForcedRoundOptions: (opts) => {

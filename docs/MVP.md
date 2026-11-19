@@ -1,17 +1,19 @@
-# Múltiplo — Contrato funcional MVP v1.0
+# Múltiplo — Contrato funcional MVP v1.2
+
+> Request #21 sustituye los límites históricos 2–5 por tablas 1–10 y factores 1–10 en la implementación v1.2; se conservan grupos iguales, primer intento, reintentos sin castigo, voz/texto y persistencia local.
 
 **Estado:** diseño aprobado; no se implementa en esta fase de preparación. **Público:** niño de 6 años. **Propósito:** comprender multiplicaciones mediante grupos y suma repetida, con una experiencia divertida y autónoma.
 
 ## Reglas de producto
 - Web responsive en español para celular, tablet y computador; control por toque/clic, sin cronómetro.
 - Mascota estrella amarilla; guía mediante voz y texto breve, felicitaciones y pistas. Acciones de repetir audio y silenciar. El texto funciona incluso si la voz no está disponible.
-- Cuatro niveles secuenciales: tabla del 2, del 3, del 4 y del 5; cada una incluye factores 1–5. Inicialmente solo nivel 1 está disponible.
+- Diez tablas secuenciales, del 1 al 10, con factores 1–10. Inicialmente solo la tabla 1 está disponible; las siguientes se habilitan por dominio acumulado.
 - Convención matemática: `a × b` = **a grupos de b objetos**. Ejemplo: `3 × 2` es `2+2+2=6`.
 - Una ronda dura aproximadamente 3–5 minutos: una demostración visual no evaluable + cuatro preguntas.
 - Preguntas 2 y 3: contar grupos y elegir resultado. Pregunta 4: resolver multiplicación sin objetos inicialmente (pista visual disponible). Pregunta 5: encontrar cuál de tres multiplicaciones da el total; opciones pertenecen a la tabla actual y solo una puede ser correcta.
 - Cada pregunta ofrece exactamente tres respuestas distintas, una correcta. Todas deben ser matemáticamente válidas; dos son distractores. Evitar la repetición inmediata de operaciones y variar rondas; priorizar en sesiones siguientes las operaciones falladas.
 - Si falla, se invita a intentar otra vez y se ofrecen grupos de objetos. Reintentos ilimitados y sin sanciones. Contabilizar una pregunta como acierto inicial **solo si la primera respuesta es correcta**.
-- Cada acierto inicial otorga una estrella, máximo 4. Desbloqueo de siguiente nivel con al menos 3/4 aciertos iniciales al terminar la ronda. Con 2/4 o menos, invitar a repetir. Último nivel sigue siendo rejugable.
+- Cada acierto inicial otorga una estrella, máximo 4. La tabla 1 usa `>=3/4`; las tablas 2–10 requieren dos de las últimas tres rondas calificadas y siete factores `b` distintos acertados inicialmente. El repaso no cuenta para dominio. La tabla 10 sigue siendo rejugable y nunca aparece la tabla 11.
 - Pantallas mínimas: Inicio / niveles, Aprende, Juego y Fin de ronda. Feedback de aciertos/errores dentro de Juego, no en una pantalla adicional.
 - Guardar niveles desbloqueados, progreso mínimo y sonido habilitado/deshabilitado en `localStorage`; sin sincronización ni promesa de persistencia si se borran datos del navegador.
 
@@ -34,7 +36,10 @@
 
 **Given** un celular, una tablet o un computador **When** se juega la ronda **Then** todos los controles son accesibles mediante toque/clic y no hay desbordamientos horizontales.
 
+## Historia supersedida
+El contrato v1.0 limitaba el MVP a tablas 2–5, factores 1–5 y un umbral único 3/4. Request #21 sustituyó explícitamente esos límites; no son reglas vigentes.
+
 ## Exclusiones
-Tablas del 6 al 10, usuarios, sincronización, clasificaciones, monedas, pantallas extra, mundos complejos, minijuegos, backend, IA, aplicaciones nativas y paneles administrativos.
+Usuarios, sincronización, clasificaciones, monedas, pantallas extra, mundos complejos, minijuegos, backend, IA, aplicaciones nativas y paneles administrativos.
 
 **Validación con el niño:** poder iniciar y terminar una ronda con mínima asistencia, asociar grupos con la multiplicación y mostrar disposición a repetir.

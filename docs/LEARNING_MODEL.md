@@ -2,6 +2,10 @@
 **Estado:** diseño de aprendizaje del MVP. **Perfil:** niño de 6 años, iniciación a multiplicación.
 
 ## 1. Principio didáctico
+
+### Sustitución v1.2 — Request #21
+
+La implementación v1.2 amplía el catálogo dirigido a tablas 1–10 y factores 1–10 (100 parejas). `a×b` sigue significando `a` grupos de `b`; la conmutatividad nunca cambia la representación. Las tablas posteriores requieren dos de las últimas tres rondas calificadas y siete factores `b` acertados inicialmente; una ronda perfecta aislada y el repaso no bastan.
 La primera meta es **comprender grupos iguales y sumas repetidas**. La memorización de tablas no reemplaza esa comprensión. Las equivocaciones son oportunidades de mostrar grupos otra vez; el niño nunca pierde una vida ni una ronda por fallar.
 
 ### Convención matemática obligatoria
@@ -13,15 +17,13 @@ La expresión `a × b` significa **a grupos de b elementos**. Por ejemplo:
 
 La conmutatividad puede mencionarse en el futuro, pero **no cambiar silenciosamente la orientación de los grupos** en una pantalla: `2×3` y `3×2` comparten producto, no representación.
 
-## 2. Niveles
-| Nivel | Primer factor `a` | Segundo factor `b` | Estado |
+## 2. Tablas v1.2
+| Tabla | Primer factor `a` | Segundo factor `b` | Estado |
 |---|---:|---|---|
-| 1 | 2 | 1, 2, 3, 4, 5 | Disponible al comenzar |
-| 2 | 3 | 1, 2, 3, 4, 5 | Desbloqueable |
-| 3 | 4 | 1, 2, 3, 4, 5 | Desbloqueable |
-| 4 | 5 | 1, 2, 3, 4, 5 | Desbloqueable |
+| 1 | 1 | 1…10 | Disponible al comenzar |
+| 2–10 | 2…10 | 1…10 | Desbloqueable por dominio acumulado |
 
-Una ronda de un nivel **solo** utiliza su tabla objetivo. La suma máxima para mostrar es 25 objetos (5 grupos de 5). Los niveles ya desbloqueados se pueden repetir sin volver a bloquearlos.
+Una ronda de una tabla **solo** utiliza su tabla objetivo para sus ejercicios actuales; la suma máxima para mostrar es 100 objetos (10 grupos de 10). Las tablas ya desbloqueadas se pueden repetir sin volver a bloquearlas.
 
 ## 3. Ronda estándar: una demostración y cuatro preguntas
 | Posición | Experiencia | Evaluada | Ayuda visual |
@@ -36,7 +38,7 @@ La demostración no concede ni quita estrellas. El niño avanza mediante un bot�
 
 ## 4. Generación y selección de preguntas
 Reglas de dominio:
-1. Operaciones de la ronda: `a×b`, con `a` fijo por nivel y `b` en 1–5.
+1. Operaciones actuales de la ronda: `a×b`, con `a` fijo por tabla y `b` en 1–10; una operación de repaso conserva su tabla de origen.
 2. En cada pregunta hay **exactamente tres opciones seleccionables** y **una sola válida**. Los distractores pueden ser productos cercanos, pero deben evitar opciones duplicadas o ambiguas.
 3. En el ejercicio «encuentra la operación», las tres alternativas son operaciones con el **mismo primer factor** del nivel, factores secundarios distintos, y **solo una** debe obtener el resultado pedido.
 4. Evitar repetir la misma pareja `a,b` entre las cuatro preguntas de la ronda cuando sea posible. Con cinco valores de `b` y cuatro preguntas, es posible sin forzar repeticiones.
@@ -58,10 +60,10 @@ Cada pregunta presenta 3 opciones; no repetir exactamente estos cuatro ejercicio
 - **Acierto inicial** = la primera opción pulsada en esa pregunta es correcta. Se registra de forma independiente del número de reintentos posteriores.
 - **Reintentos:** ilimitados. Después de un error el niño recibe una explicación/pista y puede seleccionar nuevamente.
 - **Estrellas:** una por acierto inicial en cada una de las cuatro preguntas; total 0–4. El objetivo no es «perder estrellas», sino mostrar las obtenidas.
-- **Desbloqueo:** al completar las cuatro preguntas, si tiene 3 o 4 aciertos iniciales, se abre el siguiente nivel existente. Con 0–2, el siguiente sigue cerrado pero el niño puede repetir.
-- **Fin de tabla del 5:** cierre positivo sin botón hacia un nivel inexistente.
+- **Desbloqueo:** la tabla 1 requiere `>=3/4`; las tablas 2–10 requieren dos de las últimas tres rondas calificadas y siete factores `b` distintos acertados inicialmente. Con dominio insuficiente, el niño puede repetir.
+- **Fin de tabla 10:** cierre positivo sin botón hacia la tabla 11.
 - **Persistencia:** preservar niveles desbloqueados y datos mínimos para favorecer variación/priorización, en el mismo navegador. No hay cuenta ni sincronización.
-- **Efectividad:** el umbral de 3/4 es una regla lúdica aprobada; **no equivale a certificación de dominio escolar**.
+- **Efectividad:** el dominio acumulado es una regla lúdica aprobada; **no equivale a certificación de dominio escolar**.
 
 ## 6. Sistema de ayuda
 Cuando la respuesta es incorrecta:
@@ -90,8 +92,10 @@ Observar la capacidad de relacionar grupos visibles con el producto, el uso de l
 - Cuatro preguntas evaluables por ronda y un aprendizaje inicial no evaluable.
 - Tres opciones distintas por pregunta, exactamente una correcta.
 - Acierto inicial inmutable tras reintentos.
-- Umbral 3/4 para avanzar.
+- Dominio acumulado v1.2 para avanzar; la tabla 1 usa `>=3/4`.
 - El niño siempre puede reintentar y consultar pistas sin castigos.
-- Cada nivel cubre exactamente una tabla del 2 al 5, con `b` entre 1 y 5.
+- Cada tabla cubre `a=1..10` y `b=1..10`; el repaso no incrementa dominio.
+
+Los límites v1.0 de tablas 2–5, factores 1–5 y umbral único 3/4 quedan conservados sólo como historia supersedida por Request #21.
 
 **Referencia:** [MVP.md](MVP.md) y los issues [#3](https://github.com/silverberdi/multiplo/issues/3), [#4](https://github.com/silverberdi/multiplo/issues/4), [#5](https://github.com/silverberdi/multiplo/issues/5).

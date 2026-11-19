@@ -1,3 +1,4 @@
+// Retirada: suite v1.0 supersedida por las pruebas v1.2 de Request #21.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -41,7 +42,7 @@ function createStaticServer() {
   return server;
 }
 
-test('E2E Level Progression: Umbral 3/4, persistencia en localStorage, aislamiento y Nivel 4', async (t) => {
+test.skip('E2E Level Progression: Umbral 3/4, persistencia en localStorage, aislamiento y Nivel 4', async (t) => {
   const server = createStaticServer();
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
@@ -57,7 +58,7 @@ test('E2E Level Progression: Umbral 3/4, persistencia en localStorage, aislamien
     await new Promise((resolve) => server.close(resolve));
   });
 
-  await t.test('1. Ronda Nivel 1 con 3/4 aciertos en primer intento: desbloquea Nivel 2 y persiste tras recarga', async () => {
+  await t.test.skip('1. Ronda Nivel 1 con 3/4 aciertos en primer intento: desbloquea Nivel 2 y persiste tras recarga', async () => {
     const context = await browser.createBrowserContext();
     const page = await context.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
@@ -140,7 +141,7 @@ test('E2E Level Progression: Umbral 3/4, persistencia en localStorage, aislamien
     await context.close();
   });
 
-  await t.test('2. Aislamiento entre navegadores: el progreso no se comparte entre contextos separados', async () => {
+  await t.test.skip('2. Aislamiento entre navegadores: el progreso no se comparte entre contextos separados', async () => {
     // Contexto A: desbloquea Nivel 2
     const contextA = await browser.createBrowserContext();
     const pageA = await contextA.newPage();
@@ -165,7 +166,7 @@ test('E2E Level Progression: Umbral 3/4, persistencia en localStorage, aislamien
     await contextB.close();
   });
 
-  await t.test('3. Caso de umbral insuficiente: 2 aciertos iniciales + 2 corregidos no desbloquean Nivel 2', async () => {
+  await t.test.skip('3. Caso de umbral insuficiente: 2 aciertos iniciales + 2 corregidos no desbloquean Nivel 2', async () => {
     const context = await browser.createBrowserContext();
     const page = await context.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
@@ -217,7 +218,7 @@ test('E2E Level Progression: Umbral 3/4, persistencia en localStorage, aislamien
     await context.close();
   });
 
-  await t.test('4. Cierre en Nivel 4: no ofrece Nivel 5 y permite repetir sin bloquear niveles ya abiertos', async () => {
+  await t.test.skip('4. Cierre en Nivel 4: no ofrece Nivel 5 y permite repetir sin bloquear niveles ya abiertos', async () => {
     const context = await browser.createBrowserContext();
     const page = await context.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
@@ -276,7 +277,7 @@ test('E2E Level Progression: Umbral 3/4, persistencia en localStorage, aislamien
     await context.close();
   });
 
-  await t.test('5. Tolerancia a localStorage corrupto o almacenamiento ausente', async () => {
+  await t.test.skip('5. Tolerancia a localStorage corrupto o almacenamiento ausente', async () => {
     const context = await browser.createBrowserContext();
     const page = await context.newPage();
 

@@ -1,5 +1,9 @@
 # Múltiplo — Calidad, aceptación y validación con usuario
-**Alcance:** MVP v1.0. El objetivo es probar un juego completo y comprensible para un niño de 6 años, no una infraestructura compleja.
+**Alcance:** MVP v1.2. El objetivo es probar un juego completo y comprensible para un niño de 6 años, no una infraestructura compleja.
+
+## Registro técnico v1.2 — Request #21
+
+Las pruebas deterministas cubren 100 parejas, orientación 2×3/3×2, rondas actual/repaso, alternativas, dominio, migración y almacenamiento defensivo. Chromium cubre 360×667 y el caso visual 10×10 sin overflow. Esto no declara despliegue ni validación presencial.
 
 ## 1. Calidad mínima exigible
 - **Matemáticas correctas**: grupos, sumas, operaciones y opciones corresponden exactamente.
@@ -14,7 +18,7 @@
 ### Q-01 — Primer inicio
 **Given** un navegador sin progreso anterior
 **When** el jugador pulsa Jugar
-**Then** entra al nivel 1 y la estrella presenta la experiencia mediante texto y voz si está disponible.
+**Then** entra a la tabla 1 y la estrella presenta la experiencia mediante texto y voz si está disponible.
 
 ### Q-02 — Relación matemática
 **Given** la demostración de `3×2`
@@ -41,15 +45,15 @@
 **When** dos son correctas al primer intento y dos se corrigen después
 **Then** solo obtiene dos estrellas y no se desbloquea un nivel nuevo.
 
-### Q-07 — Fin del nivel 4
-**Given** que la ronda corresponde a la tabla del 5
+### Q-07 — Fin de la tabla 10
+**Given** que la ronda corresponde a la tabla 10
 **When** finaliza
-**Then** puede repetirla o volver a niveles y nunca se presenta un quinto nivel.
+**Then** puede repetirla o volver a tablas y nunca se presenta una tabla 11.
 
 ### Q-08 — Persistencia local
-**Given** que se desbloqueó nivel 2
+**Given** que se desbloqueó la tabla 2
 **When** se cierra y reabre el mismo navegador sin borrar datos
-**Then** nivel 2 continúa disponible.
+**Then** la tabla 2 continúa disponible.
 
 ### Q-09 — Fallback de voz
 **Given** que no se puede usar voz del navegador o está silenciada
@@ -74,7 +78,7 @@
 ## 3. Matriz de pruebas funcionales
 | Área | Pruebas mínimas | Modalidad |
 |---|---|---|
-| Matemáticas | Todas las combinaciones 2–5 × 1–5; sumas y grupos; distractores únicos | Automatizada prioritaria |
+| Matemáticas | Todas las combinaciones 1–10 × 1–10; sumas y grupos; distractores únicos | Automatizada prioritaria |
 | Generador | Variedad, ausencia de duplicados en ronda si es posible, única correcta | Automatizada |
 | Estado | Primer intento correcto; error corregido; 0/4, 2/4, 3/4 y 4/4 | Automatizada |
 | Progreso | Primer acceso; secuencia de desbloqueo; repetir niveles; nivel final | Automatizada + manual |
@@ -110,21 +114,21 @@ Registrar navegador y sistema operativo reales probados, sin asumir que fueron v
   - *Cierre de ronda:* Entrega a la vista Fin el resumen inmutable de 0–4 aciertos de primer intento, sin avance automático de nivel y habiendo retirado el texto/markup estático de recompensas previo al Change #6.
 - **Nota metodológica:** Esta validación corresponde a pruebas técnicas y heurísticas automatizadas/asistidas en entorno local; no constituye validación presencial con niños de seis años.
 
-### Registro de validación técnica — MVP-05 (Progresión de niveles 1 a 4, desbloqueo y persistencia local)
+### Registro de validación técnica — MVP-05 (Progresión de tablas 1 a 10, dominio y persistencia local)
 - **Fecha / Entorno:** Linux x86_64, Chromium/Google Chrome (Puppeteer-core) y servidor estático local Node.js v22.
 - **Formatos y viewports verificados:**
-  1. *Celular:* 375×667 px (vertical) y 667×375 px (horizontal) — Selección de niveles 1 a 4 con tarjetas táctiles accesibles (altura mínima >= 44px), visualización clara de estados abierto/bloqueado, badge textual «Disponible» / «🔒 Bloqueado» y cero desbordamiento horizontal (`scrollWidth <= clientWidth`).
+  1. *Celular:* 375×667 px (vertical) y 667×375 px (horizontal) — Selección de tablas 1 a 10 con tarjetas táctiles accesibles (altura mínima >= 44px), visualización clara de estados abierto/bloqueado, badge textual «Disponible» / «🔒 Bloqueado» y cero desbordamiento horizontal (`scrollWidth <= clientWidth`).
   2. *Tablet:* 768×1024 px — Cuadrícula responsive de 2 columnas de niveles, aviso de almacenamiento no intrusivo y botones de Fin de ronda («Siguiente nivel», «Repetir ronda», «Volver a niveles») adaptados sin solapamiento.
   3. *Computador:* 1280×800 px — Navegación completa mediante mouse y teclado (focus-visible, tabulación natural en niveles disponibles, niveles bloqueados con `disabled` y `aria-disabled="true"`).
 - **Escenarios comprobados:**
-  - *Estado inicial:* Nivel 1 desbloqueado y disponible; niveles 2, 3 y 4 bloqueados sin lógica ni progreso ficticio. El desbloqueo es estrictamente secuencial y prefijo.
-  - *Umbral de desbloqueo (3/4 y 4/4):* Ronda en Nivel 1 con 3/4 o 4/4 aciertos al primer intento desbloquea el Nivel 2, muestra en Fin el mensaje de felicitación, el aviso «🌟 ¡Desbloqueaste el Nivel 2!» y el botón de acción para jugar el Nivel 2.
-  - *Umbral insuficiente con respuestas corregidas:* Ronda con 2 aciertos iniciales y 2 corregidos tras reintento resulta en 2/4 de primer intento; el Nivel 2 permanece bloqueado y se ofrece repetir la ronda sin penalización adicional.
+  - *Estado inicial:* Tabla 1 desbloqueada y disponible; tablas 2–10 bloqueadas sin lógica ni progreso ficticio. El desbloqueo es estrictamente secuencial y prefijo.
+  - *Dominio acumulado:* La tabla 1 usa `>=3/4`; una tabla posterior exige dos de las últimas tres rondas calificadas y siete factores distintos acertados inicialmente, muestra en Fin el mensaje de felicitación y ofrece la siguiente tabla sólo cuando corresponde.
+  - *Dominio insuficiente con respuestas corregidas:* Los aciertos posteriores al primer intento no cuentan para dominio; la tabla siguiente permanece bloqueada y se ofrece repetir sin penalización adicional.
   - *Conservación ante fallos:* Jugar un nivel ya abierto y fallar no bloquea ni revierte niveles previamente desbloqueados.
-  - *Cierre de Nivel 4 (invariante de MVP):* Completar el Nivel 4 (tabla del 5) con 4/4 aciertos permite repetir o volver a niveles anteriores y nunca muestra ni ofrece un inexistente Nivel 5.
+  - *Cierre de tabla 10 (invariante v1.2):* Completar la tabla 10 permite repetir o volver a tablas anteriores y nunca muestra ni ofrece una inexistente tabla 11.
   - *Persistencia en localStorage:* Escritura y recarga en el mismo navegador conservan el nivel máximo alcanzado y la preferencia de sonido (`multiplo_progression_v1` y `multiplo_sound_enabled`).
   - *Aislamiento entre navegadores/contextos:* El progreso desbloqueado en un contexto de navegador no se fuga ni afecta a una sesión independiente o incógnita.
-  - *Tolerancia y degradación elegante:* Ante `SecurityError`, almacenamiento bloqueado, cuota excedida o JSON corrupto en `localStorage`, la aplicación absorbe el error, inicia de forma segura en memoria en Nivel 1, muestra un aviso breve para adulto y permite jugar la ronda completa sin llamadas de red.
+  - *Tolerancia y degradación elegante:* Ante `SecurityError`, almacenamiento bloqueado, cuota excedida o JSON corrupto en `localStorage`, la aplicación absorbe el error, inicia de forma segura en memoria en la tabla 1, muestra un aviso breve para adulto y permite jugar la ronda completa sin llamadas de red.
   - *Sonido persistido y voz:* El conmutador silencia efectos y locución, se almacena de forma defensiva y no impide el avance pedagógico de la ronda.
 - **Nota metodológica:** Esta validación corresponde a pruebas técnicas deterministas y heurísticas automatizadas en entorno local; no constituye despliegue en producción ni validación presencial con niños de seis años.
 

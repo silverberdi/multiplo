@@ -19,9 +19,9 @@ const EVENT_CLIPS = Object.freeze({
 
 export const FOLA_APPLICATION_IDS = Object.freeze([
   ...Object.values(EVENT_CLIPS),
-  ...Array.from({ length: 4 }, (_, index) => `intro_tabla_0${index + 2}`),
+  ...Array.from({ length: 10 }, (_, index) => `intro_tabla_${String(index + 1).padStart(2, '0')}`),
   ...['pregunta', 'explicacion', 'operacion'].flatMap((kind) =>
-    Array.from({ length: 4 }, (_, a) => Array.from({ length: 5 }, (_, b) => `${kind}_${String(a + 2).padStart(2, '0')}x${String(b + 1).padStart(2, '0')}`)).flat()
+    Array.from({ length: 10 }, (_, a) => Array.from({ length: 10 }, (_, b) => `${kind}_${String(a + 1).padStart(2, '0')}x${String(b + 1).padStart(2, '0')}`)).flat()
   ),
   ...Array.from({ length: 25 }, (_, index) => `numero_${String(index + 1).padStart(3, '0')}`)
 ]);

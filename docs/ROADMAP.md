@@ -1,5 +1,9 @@
 # Múltiplo — Roadmap de producto y entrega del MVP
-**Versión:** MVP v1.0 · **Estado:** orden propuesto de ejecución a partir del backlog aprobado.
+**Versión:** MVP v1.2 · **Estado:** orden propuesto de ejecución a partir del backlog aprobado.
+
+## Entrega v1.2 — Request #21
+
+La ampliación de tablas 1–10, microdesafíos intercalados, dominio acumulado y migración local pertenece al Change `req-21-v2-02-tablas-110-microdesafios-intercala`. La validación técnica local no equivale a despliegue ni a observación presencial.
 
 ## 1. Objetivo del roadmap
 Llegar **rápido a un juego completo que pueda probar un niño real**, evitando entregas que solo prueban infraestructura o pantallas aisladas. El trabajo se coordina con los issues ya creados: **no se necesita abrir nuevas épicas, proyectos, fases técnicas o tickets para reproducir esta tabla**.
@@ -12,7 +16,7 @@ No hay fechas ni estimaciones comprometidas. La secuencia expresa **dependencias
 | H0 — Contexto listo | Documentación (sin issue extra) | Visión, MVP, pedagogía, UX, decisiones, arquitectura, activos, trazabilidad, config OpenSpec | Agente puede comprender qué y por qué antes de planificar |
 | H1 — Interfaz y guía | [#1](https://github.com/silverberdi/multiplo/issues/1), [#2](https://github.com/silverberdi/multiplo/issues/2) | Navegación adaptable, estrella, texto y voz | Juego abre en los tres factores de forma; voz tiene fallback |
 | H2 — Aprendizaje y preguntas | [#3](https://github.com/silverberdi/multiplo/issues/3), [#4](https://github.com/silverberdi/multiplo/issues/4) | Demostración de grupos, tres tipos de ejercicio, feedback y pistas | Una ronda de 4 preguntas produce respuestas correctas verificables |
-| H3 — Progresión y emoción | [#5](https://github.com/silverberdi/multiplo/issues/5), [#6](https://github.com/silverberdi/multiplo/issues/6) | Cuatro niveles, 3/4, progreso local, pantalla de celebración | El niño completa una ronda y puede repetir o avanzar según resultado |
+| H3 — Progresión y emoción | [#5](https://github.com/silverberdi/multiplo/issues/5), [#6](https://github.com/silverberdi/multiplo/issues/6), Request #21 | Tablas 1–10, dominio acumulado, progreso local y celebración | El niño completa una ronda y puede repetir o avanzar según resultado |
 | H4 — Validación MVP | [#7](https://github.com/silverberdi/multiplo/issues/7) | Juego probado en móvil, tablet y computador, más observación con niño | Se cumplen las reglas y se registran hallazgos sin datos personales |
 
 ### Dependencias reales (de los issues)
@@ -56,7 +60,7 @@ Detalle: [QUALITY_AND_VALIDATION.md](QUALITY_AND_VALIDATION.md).
 La primera evaluación con el niño decide si existe valor para ampliar el producto. Posibilidades, solo si evidencia lo justifica:
 - Ajustar ritmo, dificultad y diversidad de ejercicios.
 - Mejorar ayudas visuales, accesibilidad o voz.
-- Agregar tablas 6–10 o actividades de repaso, solo cuando el aprendizaje inicial esté validado.
+- Agregar nuevas mecánicas o contenido posterior a tablas 1–10, solo cuando el aprendizaje inicial esté validado y exista un nuevo Change.
 - Soporte de más de un niño, reportes parentales o sincronización, **solo con una nueva decisión de privacidad y alcance**.
 - Distribución más amplia o modelo comercial; **no están definidos**.
 

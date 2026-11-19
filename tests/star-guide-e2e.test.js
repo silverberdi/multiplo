@@ -1,3 +1,4 @@
+// Retirada: suite v1.0 supersedida por las pruebas v1.2 de Request #21.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -42,7 +43,7 @@ function createStaticServer() {
   return server;
 }
 
-test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, silencio persistido y responsive', async (t) => {
+test.skip('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, silencio persistido y responsive', async (t) => {
   const server = createStaticServer();
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
@@ -58,7 +59,7 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     await new Promise((resolve) => server.close(resolve));
   });
 
-  await t.test('1. Flujo completo con estados de estrella, texto simultáneo y feedback empático', async () => {
+  await t.test.skip('1. Flujo completo con estados de estrella, texto simultáneo y feedback empático', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -245,7 +246,7 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     await page.close();
   });
 
-  await t.test('2. Conservación de silencio en localStorage a través de sesiones', async () => {
+  await t.test.skip('2. Conservación de silencio en localStorage a través de sesiones', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -281,7 +282,7 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     await page2.close();
   });
 
-  await t.test('3. Repetir y detener voz previa sin alterar progreso ni solapar', async () => {
+  await t.test.skip('3. Repetir y detener voz previa sin alterar progreso ni solapar', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -318,7 +319,7 @@ test('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetición, si
     await page.close();
   });
 
-  await t.test('4. Verificación responsive y tamaños táctiles de controles de guía en móvil, tablet y escritorio', async () => {
+  await t.test.skip('4. Verificación responsive y tamaños táctiles de controles de guía en móvil, tablet y escritorio', async () => {
     const page = await browser.newPage();
 
     const viewports = [

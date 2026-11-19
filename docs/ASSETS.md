@@ -1,4 +1,8 @@
-# Recursos multimedia — Múltiplo v1.0
+# Recursos multimedia — Múltiplo v1.2
+
+## Request #21
+
+La ampliación reutiliza `assets/objects/manzana.svg`, las mascotas, `estrella-premio.svg` y los WAV existentes. El catálogo Fola mantiene su SHA-256 documentado; la partida no descarga el ZIP ni genera assets nuevos.
 
 **Propósito:** catálogo de recursos entregados para que el agente los consuma en los issues. El contenido de `assets/` no constituye implementación del juego.
 

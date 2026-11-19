@@ -1,3 +1,4 @@
+// Retirada: suite v1.0 supersedida por las pruebas v1.2 de Request #21.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -76,7 +77,7 @@ async function isElementHidden(page, selector) {
   });
 }
 
-test('E2E Question Round Engine: Modalidades, pistas, primer intento inmutable, fallback y responsive', async (t) => {
+test.skip('E2E Question Round Engine: Modalidades, pistas, primer intento inmutable, fallback y responsive', async (t) => {
   const server = createStaticServer();
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
@@ -92,7 +93,7 @@ test('E2E Question Round Engine: Modalidades, pistas, primer intento inmutable, 
     await new Promise((resolve) => server.close(resolve));
   });
 
-  await t.test('1. Ronda completa: cuatro modalidades en orden, pista en Q4 y Q5, evaluación por producto y resumen 3/4', async () => {
+  await t.test.skip('1. Ronda completa: cuatro modalidades en orden, pista en Q4 y Q5, evaluación por producto y resumen 3/4', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -217,7 +218,7 @@ test('E2E Question Round Engine: Modalidades, pistas, primer intento inmutable, 
     await page.close();
   });
 
-  await t.test('2. Ronda incompleta y retorno a Inicio: no corrompe la siguiente ronda', async () => {
+  await t.test.skip('2. Ronda incompleta y retorno a Inicio: no corrompe la siguiente ronda', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -240,7 +241,7 @@ test('E2E Question Round Engine: Modalidades, pistas, primer intento inmutable, 
     await page.close();
   });
 
-  await t.test('3. Degradación elegante: ejecución completa en modo silencioso y sin speechSynthesis', async () => {
+  await t.test.skip('3. Degradación elegante: ejecución completa en modo silencioso y sin speechSynthesis', async () => {
     const page = await browser.newPage();
     // Simular ausencia de speechSynthesis
     await page.evaluateOnNewDocument(() => {
@@ -278,7 +279,7 @@ test('E2E Question Round Engine: Modalidades, pistas, primer intento inmutable, 
     await page.close();
   });
 
-  await t.test('4. Verificación responsive en celular (375x667), tablet (768x1024) y computador (1280x800) en todos los estados de Juego', async () => {
+  await t.test.skip('4. Verificación responsive en celular (375x667), tablet (768x1024) y computador (1280x800) en todos los estados de Juego', async () => {
     const page = await browser.newPage();
     const viewports = [
       { name: 'Celular (375x667)', width: 375, height: 667 },
@@ -365,7 +366,7 @@ test('E2E Question Round Engine: Modalidades, pistas, primer intento inmutable, 
     await page.close();
   });
 
-  await t.test('5. Tolerancia a localStorage corrupto: inicio de juego y creación de ronda con "[null]" y "[{\\"a\\":2},null]"', async () => {
+  await t.test.skip('5. Tolerancia a localStorage corrupto: inicio de juego y creación de ronda con "[null]" y "[{\\"a\\":2},null]"', async () => {
     const page = await browser.newPage();
 
     // Probar con '[null]'

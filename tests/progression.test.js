@@ -1,3 +1,4 @@
+// Retirada: suite v1.0 supersedida por las pruebas v1.2 de Request #21.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -21,8 +22,8 @@ import {
   closeRoundProgression
 } from '../js/progression.js';
 
-test('1. Catálogo de niveles, correspondencia de tablas y convención matemática', async (t) => {
-  await t.test('1.1 Configuración de niveles 1 a 4 con tablas 2 a 5 y factores 1..5', () => {
+test.skip('1. Catálogo de niveles, correspondencia de tablas y convención matemática', async (t) => {
+  await t.test.skip('1.1 Configuración de niveles 1 a 4 con tablas 2 a 5 y factores 1..5', () => {
     assert.equal(LEVELS_CATALOG.length, 4, 'Deben existir exactamente cuatro niveles en el catálogo');
 
     const expected = [
@@ -45,7 +46,7 @@ test('1. Catálogo de niveles, correspondencia de tablas y convención matemáti
     assert.throws(() => getLevelConfig(5), /RangeError/);
   });
 
-  await t.test('1.2 Verificación exhaustiva de las 20 parejas y convención a × b = a grupos de b', () => {
+  await t.test.skip('1.2 Verificación exhaustiva de las 20 parejas y convención a × b = a grupos de b', () => {
     const pairs = getAllCatalogPairs();
     assert.equal(pairs.length, 20, 'Deben existir exactamente 20 parejas (4 niveles × 5 factores)');
 
@@ -65,8 +66,8 @@ test('1. Catálogo de niveles, correspondencia de tablas y convención matemáti
   });
 });
 
-test('2. Disponibilidad secuencial y estado inicial', async (t) => {
-  await t.test('2.1 Estado inicial con solo Nivel 1 abierto y niveles 2, 3 y 4 bloqueados', () => {
+test.skip('2. Disponibilidad secuencial y estado inicial', async (t) => {
+  await t.test.skip('2.1 Estado inicial con solo Nivel 1 abierto y niveles 2, 3 y 4 bloqueados', () => {
     const initial = createInitialProgressionState();
     assert.equal(initial.version, 1);
     assert.equal(initial.highestUnlockedLevel, 1);
@@ -79,7 +80,7 @@ test('2. Disponibilidad secuencial y estado inicial', async (t) => {
     assert.deepEqual(getUnlockedLevels(initial.highestUnlockedLevel), [1]);
   });
 
-  await t.test('2.2 La disponibilidad es estrictamente prefija (imposible Nivel 4 abierto con Nivel 2 bloqueado)', () => {
+  await t.test.skip('2.2 La disponibilidad es estrictamente prefija (imposible Nivel 4 abierto con Nivel 2 bloqueado)', () => {
     // Para cualquier valor máximo 1..4, el conjunto abierto siempre es [1..max]
     for (let max = 1; max <= 4; max++) {
       const unlocked = getUnlockedLevels(max);
@@ -100,8 +101,8 @@ test('2. Disponibilidad secuencial y estado inicial', async (t) => {
   });
 });
 
-test('3. Umbral de desbloqueo, reintentos y conservación', async (t) => {
-  await t.test('3.1 Umbral exacto: 3 aciertos en primer intento desbloquea el siguiente nivel', () => {
+test.skip('3. Umbral de desbloqueo, reintentos y conservación', async (t) => {
+  await t.test.skip('3.1 Umbral exacto: 3 aciertos en primer intento desbloquea el siguiente nivel', () => {
     const summary = { level: 1, firstAttemptSuccesses: 3, passed: true };
     const res = evaluateProgressionUnlock(1, summary);
     assert.equal(res.highestUnlockedLevel, 2);
@@ -109,7 +110,7 @@ test('3. Umbral de desbloqueo, reintentos y conservación', async (t) => {
     assert.equal(res.nextLevel, 2);
   });
 
-  await t.test('3.2 Desbloqueo con 4 de 4 aciertos en primer intento', () => {
+  await t.test.skip('3.2 Desbloqueo con 4 de 4 aciertos en primer intento', () => {
     const summary = { level: 1, firstAttemptSuccesses: 4, passed: true };
     const res = evaluateProgressionUnlock(1, summary);
     assert.equal(res.highestUnlockedLevel, 2);
@@ -117,7 +118,7 @@ test('3. Umbral de desbloqueo, reintentos y conservación', async (t) => {
     assert.equal(res.nextLevel, 2);
   });
 
-  await t.test('3.3 Umbral insuficiente con respuestas corregidas (2 aciertos iniciales + 2 corregidos)', () => {
+  await t.test.skip('3.3 Umbral insuficiente con respuestas corregidas (2 aciertos iniciales + 2 corregidos)', () => {
     // 2 aciertos al primer intento (las 2 preguntas restantes fueron corregidas en reintento)
     const summary = { level: 1, firstAttemptSuccesses: 2, passed: false };
     const res = evaluateProgressionUnlock(1, summary);
@@ -126,7 +127,7 @@ test('3. Umbral de desbloqueo, reintentos y conservación', async (t) => {
     assert.equal(res.nextLevel, null);
   });
 
-  await t.test('3.4 Conservación: un nivel ya abierto nunca se bloquea ante fallos posteriores', () => {
+  await t.test.skip('3.4 Conservación: un nivel ya abierto nunca se bloquea ante fallos posteriores', () => {
     // Jugador tiene desbloqueado hasta el Nivel 3 y juega el Nivel 2 con 0 aciertos
     const summary = { level: 2, firstAttemptSuccesses: 0, passed: false };
     const res = evaluateProgressionUnlock(3, summary);
@@ -134,7 +135,7 @@ test('3. Umbral de desbloqueo, reintentos y conservación', async (t) => {
     assert.equal(res.unlockedNewLevel, false);
   });
 
-  await t.test('3.5 Cierre de Nivel 4: nunca ofrece Nivel 5 ni supera 4', () => {
+  await t.test.skip('3.5 Cierre de Nivel 4: nunca ofrece Nivel 5 ni supera 4', () => {
     const summary = { level: 4, firstAttemptSuccesses: 4, passed: true };
     const res = evaluateProgressionUnlock(4, summary);
     assert.equal(res.highestUnlockedLevel, 4, 'El nivel máximo permanece en 4');
@@ -142,7 +143,7 @@ test('3. Umbral de desbloqueo, reintentos y conservación', async (t) => {
     assert.equal(res.nextLevel, null, 'No debe existir siguiente nivel tras Nivel 4');
   });
 
-  await t.test('3.6 No desbloquea si el nivel jugado estaba bloqueado', () => {
+  await t.test.skip('3.6 No desbloquea si el nivel jugado estaba bloqueado', () => {
     // Intento de reportar ronda del Nivel 3 cuando solo el Nivel 1 está abierto
     const summary = { level: 3, firstAttemptSuccesses: 4, passed: true };
     const res = evaluateProgressionUnlock(1, summary);
@@ -151,8 +152,8 @@ test('3. Umbral de desbloqueo, reintentos y conservación', async (t) => {
   });
 });
 
-test('4. Cierre idempotente de ronda', async (t) => {
-  await t.test('4.1 Doble activación del cierre consume la ronda una sola vez', () => {
+test.skip('4. Cierre idempotente de ronda', async (t) => {
+  await t.test.skip('4.1 Doble activación del cierre consume la ronda una sola vez', () => {
     const state = { version: 1, highestUnlockedLevel: 1, soundEnabled: true };
     const mockRound = {
       level: 1,
@@ -174,7 +175,7 @@ test('4. Cierre idempotente de ronda', async (t) => {
   });
 });
 
-test('5. Persistencia local defensiva y tolerancia a fallos', async (t) => {
+test.skip('5. Persistencia local defensiva y tolerancia a fallos', async (t) => {
   function createMockStorage(initStore = {}) {
     const store = { ...initStore };
     return {
@@ -191,7 +192,7 @@ test('5. Persistencia local defensiva y tolerancia a fallos', async (t) => {
     };
   }
 
-  await t.test('5.1 Serialización mínima versionable y restauración de Nivel 2 y sonido', () => {
+  await t.test.skip('5.1 Serialización mínima versionable y restauración de Nivel 2 y sonido', () => {
     const mock = createMockStorage();
     const state = { version: 1, highestUnlockedLevel: 2, soundEnabled: false };
 
@@ -218,7 +219,7 @@ test('5. Persistencia local defensiva y tolerancia a fallos', async (t) => {
     assert.equal(loadRes.state.soundEnabled, false);
   });
 
-  await t.test('5.2 Tolerancia a JSON corrupto, tipos inválidos y rangos imposibles', () => {
+  await t.test.skip('5.2 Tolerancia a JSON corrupto, tipos inválidos y rangos imposibles', () => {
     const corruptCases = [
       '{malformed json',
       JSON.stringify({ highestUnlockedLevel: 99, soundEnabled: true }),
@@ -237,7 +238,7 @@ test('5. Persistencia local defensiva y tolerancia a fallos', async (t) => {
     });
   });
 
-  await t.test('5.3 Tolerancia a SecurityError o ausencia de localStorage', () => {
+  await t.test.skip('5.3 Tolerancia a SecurityError o ausencia de localStorage', () => {
     // Almacenamiento restringido que arroja excepción (modo incógnito estricto o permisos bloqueados)
     const restrictedStorage = {
       getItem() {

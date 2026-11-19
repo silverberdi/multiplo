@@ -1,5 +1,19 @@
 # Múltiplo — Arquitectura objetivo y restricciones técnicas
-**Estado:** propuesta de arquitectura **para** el MVP, no descripción de código existente. Cualquier cambio de tecnología significativo requiere registrar una decisión.
+**Estado:** propuesta de arquitectura **para** el MVP, con evolución v1.2 documentada en Request #21. Cualquier cambio de tecnología significativo requiere registrar una decisión.
+
+`progression.js` mantiene el estado local versionado con diez tablas, evidencia acotada a tres rondas, factores cubiertos y errores priorizables. `question-engine.js` es la única fuente de parejas dirigidas y distingue `actual`/`repaso`; `aprende.js` reutiliza `manzana.svg`. La persistencia sigue siendo defensiva y local.
+
+### Inventario de consumidores Request #21
+
+| Módulo | Consumidores directos | Contrato |
+|---|---|---|
+| `progression.js` | `question-engine.js`, `app.js`, pruebas v1.2 | tablas abiertas, dominio, migración y persistencia |
+| `question-engine.js` | `app.js`, pruebas v1.2 | parejas dirigidas, modalidades y primer intento |
+| `aprende.js` | `app.js`, `question-engine.js`, pruebas v1.2 | grupos, suma, producto y SVG |
+| `app.js` | DOM de las cuatro vistas | navegación y render único |
+| `star-guide.js` | `app.js`, pruebas Fola | audio opcional, cancelación y fallback textual |
+
+Este inventario es la única ruta de Request #21; no se crea un motor paralelo.
 
 ## 1. Drivers
 1. Lanzar un MVP jugable lo antes posible, sin construir infraestructura innecesaria.
@@ -29,7 +43,7 @@ flowchart LR
 | UI responsive | Mostrar vistas, controles y ayudas | Duplicar reglas matemáticas |
 | Ronda | Coordinar aprendizaje + cuatro preguntas | Inventar niveles adicionales |
 | Generador de preguntas | Elegir operaciones y distractores válidos | Generar más de una respuesta correcta |
-| Progreso | Calcular aciertos iniciales y umbral 3/4 | Penalizar reintentos |
+| Progreso | Calcular dominio acumulado por tabla y factores distintos; tabla 1 usa `>=3/4` | Penalizar reintentos |
 | Persistencia | Mantener niveles abiertos y preferencia de sonido | Enviar datos a servidores |
 | Narrador | Sintetizar voz y manejar mute/replay | Impedir avanzar si falla voz |
 | Activos visuales/sonoros | Reutilizar SVG y WAV del repositorio | Solicitar archivos de terceros en runtime |
@@ -59,7 +73,7 @@ Las escrituras locales deben fallar de modo no catastrófico: si el navegador bl
 ## 4. Contenido y recursos
 - [ASSETS.md](ASSETS.md) registra mascota SVG en cuatro expresiones, manzana SVG y cuatro efectos WAV originales.
 - Usar fuentes Nunito/Baloo 2 solo cuando su carga/licencia sea compatible. **Fallback obligatorio** con tipografía del sistema.
-- Las preguntas se generan a partir de las tablas 2–5 y factores 1–5: **no** es necesario un CMS ni una API de contenido.
+- Las preguntas se generan a partir de las tablas 1–10 y factores 1–10: **no** es necesario un CMS ni una API de contenido.
 - El producto requiere una interfaz en español. Textos y frases deben permitir asociar cantidades mostradas con narración.
 - Las instrucciones usan locuciones Fola pregrabadas versionadas en release independiente, con preparación estática verificada por SHA-256.
 
@@ -97,7 +111,7 @@ Las escrituras locales deben fallar de modo no catastrófico: si el navegador bl
 Todo cambio implementado debe:
 - demostrar que el flujo completo puede ejecutarse, no solo renderizar un componente;
 - comprobar matemáticamente respuestas y distractores;
-- mantener la convención `a×b = a grupos de b` y el desbloqueo 3/4;
+- mantener la convención `a×b = a grupos de b` y el dominio acumulado v1.2;
 - probar que el fallo de voz no bloquea el juego;
 - respetar los requisitos del [modelo de aprendizaje](LEARNING_MODEL.md);
 - evitar dependencias innecesarias para entregar el MVP.

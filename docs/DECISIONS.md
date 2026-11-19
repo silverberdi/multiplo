@@ -1,4 +1,8 @@
 # Múltiplo — Registro de decisiones de producto y arquitectura
+
+## D-21 — Catálogo y dominio v1.2
+
+Request #21 sustituye los límites históricos 2–5 por tablas dirigidas 1–10, sin modificar el principio de no castigo. Se conserva `multiplo_progression_v1` como clave de migración idempotente hacia el estado v1.2, junto con sonido y fallos válidos. No se añaden TTS, backend, cuentas, analítica ni assets.
 **Propósito:** evitar que un agente reabra acuerdos, rellene vacíos como hechos o introduzca soluciones más complejas de lo necesario.
 
 **Estado de los acuerdos:** «Aprobada» = decidida en la conversación de definición del MVP; «Diseño de apoyo» = guía razonable derivada del alcance, revisable sin alterar la intención; «Pendiente» = todavía no decidida.
@@ -11,11 +15,11 @@
 | D-004 | Dispositivos: celular, tablet y computador | **Aprobada** | Una web responsive, toque o clic |
 | D-005 | Instrucciones con voz y texto | **Aprobada** | Autonomía aunque el niño lea poco |
 | D-006 | Mascota: estrella amarilla | **Aprobada** | Guía cercana, cuatro estados expresivos simples |
-| D-007 | Niveles progresivos, tablas 2–5 (factores 1–5) | **Aprobada** | Introducción gradual; no tablas 6–10 en MVP |
+| D-007 | Tablas 1–10 con factores 1–10 y dominio acumulado | **Aprobada por Request #21** | Sustituye los límites históricos v1.0; progresión gradual sin tabla 11 |
 | D-008 | Cinco actividades por ronda: 1 ejemplo y 4 preguntas | **Aprobada** | Partidas breves, demostración no evaluable |
 | D-009 | Tres modalidades de ejercicio | **Aprobada** | Variedad suficiente sin minijuegos adicionales |
 | D-010 | Tres opciones por pregunta; pistas y reintentos ilimitados | **Aprobada** | Aprendizaje sin castigos |
-| D-011 | Umbral de 3/4 respuestas correctas en primer intento | **Aprobada** | Regla simple para desbloqueo, no certificación pedagógica |
+| D-011 | Tabla 1 con `>=3/4`; tablas 2–10 con dos de tres rondas y siete factores | **Aprobada por Request #21** | Regla de juego, no certificación pedagógica |
 | D-012 | Guardar progreso local sin cuentas ni backend | **Aprobada** | Velocidad, privacidad y baja infraestructura |
 | D-013 | Diseño infantil, alegre, limpio y de botones grandes | **Aprobada** | Claridad y facilidad de uso en todas las pantallas |
 | D-014 | HTML/CSS/JS, hosting estático y PWA | **Aprobada como solución para MVP** | Una sola aplicación, sencilla y sin tiendas nativas |
@@ -29,15 +33,17 @@
 | D-022 | Modelo de negocio/comercialización | **Pendiente** | No asumir monetización, lanzamiento público ni SaaS |
 | D-023 | Proveedor de hosting y URL final | **Pendiente** | Elegir al desplegar; mantener plataforma estática |
 | D-024 | Framework de pruebas y empaquetado interno | **Pendiente para implementador** | La forma no debe introducir complejidad desproporcionada |
-| D-025 | Ampliación pedagógica posterior a tablas 6–10 | **Pendiente de evidencia** | Primero probar comprensión y motivación |
+| D-025 | Ampliaciones posteriores a tablas 1–10 | **Pendiente de evidencia** | No ampliar catálogo ni mecánicas sin nuevo Change |
 
 ## Detalle de decisiones con riesgo de reinterpretación
 
 ### D-003 / D-008: modo mixto no significa varios juegos
 La ronda aprobada contiene **un único recorrido**: ejemplo de grupos → dos ejercicios con objetos → un ejercicio de multiplicación → uno de selección de operación → resultado. No construir mundos ni selector de modos.
 
-### D-007 / D-011 / D-019: nivel no es dominio escolar
-El nivel se desbloquea con 3 de 4 aciertos en **el primer intento** de cada pregunta evaluable. Una corrección posterior no suma ese acierto. Aun si no obtiene el umbral, puede completar la ronda y repetir.
+### D-007 / D-011 / D-019: tabla no es dominio escolar
+La tabla 1 usa `>=3/4`; las tablas 2–10 requieren dominio acumulado. Una corrección posterior no suma ese acierto. Aun si no obtiene el umbral, puede completar la ronda y repetir.
+
+Los límites 2–5, factores 1–5 y umbral único 3/4 de v1.0 quedan conservados sólo como historia supersedida.
 
 ### D-004 / D-014: web y PWA
 Se utiliza una web adaptable y la opción de agregar a la pantalla de inicio cuando el navegador lo admita. No se promete paridad perfecta de instalación en todos los dispositivos ni desarrollo de apps en tiendas.

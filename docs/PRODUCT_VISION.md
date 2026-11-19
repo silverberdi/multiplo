@@ -1,5 +1,5 @@
 # Múltiplo — Intención de negocio y visión de producto
-**Versión:** MVP v1.0 · **Estado:** intención y alcance aprobados para el primer producto; los resultados de aprendizaje aún no han sido validados con el niño.
+**Versión:** MVP v1.2 · **Estado:** intención y alcance aprobados para el primer producto; los resultados de aprendizaje aún no han sido validados con el niño.
 
 ## 1. ¿Por qué existe?
 Múltiplo nace para ayudar a un niño de seis años a **descubrir qué significa multiplicar**, antes de exigirle memorizar tablas. La necesidad no es ofrecer un curso completo ni evaluar como un examen: es disponer de una experiencia breve, atractiva y autónoma, que convierta una idea abstracta (multiplicar) en grupos visibles de objetos.
@@ -51,7 +51,7 @@ H4. Pistas sin penalización permiten continuar tras equivocarse sin frustració
 **Importante:** una única sesión no demuestra dominio de las tablas ni eficacia educativa. Los hallazgos sirven para decidir si iterar el juego, no para afirmar resultados académicos.
 
 ## 5. Producto mínimo acordado
-Cuatro niveles en secuencia (tablas del 2 al 5, segundo factor de 1 a 5). Cada ronda tiene una demostración guiada y cuatro preguntas en tres modalidades. Se desbloquea el nivel posterior con tres aciertos de primer intento en las cuatro preguntas. La estrella presenta instrucciones con voz y texto, ofrece ayuda y celebra; el progreso se almacena localmente. No hay cuentas, backend, IA, anuncios ni pagos.
+Tablas 1–10 en secuencia, con factores 1–10. Cada ronda tiene una demostración guiada, cuatro preguntas y un repaso intercalado cuando corresponde. La tabla 1 usa `>=3/4`; las tablas posteriores se desbloquean por dominio acumulado. La estrella presenta instrucciones con voz y texto, ofrece ayuda y celebra; el progreso se almacena localmente. No hay cuentas, backend, IA, anuncios ni pagos.
 
 Fuente de comportamiento detallado: [Contrato del MVP](MVP.md). La experiencia exacta está en [USER_EXPERIENCE.md](USER_EXPERIENCE.md) y la pedagogía en [LEARNING_MODEL.md](LEARNING_MODEL.md).
 

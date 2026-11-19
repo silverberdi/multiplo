@@ -65,31 +65,37 @@
             <h2 id="heading-levels" class="section-subtitle">Elige tu nivel</h2>
             <div class="levels-grid" role="group" aria-label="Niveles de multiplicación">
               
-              <!-- Nivel 1: Disponible al inicio -->
-              <button id="btn-level-1" class="level-card level-unlocked" data-level="1" type="button" aria-label="Nivel 1: Tabla del 2. Nivel disponible">
+              <!-- Tablas dirigidas 1..10; la disponibilidad se sincroniza al iniciar. -->
+              <button id="btn-level-1" class="level-card level-unlocked" data-level="1" type="button" aria-label="Tabla del 1. Nivel disponible">
                 <span class="level-badge available-badge">Disponible</span>
                 <span class="level-number">1</span>
+                <span class="level-title">Tabla del 1</span>
+              </button>
+
+              <button id="btn-level-2" class="level-card level-locked" data-level="2" type="button" disabled aria-disabled="true" aria-label="Tabla del 2. Bloqueado">
+                <span class="level-badge locked-badge" aria-hidden="true">🔒 Bloqueado</span>
+                <span class="level-number">2</span>
                 <span class="level-title">Tabla del 2</span>
               </button>
 
-              <!-- Niveles 2, 3 y 4: Bloqueados inicialmente sin lógica ficticia -->
-              <button id="btn-level-2" class="level-card level-locked" data-level="2" type="button" disabled aria-disabled="true" aria-label="Nivel 2: Tabla del 3. Bloqueado">
+              <button id="btn-level-3" class="level-card level-locked" data-level="3" type="button" disabled aria-disabled="true" aria-label="Tabla del 3. Bloqueado">
                 <span class="level-badge locked-badge" aria-hidden="true">🔒 Bloqueado</span>
-                <span class="level-number">2</span>
+                <span class="level-number">3</span>
                 <span class="level-title">Tabla del 3</span>
               </button>
 
-              <button id="btn-level-3" class="level-card level-locked" data-level="3" type="button" disabled aria-disabled="true" aria-label="Nivel 3: Tabla del 4. Bloqueado">
+              <button id="btn-level-4" class="level-card level-locked" data-level="4" type="button" disabled aria-disabled="true" aria-label="Tabla del 4. Bloqueado">
                 <span class="level-badge locked-badge" aria-hidden="true">🔒 Bloqueado</span>
-                <span class="level-number">3</span>
+                <span class="level-number">4</span>
                 <span class="level-title">Tabla del 4</span>
               </button>
 
-              <button id="btn-level-4" class="level-card level-locked" data-level="4" type="button" disabled aria-disabled="true" aria-label="Nivel 4: Tabla del 5. Bloqueado">
-                <span class="level-badge locked-badge" aria-hidden="true">🔒 Bloqueado</span>
-                <span class="level-number">4</span>
-                <span class="level-title">Tabla del 5</span>
-              </button>
+              <button id="btn-level-5" class="level-card level-locked" data-level="5" type="button" disabled aria-disabled="true" aria-label="Tabla del 5. Bloqueado"><span class="level-badge locked-badge">🔒 Bloqueado</span><span class="level-number">5</span><span class="level-title">Tabla del 5</span></button>
+              <button id="btn-level-6" class="level-card level-locked" data-level="6" type="button" disabled aria-disabled="true" aria-label="Tabla del 6. Bloqueado"><span class="level-badge locked-badge">🔒 Bloqueado</span><span class="level-number">6</span><span class="level-title">Tabla del 6</span></button>
+              <button id="btn-level-7" class="level-card level-locked" data-level="7" type="button" disabled aria-disabled="true" aria-label="Tabla del 7. Bloqueado"><span class="level-badge locked-badge">🔒 Bloqueado</span><span class="level-number">7</span><span class="level-title">Tabla del 7</span></button>
+              <button id="btn-level-8" class="level-card level-locked" data-level="8" type="button" disabled aria-disabled="true" aria-label="Tabla del 8. Bloqueado"><span class="level-badge locked-badge">🔒 Bloqueado</span><span class="level-number">8</span><span class="level-title">Tabla del 8</span></button>
+              <button id="btn-level-9" class="level-card level-locked" data-level="9" type="button" disabled aria-disabled="true" aria-label="Tabla del 9. Bloqueado"><span class="level-badge locked-badge">🔒 Bloqueado</span><span class="level-number">9</span><span class="level-title">Tabla del 9</span></button>
+              <button id="btn-level-10" class="level-card level-locked" data-level="10" type="button" disabled aria-disabled="true" aria-label="Tabla del 10. Bloqueado"><span class="level-badge locked-badge">🔒 Bloqueado</span><span class="level-number">10</span><span class="level-title">Tabla del 10</span></button>
 
             </div>
           </div>
