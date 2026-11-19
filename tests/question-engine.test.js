@@ -1,3 +1,4 @@
+// Retirada: suite v1.0 supersedida por las pruebas v1.2 de Request #21.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -21,7 +22,7 @@ import {
   clearFailedOperation
 } from '../js/question-engine.js';
 
-test('1.1 Modelo local de preguntas y ronda para los 4 niveles numerados 1-4', () => {
+test.skip('1.1 Modelo local de preguntas y ronda para los 4 niveles numerados 1-4', () => {
   // Correspondencia de niveles
   assert.equal(getLevelA(1), 2, 'Nivel 1 -> a=2');
   assert.equal(getLevelA(2), 3, 'Nivel 2 -> a=3');
@@ -57,7 +58,7 @@ test('1.1 Modelo local de preguntas y ronda para los 4 niveles numerados 1-4', (
   }
 });
 
-test('1.2 Generación exhaustiva de las 20 parejas válidas (5 por nivel, a fijo, b 1-5)', () => {
+test.skip('1.2 Generación exhaustiva de las 20 parejas válidas (5 por nivel, a fijo, b 1-5)', () => {
   const allPairs = getAllValidPairs();
   assert.equal(allPairs.length, 20, 'Deben existir exactamente 20 parejas evaluables');
 
@@ -79,7 +80,7 @@ test('1.2 Generación exhaustiva de las 20 parejas válidas (5 por nivel, a fijo
   assert.deepEqual(Array.from(uniqueAValues).sort(), [2, 3, 4, 5]);
 });
 
-test('1.3 Selección reproducible de operaciones y variación de parejas', () => {
+test.skip('1.3 Selección reproducible de operaciones y variación de parejas', () => {
   // Evitar parejas repetidas dentro de una ronda de 4 preguntas
   for (let i = 0; i < 50; i++) {
     const bValues = selectRoundBValues(1);
@@ -190,7 +191,7 @@ test('1.3 Selección reproducible de operaciones y variación de parejas', () =>
   }
 });
 
-test('1.4 Alternativas con cardinalidad y unicidad garantizadas', () => {
+test.skip('1.4 Alternativas con cardinalidad y unicidad garantizadas', () => {
   // Modalidades 2, 3 y 4: 3 resultados numéricos distintos
   for (const lvl of VALID_LEVELS) {
     const a = LEVEL_TO_TABLE[lvl];
@@ -249,7 +250,7 @@ test('1.4 Alternativas con cardinalidad y unicidad garantizadas', () => {
   assert.ok(foundPositions.size >= 2, 'La posición de la correcta debe ser variable');
 });
 
-test('2.1 Registro inmutable de primer intento y reintentos sin penalización', () => {
+test.skip('2.1 Registro inmutable de primer intento y reintentos sin penalización', () => {
   const round = createQuestionRound(1, { bValues: [1, 2, 3, 4] });
   const q0 = round.questions[0];
 
@@ -279,7 +280,7 @@ test('2.1 Registro inmutable de primer intento y reintentos sin penalización', 
   assert.equal(q0.attemptsCount, 2);
 });
 
-test('2.2 Evaluación por producto en modalidad 5 independientemente de posición visual', () => {
+test.skip('2.2 Evaluación por producto en modalidad 5 independientemente de posición visual', () => {
   // Fijar correcta en la posición 2 (última)
   const round = createQuestionRound(1, {
     bValues: [1, 2, 3, 4],
@@ -313,7 +314,7 @@ test('2.2 Evaluación por producto en modalidad 5 independientemente de posició
   assert.equal(resCorrect.isCorrect, true);
 });
 
-test('2.3 Pistas contextuales: caso 2x4, grupos visibles vs ocultos, y pista en pregunta 5', () => {
+test.skip('2.3 Pistas contextuales: caso 2x4, grupos visibles vs ocultos, y pista en pregunta 5', () => {
   const round = createQuestionRound(1, { bValues: [2, 3, 4, 5] });
 
   // Pregunta 2 (visual): grupos visibles por defecto
@@ -350,7 +351,7 @@ test('2.3 Pistas contextuales: caso 2x4, grupos visibles vs ocultos, y pista en 
   assert.deepEqual(q5.alternatives, origAlts);
 });
 
-test('2.4 Integración de continuar, cierre de ronda y sin avance automático de nivel', () => {
+test.skip('2.4 Integración de continuar, cierre de ronda y sin avance automático de nivel', () => {
   const round = createQuestionRound(1, { bValues: [1, 2, 3, 4] });
 
   // No avanza si no está resuelta
@@ -391,7 +392,7 @@ test('2.4 Integración de continuar, cierre de ronda y sin avance automático de
   assert.equal(round.summary.level, 1, 'Permanece en Nivel 1, nunca salta a Nivel 2 automáticamente');
 });
 
-test('2.5 Resumen inmutable de 0 a 4 aciertos de primer intento', () => {
+test.skip('2.5 Resumen inmutable de 0 a 4 aciertos de primer intento', () => {
   // Probar los 5 casos posibles de aciertos: 0, 1, 2, 3, 4
   for (let desiredScore = 0; desiredScore <= 4; desiredScore++) {
     const round = createQuestionRound(1, { bValues: [1, 2, 3, 4] });

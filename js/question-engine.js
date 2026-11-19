@@ -33,15 +33,9 @@ import {
 
 export { LEVELS_CATALOG };
 
-export const LEVEL_TO_TABLE = Object.freeze({
-  1: 2,
-  2: 3,
-  3: 4,
-  4: 5
-});
-
-export const VALID_LEVELS = Object.freeze([1, 2, 3, 4]);
-export const VALID_B_VALUES = Object.freeze([1, 2, 3, 4, 5]);
+export const LEVEL_TO_TABLE = Object.freeze(Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, i + 1])));
+export const VALID_LEVELS = Object.freeze(Array.from({ length: 10 }, (_, i) => i + 1));
+export const VALID_B_VALUES = Object.freeze(Array.from({ length: 10 }, (_, i) => i + 1));
 
 export const MODALITIES = Object.freeze({
   PREGUNTA_2: 2, // visual
@@ -51,6 +45,10 @@ export const MODALITIES = Object.freeze({
 });
 
 export const FAILED_OPS_STORAGE_KEY = 'multiplo_failed_operations';
+
+function browserStorage() {
+  try { return typeof localStorage !== 'undefined' ? localStorage : null; } catch (_error) { return null; }
+}
 
 /**
  * Valida si una entrada de historial de operación fallada es válida.
@@ -94,7 +92,8 @@ export function getAllValidPairs() {
  * Lee de forma segura el historial local de operaciones falladas.
  * Tolera almacenamiento ausente, corrupto o restringido.
  */
-export function readFailedHistory(storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+export function readFailedHistory(storage = undefined) {
+  storage = storage === undefined ? browserStorage() : storage;
   if (!storage) {
     return [];
   }
@@ -112,7 +111,8 @@ export function readFailedHistory(storage = (typeof localStorage !== 'undefined'
 /**
  * Registra una operación fallada en el historial local (tolerante a fallos).
  */
-export function recordFailedOperation(a, b, storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+export function recordFailedOperation(a, b, storage = undefined) {
+  storage = storage === undefined ? browserStorage() : storage;
   if (!storage) return;
   try {
     const current = readFailedHistory(storage);
@@ -129,7 +129,8 @@ export function recordFailedOperation(a, b, storage = (typeof localStorage !== '
 /**
  * Limpia el registro de una operación una vez que se acierta al primer intento.
  */
-export function clearFailedOperation(a, b, storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+export function clearFailedOperation(a, b, storage = undefined) {
+  storage = storage === undefined ? browserStorage() : storage;
   if (!storage) return;
   try {
     const current = readFailedHistory(storage);
@@ -239,9 +240,19 @@ export function generateNumericAlternatives(a, b, options = {}) {
     distractorB2 = shuffledOthers[1];
   }
 
+  if (distractorB1 === b || distractorB2 === b || distractorB1 === distractorB2) {
+    const fallback = otherBValues.filter((value) => value !== distractorB1 && value !== distractorB2);
+    distractorB1 = otherBValues[0];
+    distractorB2 = fallback[0] || otherBValues[1];
+  }
   const d1Product = a * distractorB1;
   const d2Product = a * distractorB2;
 
+  if (distractorB1 === b || distractorB2 === b || distractorB1 === distractorB2) {
+    const available = otherBValues.filter((value) => value !== distractorB1 && value !== distractorB2);
+    distractorB1 = otherBValues[0];
+    distractorB2 = available[0] || otherBValues[1];
+  }
   const choices = [
     { value: correctProduct, label: String(correctProduct), isCorrect: true, b: b },
     { value: d1Product, label: String(d1Product), isCorrect: false, b: distractorB1 },
@@ -306,6 +317,12 @@ export function generateOperationAlternatives(a, b, options = {}) {
     }
     distractorB1 = shuffledOthers[0];
     distractorB2 = shuffledOthers[1];
+  }
+
+  if (distractorB1 === b || distractorB2 === b || distractorB1 === distractorB2) {
+    const available = otherBValues.filter((value) => value !== distractorB1 && value !== distractorB2);
+    distractorB1 = otherBValues[0];
+    distractorB2 = available[0] || otherBValues[1];
   }
 
   const choices = [
@@ -445,6 +462,8 @@ export function createQuestion(modalidad, a, b, questionIndex, options = {}) {
     firstAttemptCorrect: null,
     isResolved: false,
     attemptsCount: 0
+    ,source: options.source || 'actual'
+    ,table: a
   };
 }
 
@@ -459,7 +478,10 @@ export function createQuestionRound(level = 1, options = {}) {
 
   const a = getLevelA(lvl);
   const bList = selectRoundBValues(lvl, options);
-
+  const reviewOperation = lvl > 1 ? selectReviewOperation(lvl, options) : null;
+  const selectedPairs = lvl === 1
+    ? bList.map((b) => ({ a, b, source: 'actual' }))
+    : [...bList.slice(0, 3).map((b) => ({ a, b, source: 'actual' })), { ...reviewOperation, source: 'repaso' }];
   const orderedModalities = [
     MODALITIES.PREGUNTA_2,
     MODALITIES.PREGUNTA_3,
@@ -467,20 +489,38 @@ export function createQuestionRound(level = 1, options = {}) {
     MODALITIES.PREGUNTA_5
   ];
 
-  const questions = orderedModalities.map((modalidad, idx) => {
+  const modalities = options.modalities || shuffleWithRandom(orderedModalities, options.randomFn);
+  const questions = modalities.map((modalidad, idx) => {
     const qOptions = (options.perQuestionOptions && options.perQuestionOptions[idx]) || options;
-    return createQuestion(modalidad, a, bList[idx], idx, qOptions);
+    const pair = selectedPairs[idx];
+    return createQuestion(modalidad, pair.a, pair.b, idx, { ...qOptions, source: pair.source });
   });
 
   return {
     level: lvl,
     a,
-    bList,
+    bList: selectedPairs.map((pair) => pair.b),
     questions,
     currentIndex: 0,
     isFinished: false,
     summary: null
   };
+}
+
+function shuffleWithRandom(values, randomFn = Math.random) {
+  const copy = [...values];
+  for (let index = copy.length - 1; index > 0; index -= 1) { const j = Math.floor(randomFn() * (index + 1)); [copy[index], copy[j]] = [copy[j], copy[index]]; }
+  return copy;
+}
+
+function selectReviewOperation(level, options = {}) {
+  const randomFn = typeof options.randomFn === 'function' ? options.randomFn : Math.random;
+  const history = Array.isArray(options.failedHistory) ? options.failedHistory : readFailedHistory(options.storage);
+  const previousTables = history.filter((op) => op && op.a >= 1 && op.a < level && op.b >= 1 && op.b <= 10);
+  const candidates = [...new Set(previousTables.map((op) => `${op.a}:${op.b}`))].map((key) => key.split(':').map(Number));
+  if (candidates.length) { const [a, b] = candidates[Math.floor(randomFn() * candidates.length)]; return { a, b }; }
+  const a = Math.floor(randomFn() * (level - 1)) + 1;
+  return { a, b: Math.floor(randomFn() * 10) + 1 };
 }
 
 /**
@@ -586,15 +626,23 @@ export function advanceRound(round) {
   round.isFinished = true;
   const firstAttemptCorrect = Object.freeze(round.questions.map((q) => Boolean(q.firstAttemptCorrect)));
   const firstAttemptSuccesses = firstAttemptCorrect.filter(Boolean).length;
+  const currentQuestions = round.questions.filter((q) => q.source !== 'repaso');
+  const currentInitialSuccesses = currentQuestions.filter((q) => q.firstAttemptCorrect === true).length;
   round.summary = Object.freeze({
     level: round.level,
+    table: round.a,
     a: round.a,
     totalQuestions: round.questions.length, // 4
     firstAttemptCorrect,                    // Cuatro indicadores inmutables de primer intento
     firstAttempts: firstAttemptCorrect,     // Alias de conveniencia
     firstAttemptSuccesses,                  // 0..4 aciertos al primer intento
     stars: firstAttemptSuccesses,           // 0..4 estrellas equivalentes
-    passed: firstAttemptSuccesses >= 3      // Umbral 3/4 para información pedagógica
+    currentInitialSuccesses,
+    currentFactors: currentQuestions.map((q) => q.b),
+    currentFirstAttemptCorrect: currentQuestions.map((q) => q.firstAttemptCorrect === true),
+    failedOperations: round.questions.filter((q) => q.firstAttemptCorrect === false).map((q) => ({ a: q.a, b: q.b, source: q.source })),
+    reviewInitialSuccesses: round.questions.filter((q) => q.source === 'repaso' && q.firstAttemptCorrect === true).length,
+    passed: currentInitialSuccesses >= (round.a === 1 ? 3 : 2)
   });
 
   return {

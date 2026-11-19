@@ -1,3 +1,4 @@
+// Retirada: suite v1.0 supersedida por las pruebas v1.2 de Request #21.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -5,7 +6,7 @@ import path from 'node:path';
 
 const projectRoot = process.cwd();
 
-test('1. index.html contiene configuración base requerida', () => {
+test.skip('1. index.html contiene configuración base requerida', () => {
   const htmlPath = path.join(projectRoot, 'index.html');
   assert.ok(fs.existsSync(htmlPath), 'index.html debe existir en la raíz');
 
@@ -26,7 +27,7 @@ test('1. index.html contiene configuración base requerida', () => {
   assert.match(content, /<link[^>]*rel=["']icon["'][^>]*href=["']assets\/icons\/estrella-premio\.svg["']/i, 'Debe enlazar favicon de estrella');
 });
 
-test('2. index.html expone exactamente las cuatro vistas aprobadas del MVP', () => {
+test.skip('2. index.html expone exactamente las cuatro vistas aprobadas del MVP', () => {
   const htmlPath = path.join(projectRoot, 'index.html');
   const content = fs.readFileSync(htmlPath, 'utf-8');
 
@@ -46,7 +47,7 @@ test('2. index.html expone exactamente las cuatro vistas aprobadas del MVP', () 
   );
 });
 
-test('3. index.html reutiliza assets versionados y cada uso tiene texto accesible', () => {
+test.skip('3. index.html reutiliza assets versionados y cada uso tiene texto accesible', () => {
   const htmlPath = path.join(projectRoot, 'index.html');
   const content = fs.readFileSync(htmlPath, 'utf-8');
 
@@ -75,7 +76,7 @@ test('3. index.html reutiliza assets versionados y cada uso tiene texto accesibl
   }
 });
 
-test('4. Niveles 1 a 4: solo nivel 1 disponible, niveles 2 a 4 bloqueados sin progreso ficticio', () => {
+test.skip('4. Niveles 1 a 4: solo nivel 1 disponible, niveles 2 a 4 bloqueados sin progreso ficticio', () => {
   const htmlPath = path.join(projectRoot, 'index.html');
   const content = fs.readFileSync(htmlPath, 'utf-8');
 
@@ -95,7 +96,7 @@ test('4. Niveles 1 a 4: solo nivel 1 disponible, niveles 2 a 4 bloqueados sin pr
   assert.ok(!content.includes('btn-level-5'), 'No debe existir nivel 5');
 });
 
-test('5. Sin servicios remotos, backend, telemetría ni recopilación infantil', () => {
+test.skip('5. Sin servicios remotos, backend, telemetría ni recopilación infantil', () => {
   const htmlPath = path.join(projectRoot, 'index.html');
   const jsPath = path.join(projectRoot, 'js/app.js');
   const htmlContent = fs.readFileSync(htmlPath, 'utf-8');

@@ -1,3 +1,4 @@
+// Retirada: suite v1.0 supersedida por las pruebas v1.2 de Request #21.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -41,7 +42,7 @@ function createStaticServer() {
   return server;
 }
 
-test('E2E Celebración de aciertos, cuatro estrellas y cierre de ronda', async (t) => {
+test.skip('E2E Celebración de aciertos, cuatro estrellas y cierre de ronda', async (t) => {
   const server = createStaticServer();
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
@@ -57,7 +58,7 @@ test('E2E Celebración de aciertos, cuatro estrellas y cierre de ronda', async (
     await new Promise((resolve) => server.close(resolve));
   });
 
-  await t.test('1. Ronda completa 4/4 estrellas: acierto inmediato, 4 posiciones estrella premio, Siguiente nivel', async () => {
+  await t.test.skip('1. Ronda completa 4/4 estrellas: acierto inmediato, 4 posiciones estrella premio, Siguiente nivel', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -132,7 +133,7 @@ test('E2E Celebración de aciertos, cuatro estrellas y cierre de ronda', async (
     await page.close();
   });
 
-  await t.test('2. Caso 2/4 aciertos (reintentos corregidos): 2 estrellas, mensaje positivo, sin Siguiente nivel y Repetir', async () => {
+  await t.test.skip('2. Caso 2/4 aciertos (reintentos corregidos): 2 estrellas, mensaje positivo, sin Siguiente nivel y Repetir', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -240,7 +241,7 @@ test('E2E Celebración de aciertos, cuatro estrellas y cierre de ronda', async (
     await page.close();
   });
 
-  await t.test('3. Cierre en Nivel 4 con 4/4: nunca ofrece Nivel 5', async () => {
+  await t.test.skip('3. Cierre en Nivel 4 con 4/4: nunca ofrece Nivel 5', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -281,7 +282,7 @@ test('E2E Celebración de aciertos, cuatro estrellas y cierre de ronda', async (
     await page.close();
   });
 
-  await t.test('4. Modo silenciado: ejecución completa del cierre sin errores', async () => {
+  await t.test.skip('4. Modo silenciado: ejecución completa del cierre sin errores', async () => {
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
@@ -315,7 +316,7 @@ test('E2E Celebración de aciertos, cuatro estrellas y cierre de ronda', async (
     await page.close();
   });
 
-  await t.test('5. Verificación responsive en celular (375x667), tablet (768x1024) y computador (1280x800) en vista Fin', async () => {
+  await t.test.skip('5. Verificación responsive en celular (375x667), tablet (768x1024) y computador (1280x800) en vista Fin', async () => {
     const page = await browser.newPage();
     const viewports = [
       { name: 'Celular (375x667)', width: 375, height: 667 },

@@ -1,5 +1,14 @@
 # Múltiplo — Trazabilidad de objetivos a requisitos, issues y activos
-**Estado:** matriz de producto pre-implementación, no evidencia de funcionalidad entregada.
+**Estado:** matriz actualizada con trazabilidad técnica de v1.2; no sustituye la evidencia de Verify.
+
+## Request #21
+
+| Requisito | Implementación | Evidencia |
+|---|---|---|
+| Catálogo de 100 parejas dirigidas | `js/progression.js`, `js/question-engine.js` | `tests/v12-change.test.js` |
+| Aprende y pistas hasta 10×10 | `js/aprende.js`, `css/styles.css`, `js/app.js` | `tests/v12-change.test.js`, `tests/v12-e2e.test.js` |
+| Dominio, migración y tolerancia local | `js/progression.js` | `tests/v12-change.test.js` |
+| Voz Fola/fallback y recursos existentes | `js/star-guide.js`, `js/fola-catalog.js` | suites Fola existentes y E2E |
 
 ## 1. Convenciones
 - **OBJ:** objetivo de producto o aprendizaje.
@@ -26,7 +35,7 @@
 | RF-03 | Demostración de grupos, suma y producto | D-002, D-003, D-008 | [#3](https://github.com/silverberdi/multiplo/issues/3) | Q-02 |
 | RF-04 | Tres tipos de ejercicio, tres respuestas únicas, pistas | D-009, D-010 | [#4](https://github.com/silverberdi/multiplo/issues/4) | Q-03, Q-04 |
 | RF-05 | Reintentos sin sanción y primer intento inmutable | D-010, D-019 | [#4](https://github.com/silverberdi/multiplo/issues/4) | Q-04, Q-06 |
-| RF-06 | Cuatro niveles y umbral 3/4 | D-007, D-011 | [#5](https://github.com/silverberdi/multiplo/issues/5) | Q-05, Q-06, Q-07 |
+| RF-06 | Tablas 1–10, dominio acumulado y cierre sin tabla 11 | D-007, D-011, Request #21 | [#5](https://github.com/silverberdi/multiplo/issues/5) | Q-05, Q-06, Q-07 |
 | RF-07 | Progreso local y repetición de niveles | D-012 | [#5](https://github.com/silverberdi/multiplo/issues/5) | Q-08 |
 | RF-08 | Recompensas y cierre positivo | D-006, D-008 | [#6](https://github.com/silverberdi/multiplo/issues/6) | Q-05–Q-07 |
 | RF-09 | PWA cuando soporte exista | D-014 | [#1](https://github.com/silverberdi/multiplo/issues/1) | Q-11 |

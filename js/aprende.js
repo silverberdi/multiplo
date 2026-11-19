@@ -4,7 +4,7 @@
  *
  * Cumple con:
  * - Convención matemática canónica: a × b = a grupos de b elementos
- * - Validación de límites: a en 2–5 (primer factor/nivel), b en 1–5 (segundo factor)
+ * - Validación de límites: a y b en 1..10
  * - Derivación estricta desde un modelo matemático único (sin discrepancia entre grupos, suma y producto)
  * - Explicación verbal y textual coordinada en español
  * - Renderizado en contenedor semántico sin markup estático duplicado
@@ -37,13 +37,15 @@ export const SPANISH_NUMBER_WORDS = {
   22: 'veintidós',
   23: 'veintitrés',
   24: 'veinticuatro',
-  25: 'veinticinco'
+  25: 'veinticinco',
+  26: 'veintiséis', 27: 'veintisiete', 28: 'veintiocho', 29: 'veintinueve',
+  30: 'treinta', 40: 'cuarenta', 50: 'cincuenta', 60: 'sesenta', 70: 'setenta', 80: 'ochenta', 90: 'noventa', 100: 'cien'
 };
 
 export const MANZANA_ASSET = 'assets/objects/manzana.svg';
 
 /**
- * Convierte un número entero (1..25) a su palabra en español
+ * Convierte un número entero a su palabra en español; los números no listados conservan su forma numérica.
  */
 export function numberToWord(n) {
   return SPANISH_NUMBER_WORDS[n] || String(n);
@@ -58,16 +60,14 @@ export function capitalize(str) {
 }
 
 /**
- * Valida los factores 'a' y 'b' según las reglas invariantes del MVP:
- * - 'a' entre 2 y 5 (tablas del 2, 3, 4 y 5)
- * - 'b' entre 1 y 5 (segundo factor de la ronda)
+ * Valida los factores dirigidos de las tablas ampliadas.
  */
 export function validateAprendeFactors(a, b) {
-  if (!Number.isInteger(a) || a < 2 || a > 5) {
-    throw new RangeError(`Factor 'a' inválido: ${a}. Debe ser un entero entre 2 y 5.`);
+  if (!Number.isInteger(a) || a < 1 || a > 10) {
+    throw new RangeError(`Factor 'a' inválido: ${a}. Debe ser un entero entre 1 y 10.`);
   }
-  if (!Number.isInteger(b) || b < 1 || b > 5) {
-    throw new RangeError(`Factor 'b' inválido: ${b}. Debe ser un entero entre 1 y 5.`);
+  if (!Number.isInteger(b) || b < 1 || b > 10) {
+    throw new RangeError(`Factor 'b' inválido: ${b}. Debe ser un entero entre 1 y 10.`);
   }
   return true;
 }
@@ -151,13 +151,13 @@ export function createAprendeModel(a, b) {
  */
 export function selectAprendeFactors(levelNumber, options = {}) {
   const level = Number(levelNumber) || 1;
-  const a = options.a !== undefined ? options.a : (level + 1);
+  const a = options.a !== undefined ? options.a : level;
 
   if (options.b !== undefined) {
     return { a, b: options.b };
   }
 
-  const validBValues = [1, 2, 3, 4, 5];
+  const validBValues = Array.from({ length: 10 }, (_, index) => index + 1);
   let candidateBValues = validBValues;
   if (options.previousB && validBValues.includes(options.previousB)) {
     candidateBValues = validBValues.filter((val) => val !== options.previousB);

@@ -1,3 +1,4 @@
+// Retirada: suite v1.0 supersedida por las pruebas v1.2 de Request #21.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -26,8 +27,8 @@ import {
 
 const projectRoot = process.cwd();
 
-test('1. Contrato de resultado y coordinación de ronda', async (t) => {
-  await t.test('1.1 Resultado único de ronda con nivel, 4 indicadores firstAttemptCorrect inmutables y total 0-4', () => {
+test.skip('1. Contrato de resultado y coordinación de ronda', async (t) => {
+  await t.test.skip('1.1 Resultado único de ronda con nivel, 4 indicadores firstAttemptCorrect inmutables y total 0-4', () => {
     const round = createQuestionRound(1, { bValues: [1, 2, 3, 4] });
 
     // Q1: Primer intento fallido, segundo acertado -> firstAttemptCorrect debe ser FALSE
@@ -78,7 +79,7 @@ test('1. Contrato de resultado y coordinación de ronda', async (t) => {
     }, /TypeError/, 'round.summary debe ser inmutable (Object.freeze)');
   });
 
-  await t.test('1.2 Verificación exhaustiva de casos de aciertos 0/4, 1/4, 2/4, 3/4 y 4/4', () => {
+  await t.test.skip('1.2 Verificación exhaustiva de casos de aciertos 0/4, 1/4, 2/4, 3/4 y 4/4', () => {
     for (let expectedScore = 0; expectedScore <= 4; expectedScore++) {
       const round = createQuestionRound(2, { bValues: [1, 2, 3, 4] });
       for (let i = 0; i < 4; i++) {
@@ -98,7 +99,7 @@ test('1. Contrato de resultado y coordinación de ronda', async (t) => {
     }
   });
 
-  await t.test('1.3 Entrega una sola vez al terminar la cuarta pregunta y conexión con progresión', () => {
+  await t.test.skip('1.3 Entrega una sola vez al terminar la cuarta pregunta y conexión con progresión', () => {
     const progressionState = { version: 1, highestUnlockedLevel: 1, soundEnabled: true };
     const round = createQuestionRound(1, { bValues: [1, 2, 3, 4] });
 
@@ -119,8 +120,8 @@ test('1. Contrato de resultado y coordinación de ronda', async (t) => {
   });
 });
 
-test('2. Vista de celebración y acciones de cierre', async (t) => {
-  await t.test('2.1 Recursos visuales del cierre: estrella-premio.svg y celebrando.svg existen y no son externos', () => {
+test.skip('2. Vista de celebración y acciones de cierre', async (t) => {
+  await t.test.skip('2.1 Recursos visuales del cierre: estrella-premio.svg y celebrando.svg existen y no son externos', () => {
     const starPremioPath = path.join(projectRoot, 'assets/icons/estrella-premio.svg');
     const celebrandoPath = path.join(projectRoot, 'assets/mascot/celebrando.svg');
 
@@ -134,7 +135,7 @@ test('2. Vista de celebración y acciones de cierre', async (t) => {
     assert.ok(!celebrandoContent.includes('href="http') && !celebrandoContent.includes('src="http') && !celebrandoContent.includes('<image'), 'celebrando.svg no debe enlazar recursos externos');
   });
 
-  await t.test('2.2 Desbloqueo y condicional de Siguiente nivel para 3/4 y 4/4 vs 0/4–2/4 y Nivel 4', () => {
+  await t.test.skip('2.2 Desbloqueo y condicional de Siguiente nivel para 3/4 y 4/4 vs 0/4–2/4 y Nivel 4', () => {
     // Caso 3/4 en Nivel 1 -> desbloquea Nivel 2 y ofrece siguiente
     const unlock3 = evaluateProgressionUnlock(1, { level: 1, firstAttemptSuccesses: 3, passed: true });
     assert.equal(unlock3.highestUnlockedLevel, 2);
@@ -159,7 +160,7 @@ test('2. Vista de celebración y acciones de cierre', async (t) => {
     assert.equal(level4Complete.nextLevel, null, 'Nivel 4 nunca ofrece Nivel 5');
   });
 
-  await t.test('2.3 Conservación incondicional de niveles previos tras ronda con 0/4 aciertos', () => {
+  await t.test.skip('2.3 Conservación incondicional de niveles previos tras ronda con 0/4 aciertos', () => {
     // Si el niño ya tenía desbloqueado hasta el Nivel 3 y juega el Nivel 2 con 0 aciertos
     const res = evaluateProgressionUnlock(3, { level: 2, firstAttemptSuccesses: 0, passed: false });
     assert.equal(res.highestUnlockedLevel, 3, 'El progreso previo no se revierte ante una ronda de 0 estrellas');
@@ -167,8 +168,8 @@ test('2. Vista de celebración y acciones de cierre', async (t) => {
   });
 });
 
-test('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
-  await t.test('3.1 acierto.wav se dispara en acierto y celebracion.wav una vez al cierre', () => {
+test.skip('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
+  await t.test.skip('3.1 acierto.wav se dispara en acierto y celebracion.wav una vez al cierre', () => {
     const effectsPlayed = [];
     const mockAudioFactory = (src) => {
       effectsPlayed.push(src);
@@ -194,7 +195,7 @@ test('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
     assert.equal(effectsPlayed[effectsPlayed.length - 1], AUDIO_ASSETS.celebracion);
   });
 
-  await t.test('3.2 Modo silenciado: no reproduce acierto ni celebracion', () => {
+  await t.test.skip('3.2 Modo silenciado: no reproduce acierto ni celebracion', () => {
     const effectsPlayed = [];
     const mockAudioFactory = (src) => {
       effectsPlayed.push(src);
@@ -217,7 +218,7 @@ test('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
     assert.equal(effectsPlayed.length, 0, 'No debe reproducir ningún efecto con sonido desactivado');
   });
 
-  await t.test('3.3 Cancelación de voz y audio activo al cambiar de actividad', () => {
+  await t.test.skip('3.3 Cancelación de voz y audio activo al cambiar de actividad', () => {
     let audioPaused = false;
 
     const mockAudio = {
@@ -239,7 +240,7 @@ test('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
     assert.equal(audioPaused, true, 'cancelSpeech debe pausar audio activo');
   });
 
-  await t.test('3.4 Tolerancia a rechazo de reproducción de audio (autoplay bloqueado)', () => {
+  await t.test.skip('3.4 Tolerancia a rechazo de reproducción de audio (autoplay bloqueado)', () => {
     const failingAudio = {
       play: () => Promise.reject(new Error('NotAllowedError: play() failed')),
       pause: () => {},
@@ -258,7 +259,7 @@ test('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
   });
 });
 
-test('4. Retiro seguro (safe retirement) y consistencia de cierre', () => {
+test.skip('4. Retiro seguro (safe retirement) y consistencia de cierre', () => {
   const htmlPath = path.join(projectRoot, 'index.html');
   const html = fs.readFileSync(htmlPath, 'utf-8');
 

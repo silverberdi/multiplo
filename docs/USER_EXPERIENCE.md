@@ -1,5 +1,9 @@
 # Múltiplo — Experiencia de usuario y diseño de interacción
-**Versión:** MVP v1.0 · **Audiencia:** niño de 6 años · **Dispositivos:** celular, tablet, computador.
+**Versión:** MVP v1.2 · **Audiencia:** niño de 6 años · **Dispositivos:** celular, tablet, computador.
+
+## Evolución v1.2 — Request #21
+
+La pantalla muestra tablas 1–10 en secuencia. Cada ronda conserva una demostración Aprende y cuatro preguntas; en tablas 2–10 tres son actuales y una es repaso intercalado. El cierre mantiene hasta cuatro estrellas, permite repetir/practicar y nunca presenta tabla 11. Texto, pista y controles siguen disponibles si Fola no puede reproducirse.
 
 ## 1. Promesa de experiencia
 En pocos segundos el niño debe entender qué hacer: ver la estrella, pulsar **Jugar**, escuchar/leer una consigna, tocar una de tres respuestas y recibir una reacción cálida. La interfaz no debe sentirse como un examen.
@@ -30,7 +34,7 @@ Los cuatro estados de pregunta reutilizan **la misma pantalla Juego**; feedback 
 
 ## 3. Especificación por pantalla
 ### 3.1 Inicio y niveles
-**Elementos:** logo Múltiplo, estrella normal, saludo hablado/escrito, botón Jugar (nivel disponible), cuatro tarjetas para tablas 2–5 con estado disponible/bloqueado, botón de sonido. Al primer acceso, el nivel 1 es el punto de entrada.
+**Elementos:** logo Múltiplo, estrella normal, saludo hablado/escrito, botón Jugar (tabla disponible), diez tarjetas para tablas 1–10 con estado disponible/bloqueado, botón de sonido. Al primer acceso, la tabla 1 es el punto de entrada.
 
 **Flujo:** tocar Jugar abre Aprender del nivel seleccionado. Los niveles cerrados se muestran, pero no permiten entrar. Al volver desde fin de ronda, conservar los desbloqueos.
 
@@ -93,12 +97,12 @@ Referencia canónica: [ASSETS.md](ASSETS.md), con SVG de los estados de la estre
 ## 7. Comportamiento en situaciones menos felices
 - Si el niño falla muchas veces: conservar la pregunta y la pista, no castigar ni incrementar dificultad.
 - Si se cierra la pestaña durante una ronda: persistir como mínimo los **niveles ya desbloqueados**; **reanudar exactamente a mitad de ronda no es un requisito**.
-- Si se borran datos locales: puede volver a nivel 1. No prometer recuperación remota.
+- Si se borran datos locales: puede volver a tabla 1. No prometer recuperación remota.
 - Si la PWA no es instalable en un navegador: el juego continúa funcionando como página web.
 - Si faltan efectos sonoros: no bloquear interacción o lectura de instrucciones.
 
 ## 8. Estados de pantalla a validar
-Inicio primer acceso; nivel bloqueado; nivel disponible; aprende; pregunta visual; pregunta sin objetos; pista; error y reintento; acierto; final con 0–2 aciertos; final con 3–4 aciertos; nivel 4 terminado; voz deshabilitada.
+Inicio primer acceso; tabla bloqueada; tabla disponible; aprende; pregunta visual; pregunta sin objetos; pista; error y reintento; acierto; final con 0–2 aciertos; final con 3–4 aciertos; tabla 10 terminada; voz deshabilitada.
 
 ## 9. Fuera de experiencia MVP
 Gestos, teclado obligatorio, avatar personalizable, múltiples mundos, tienda de premios, anuncios, chat, competición, cuentas, panel del adulto, recopilación de datos del niño.

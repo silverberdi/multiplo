@@ -48,12 +48,12 @@ El orden exacto de comandos depende de la versión del CLI; usar las instruccion
 ## 6. Reglas de decisión para el agente
 **Contrato de producto más importante**:
 - Niños de 6 años; español, autonomía con voz y texto.
-- Cuatro niveles: tablas 2 a 5, factores 1 a 5.
+- Request #21: tablas 1 a 10, factores 1 a 10 y dominio acumulado; la tabla 11 no existe.
 - `a×b` representa **a grupos de b**.
 - Cinco actividades por ronda (una demostración, cuatro preguntas).
 - Tres opciones por pregunta, exactamente una correcta.
 - Pistas y reintentos sin penalización; evaluación de **primer intento** únicamente.
-- Desbloqueo con 3 de 4 aciertos iniciales, sin retroceder niveles.
+- Desbloqueo con dominio acumulado v1.2, sin retroceder tablas.
 - Progreso local; sin usuarios ni sincronización.
 - Web responsive/PWA con fallback; sin servidor ni IA.
 - Estrella y activos en repo: reutilizar antes de inventar más.
@@ -63,7 +63,7 @@ El orden exacto de comandos depende de la versión del CLI; usar las instruccion
 ## 7. Regla anti-sobreingeniería
 No introducir por anticipación:
 - frameworks pesados, microservicios, base de datos, autenticación, API, CMS;
-- telemetría, perfiles parentales, tablas 6–10, monedas, ranking, mundos o minijuegos nuevos;
+- telemetría, perfiles parentales, tablas posteriores a la 10, monedas, ranking, mundos o minijuegos nuevos;
 - infraestructura de pruebas desproporcionada para veinte multiplicaciones posibles;
 - mecanismos propios que sustituyan el manejo de changes y specs de OpenSpec.
 
