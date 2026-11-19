@@ -16,7 +16,7 @@
 - Guardar niveles desbloqueados, progreso mínimo y sonido habilitado/deshabilitado en `localStorage`; sin sincronización ni promesa de persistencia si se borran datos del navegador.
 
 ## Voz, accesibilidad y aspectos técnicos
-- Síntesis de voz integrada del navegador (`speechSynthesis`) en español: empezar después del gesto inicial del usuario, evitar voces simultáneas, permitir repetir/silenciar, fallback a instrucciones escritas.
+- Locuciones Fola pregrabadas en español: empezar después del gesto inicial del usuario, evitar voces simultáneas, permitir repetir/silenciar, fallback a instrucciones escritas.
 - Tipografía legible, números grandes, blancos táctiles amplios, contrastes suficientes y sin dependencia exclusiva de color.
 - PWA instalable cuando lo admita el dispositivo/navegador. Hosting estático; HTML, CSS y JavaScript. Sin backend, cuentas, IA, telemetría infantil, pagos ni anuncios.
 - Recursos multimedia y su vinculación con los issues: ver [ASSETS.md](ASSETS.md).

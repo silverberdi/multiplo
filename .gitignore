@@ -1,2 +1,6 @@
 node_modules/
 .DS_Store
+.cache/
+assets/audio/fola/
+.fola-release.zip
+.fola-inspect/

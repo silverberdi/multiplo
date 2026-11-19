@@ -215,15 +215,15 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
     await page.click('#btn-start-game');
     await page.waitForSelector('#view-aprende.view-active');
 
-    // Dar un breve tiempo para que onstart se dispare
+    // Sin assets Fola preparados, la degradación conserva texto y no finge estado hablado.
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // Verificar que la mascota en Aprende muestra hablando.svg
+    // Verificar fallback textual sin recursos generados versionados
     const mascotSrc = await page.$eval('#mascot-img-aprende', (el) => el.getAttribute('src'));
-    assert.equal(mascotSrc, 'assets/mascot/hablando.svg', 'La mascota debe usar assets/mascot/hablando.svg durante la narración');
+    assert.equal(mascotSrc, 'assets/mascot/normal.svg', 'Sin Fola preparado no debe fingir una narración audible');
 
     const mascotTagState = await page.$eval('#mascot-status-aprende', (el) => el.getAttribute('data-state'));
-    assert.equal(mascotTagState, 'hablando');
+    assert.equal(mascotTagState, 'normal');
 
     await page.close();
   });

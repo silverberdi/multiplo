@@ -21,7 +21,7 @@ flowchart LR
   HOST[Hosting estático] --> UI
 ```
 
-**Tecnologías acordadas como enfoque mínimo:** HTML + CSS + JavaScript, PWA cuando el navegador lo permita, `speechSynthesis`, `localStorage`, archivos SVG y WAV versionados, hosting estático. No usar framework pesado, backend, autenticación, servidor de base de datos ni generación por IA para este MVP.
+**Tecnologías acordadas como enfoque mínimo:** HTML + CSS + JavaScript, PWA cuando el navegador lo permita, locuciones Fola pregrabadas, `localStorage`, archivos SVG y WAV versionados, hosting estático. No usar framework pesado, backend, autenticación, servidor de base de datos ni generación por IA para este MVP.
 
 ### Responsabilidades lógicas (no prescriben estructura de archivos)
 | Responsabilidad | Qué debe hacer | Qué NO debe hacer |
@@ -61,7 +61,7 @@ Las escrituras locales deben fallar de modo no catastrófico: si el navegador bl
 - Usar fuentes Nunito/Baloo 2 solo cuando su carga/licencia sea compatible. **Fallback obligatorio** con tipografía del sistema.
 - Las preguntas se generan a partir de las tablas 2–5 y factores 1–5: **no** es necesario un CMS ni una API de contenido.
 - El producto requiere una interfaz en español. Textos y frases deben permitir asociar cantidades mostradas con narración.
-- No alojar archivos de audio de estudio ni gestionar locuciones manuales; las instrucciones usan la voz nativa del navegador.
+- Las instrucciones usan locuciones Fola pregrabadas versionadas en release independiente, con preparación estática verificada por SHA-256.
 
 ## 5. PWA y distribución
 - `manifest` e iconos de instalación; validar en navegadores elegidos.

@@ -101,7 +101,7 @@ Registrar navegador y sistema operativo reales probados, sin asumir que fueron v
   2. *Tablet:* 768×1024 px — Cuadrícula responsive de alternativas y grupos visuales de hasta 5×5 manzanas sin overflow.
   3. *Computador:* 1280×800 px — Interacción fluida con cursor/mouse, teclado y estados focus-visible.
 - **Escenarios comprobados:**
-  - *Voz activa y fallback sin voz:* Ejecución normal con `speechSynthesis` y degradación elegante al eliminar la API; los textos visibles y la interacción se mantienen sin bloqueo (Q-09).
+  - *Voz activa y fallback sin voz:* Ejecución normal con locuciones Fola pregrabadas y degradación elegante ante fallo de carga o reproducción; los textos visibles y la interacción se mantienen sin bloqueo (Q-09).
   - *Modo silencioso:* El conmutador único silencia tanto locución como efectos WAV (`intento.wav`, `acierto.wav`); el flujo visual y la navegación continúan idénticos.
   - *Pistas contextuales:* En pregunta 4 (multiplicación sin objetos por defecto), pulsar «💡 Pista» revela los `a` grupos de `b` manzanas sin mutar la operación ni las alternativas. En pregunta 5 (selección de operación), la pista visual muestra los grupos correspondientes a la operación objetivo.
   - *Evaluación pedagógica:* Acierto inicial registra la pregunta como acertada; error inicial activa feedback empático «Cuenta otra vez», sonido `intento.wav` y estado `pensando`, permitiendo reintentos ilimitados. Al acertar en un reintento tardío, la pregunta permite continuar pero su registro de primer intento permanece inmutablemente como no acertado.

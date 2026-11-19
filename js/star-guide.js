@@ -1,9 +1,9 @@
 /**
- * Múltiplo — Coordinador de guía estrella, voz (SpeechSynthesis) y efectos sonoros
+ * Múltiplo — Coordinador de guía estrella, voz Fola y efectos sonoros
  * Alcance: MVP-02 (Issue #2 - Estrella guía e instrucciones con voz en español)
  * 
  * Cumple con:
- * - Selección de voz nativa en español con degradación elegante si no existe API o voz
+ * - Selección de locuciones Fola con degradación elegante si falta el recurso
  * - Texto siempre visible como fuente de verdad
  * - Repetición de última instrucción sin alterar pregunta o progreso
  * - Ciclo de cancelación para evitar solapamiento de discursos
@@ -12,6 +12,8 @@
  * - Estados de mascota: normal, hablando, celebrando, pensando (con iconografía + texto)
  * - Sin backend, sin dependencias externas, sin recopilación de datos de menores
  */
+
+import { selectFolaClip, isMathTextCompatible, FOLA_BASE_PATH } from './fola-catalog.js';
 
 export const MASCOT_ASSETS = {
   normal: 'assets/mascot/normal.svg',
@@ -114,10 +116,8 @@ export function playAudioEffect(effectName, soundEnabled = true, audioFactory = 
  */
 export class StarGuideCoordinator {
   constructor(options = {}) {
-    this.speechSynthesis = options.speechSynthesis !== undefined ? options.speechSynthesis : (typeof window !== 'undefined' ? window.speechSynthesis : null);
     this.storage = options.storage !== undefined ? options.storage : (typeof localStorage !== 'undefined' ? localStorage : null);
     this.audioFactory = options.audioFactory !== undefined ? options.audioFactory : (typeof Audio !== 'undefined' ? (src) => new Audio(src) : null);
-    this.utteranceFactory = options.utteranceFactory !== undefined ? options.utteranceFactory : (typeof SpeechSynthesisUtterance !== 'undefined' ? (text) => new SpeechSynthesisUtterance(text) : null);
     
     this.onStateChange = options.onStateChange || (() => {});
     this.onInstructionChange = options.onInstructionChange || (() => {});
@@ -125,36 +125,11 @@ export class StarGuideCoordinator {
     this.soundEnabled = getStoredSoundPreference(this.storage);
     this.currentState = GUIDE_STATES.NORMAL;
     this.lastInstruction = '';
-    this.activeUtteranceId = 0;
-    this.currentUtterance = null;
-    this.spanishVoice = null;
+    this.activeNarrationId = 0;
+    this.lastNarration = null;
     this._hasUserGesture = false;
+    this.folaAvailable = typeof document === 'undefined';
 
-    this.initVoice();
-  }
-
-  initVoice() {
-    if (this.speechSynthesis && typeof this.speechSynthesis.getVoices === 'function') {
-      this.selectSpanishVoice();
-      if (typeof this.speechSynthesis.addEventListener === 'function') {
-        this.speechSynthesis.addEventListener('voiceschanged', () => this.selectSpanishVoice());
-      } else if ('onvoiceschanged' in this.speechSynthesis) {
-        this.speechSynthesis.onvoiceschanged = () => this.selectSpanishVoice();
-      }
-    }
-  }
-
-  selectSpanishVoice() {
-    if (!this.speechSynthesis || typeof this.speechSynthesis.getVoices !== 'function') return null;
-    try {
-      const voices = this.speechSynthesis.getVoices() || [];
-      // Buscar voz con código español (es, es-ES, es-MX, es-419, es-US, etc.)
-      const esVoice = voices.find((v) => v && v.lang && v.lang.toLowerCase().startsWith('es'));
-      this.spanishVoice = esVoice || null;
-      return this.spanishVoice;
-    } catch (_e) {
-      return null;
-    }
   }
 
   notifyUserGesture() {
@@ -163,6 +138,10 @@ export class StarGuideCoordinator {
 
   hasUserGesture() {
     return this._hasUserGesture;
+  }
+
+  setFolaAvailable(available) {
+    this.folaAvailable = Boolean(available);
   }
 
   setState(state) {
@@ -203,13 +182,7 @@ export class StarGuideCoordinator {
   }
 
   cancelSpeech() {
-    this.activeUtteranceId++;
-    if (this.speechSynthesis && typeof this.speechSynthesis.cancel === 'function') {
-      try {
-        this.speechSynthesis.cancel();
-      } catch (_e) {}
-    }
-    this.currentUtterance = null;
+    this.activeNarrationId++;
     this.stopCurrentAudio();
     if (this.currentState === GUIDE_STATES.HABLANDO) {
       this.setState(GUIDE_STATES.NORMAL);
@@ -230,61 +203,35 @@ export class StarGuideCoordinator {
     this.cancelSpeech();
 
     const returnState = options.returnState || GUIDE_STATES.NORMAL;
-    const utteranceId = ++this.activeUtteranceId;
-
-    // Si el sonido está silenciado o no hay síntesis, no se sintetiza audio, pero el texto permanece
-    if (!this.soundEnabled || !this.speechSynthesis || !this.utteranceFactory) {
-      return;
+    const narrationId = ++this.activeNarrationId;
+    const clip = options.clip || selectFolaClip(options.event || 'custom', options.context || {}, { clipId: options.clipId });
+    this.lastNarration = { text, options: { ...options }, clip };
+    if (!this.soundEnabled || !this._hasUserGesture || !this.folaAvailable || !clip?.file || !isMathTextCompatible(clip.expectedText || text, options.context || {})) {
+      // El fallback textual conserva el estado semántico del evento sin fingir audio.
+      this.setState(returnState);
+      return null;
     }
-
-    try {
-      const utterance = this.utteranceFactory(text);
-      if (!utterance) return;
-
-      utterance.lang = 'es-ES';
-      if (!this.spanishVoice) {
-        this.selectSpanishVoice();
-      }
-      if (this.spanishVoice) {
-        utterance.voice = this.spanishVoice;
-      }
-      utterance.rate = 0.95; // Velocidad pausada y clara para un niño de 6 años
-
-      utterance.onstart = () => {
-        if (this.activeUtteranceId === utteranceId) {
-          this.setState(GUIDE_STATES.HABLANDO);
-        }
-      };
-
-      utterance.onend = () => {
-        if (this.activeUtteranceId === utteranceId) {
-          this.setState(returnState);
-        }
-      };
-
-      utterance.onerror = () => {
-        if (this.activeUtteranceId === utteranceId) {
-          this.setState(returnState);
-        }
-      };
-
-      this.currentUtterance = utterance;
-      this.speechSynthesis.speak(utterance);
-    } catch (_e) {
-      // Degradar silenciosamente: texto visible, sin interrupción de la experiencia
-      if (this.activeUtteranceId === utteranceId) {
-        this.setState(returnState);
-      }
+    let audio;
+    try { audio = this.audioFactory?.(clip.file); } catch (_e) { audio = null; }
+    if (!audio || typeof audio.play !== 'function') return null;
+    this.currentAudio = audio;
+    const finish = () => { if (this.activeNarrationId === narrationId) { this.currentAudio = null; this.setState(returnState); } };
+    audio.onended = finish;
+    audio.onerror = finish;
+    if (returnState === GUIDE_STATES.NORMAL) {
+      audio.onplay = () => { if (this.activeNarrationId === narrationId) this.setState(GUIDE_STATES.HABLANDO); };
+      this.setState(GUIDE_STATES.HABLANDO);
     }
+    try { const result = audio.play(); result?.catch?.(finish); } catch (_e) { finish(); }
+    return audio;
   }
 
   /**
    * Repite la última instrucción emitida sin alterar progreso ni preguntas.
    */
   repeatLastInstruction() {
-    if (this.lastInstruction) {
-      this.speakInstruction(this.lastInstruction);
-    }
+    if (this.lastNarration) return this.speakInstruction(this.lastNarration.text, this.lastNarration.options);
+    return null;
   }
 
   getLastInstruction() {
@@ -300,3 +247,5 @@ export class StarGuideCoordinator {
     return audio;
   }
 }
+
+export { FOLA_BASE_PATH };
