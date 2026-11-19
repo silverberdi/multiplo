@@ -24,6 +24,16 @@
           - name: Checkout
             uses: actions/checkout@v4
 
+          - name: Instalar Node.js
+            uses: actions/setup-node@v4
+            with:
+              node-version: 22
+
+          - name: Preparar audios Fola
+            run: |
+              npm ci
+              npm run prepare:fola
+
           - name: Configurar CNAME para subdominio
             run: echo "multiplo.silverman.pro" > CNAME
 

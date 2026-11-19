@@ -129,7 +129,16 @@ export class StarGuideCoordinator {
     this.lastNarration = null;
     this._hasUserGesture = false;
     this.folaAvailable = typeof document === 'undefined';
+    this.currentSpeechAudio = null;
+    this.currentEffectAudio = null;
+  }
 
+  get currentAudio() {
+    return this.currentSpeechAudio;
+  }
+
+  set currentAudio(audio) {
+    this.currentSpeechAudio = audio;
   }
 
   notifyUserGesture() {
@@ -167,18 +176,29 @@ export class StarGuideCoordinator {
     setStoredSoundPreference(this.soundEnabled, this.storage);
     if (!this.soundEnabled) {
       this.cancelSpeech();
+      this.stopCurrentEffectAudio();
     }
     return this.soundEnabled;
   }
 
   stopCurrentAudio() {
-    if (this.currentAudio && typeof this.currentAudio.pause === 'function') {
+    if (this.currentSpeechAudio && typeof this.currentSpeechAudio.pause === 'function') {
       try {
-        this.currentAudio.pause();
-        this.currentAudio.currentTime = 0;
+        this.currentSpeechAudio.pause();
+        this.currentSpeechAudio.currentTime = 0;
       } catch (_e) {}
     }
-    this.currentAudio = null;
+    this.currentSpeechAudio = null;
+  }
+
+  stopCurrentEffectAudio() {
+    if (this.currentEffectAudio && typeof this.currentEffectAudio.pause === 'function') {
+      try {
+        this.currentEffectAudio.pause();
+        this.currentEffectAudio.currentTime = 0;
+      } catch (_e) {}
+    }
+    this.currentEffectAudio = null;
   }
 
   cancelSpeech() {
@@ -239,11 +259,11 @@ export class StarGuideCoordinator {
   }
 
   /**
-   * Dispara un efecto sonoro respetando soundEnabled.
+   * Dispara un efecto sonoro respetando soundEnabled sin interferir con el canal de narración.
    */
   playEffect(name) {
     const audio = playAudioEffect(name, this.soundEnabled, this.audioFactory);
-    this.currentAudio = audio;
+    this.currentEffectAudio = audio;
     return audio;
   }
 }
