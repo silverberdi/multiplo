@@ -219,7 +219,6 @@ test('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
 
   await t.test('3.3 Cancelación de voz y audio activo al cambiar de actividad', () => {
     let audioPaused = false;
-    let speechCancelled = false;
 
     const mockAudio = {
       play: () => Promise.resolve(),
@@ -229,23 +228,14 @@ test('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
       currentTime: 0
     };
 
-    const mockSpeech = {
-      cancel: () => {
-        speechCancelled = true;
-      },
-      getVoices: () => []
-    };
-
     const guide = new StarGuideCoordinator({
       audioFactory: () => mockAudio,
-      speechSynthesis: mockSpeech,
       storage: null
     });
 
     guide.playEffect('celebracion');
     guide.cancelSpeech();
 
-    assert.equal(speechCancelled, true, 'cancelSpeech debe cancelar síntesis de voz');
     assert.equal(audioPaused, true, 'cancelSpeech debe pausar audio activo');
   });
 
@@ -258,7 +248,6 @@ test('3. Voz, efectos discretos y degradación no bloqueante', async (t) => {
 
     const guide = new StarGuideCoordinator({
       audioFactory: () => failingAudio,
-      speechSynthesis: null,
       storage: null
     });
 

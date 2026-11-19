@@ -43,3 +43,11 @@ Cada estado se entrega como SVG autónomo; no depende de una hoja de sprites, li
 - QA: todos los recursos y guías anteriores.
 
 Los issues deben enlazar a los archivos del repositorio, no depender de archivos privados adjuntos en un chat.
+
+## Locuciones Fola v1.1.0 (Request #20)
+
+Las locuciones pregrabadas se recuperan únicamente durante la preparación, desde la release pública versionada:
+
+`https://github.com/silverberdi/multiplo/releases/download/assets-fola-v1.1.0/multiplo-fola-v1.1.0-audios-490.zip`
+
+El comando reproducible es `npm run prepare:fola`. Verifica SHA-256 `202f108b81331e54b53c46bc983b87b65719dc8d1cac3079a12327a2d2d86929`, valida `manifest.json`, los 490 clips, sus hashes, los 25 catálogos y extrae a `assets/audio/fola/`, que está ignorado por Git. Si se limpia esa carpeta, se ejecuta el mismo comando para recuperarla; un paquete alterado o incompleto falla antes de publicar una extracción parcial. La aplicación no descarga el ZIP al abrirse ni consulta Drive, TTS o IA durante una partida. Los WAV Fola no se incluyen en commits.

@@ -22,7 +22,7 @@
 | ID | Descripción | Decisión | Issue principal | Escenario(s) |
 |---|---|---|---|---|
 | RF-01 | Inicio y cuatro vistas con acciones claras | D-004, D-013 | [#1](https://github.com/silverberdi/multiplo/issues/1) | Q-01, Q-10 |
-| RF-02 | Estrella guía, instrucciones voz+texto, repetir/silenciar | D-005, D-006 | [#2](https://github.com/silverberdi/multiplo/issues/2) | Q-01, Q-09 |
+| RF-02 | Estrella guía, instrucciones voz+texto, repetir/silenciar y clips Fola preparados | D-005, D-006 | [#2](https://github.com/silverberdi/multiplo/issues/2), Request #20 | Q-01, Q-09, Q-10 |
 | RF-03 | Demostración de grupos, suma y producto | D-002, D-003, D-008 | [#3](https://github.com/silverberdi/multiplo/issues/3) | Q-02 |
 | RF-04 | Tres tipos de ejercicio, tres respuestas únicas, pistas | D-009, D-010 | [#4](https://github.com/silverberdi/multiplo/issues/4) | Q-03, Q-04 |
 | RF-05 | Reintentos sin sanción y primer intento inmutable | D-010, D-019 | [#4](https://github.com/silverberdi/multiplo/issues/4) | Q-04, Q-06 |
@@ -41,6 +41,8 @@
 | RNF-05 | Reglas matemáticas correctas | #3, #4, #5, #7 | Q-02–Q-07 |
 | RNF-06 | Persistencia local sin sincronización | #5, #7 | Q-08 |
 | RNF-07 | Controles grandes, texto breve, feedback no dependiente solo de color | #1, #2, #7 | Q-01, Q-10 |
+
+La implementación de Request #20 añade la preparación reproducible de Fola v1.1.0, sin versionar sus WAV; la evidencia publicada del ZIP se conserva en las tareas OpenSpec y no se considera por sí sola evidencia de candidate SHA.
 
 ## 5. Activos ya disponibles
 | Recurso | Issues consumidores |

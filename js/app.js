@@ -123,6 +123,14 @@ import {
     }
   });
 
+  // Fola solo se consume desde la carpeta estática preparada; no se descarga en runtime.
+  // Si la carpeta no está publicada, la guía conserva texto e imágenes sin fingir audio.
+  if (typeof fetch === 'function') {
+    fetch('assets/audio/fola/manifest.json', { method: 'HEAD', cache: 'no-store' })
+      .then((response) => guide.setFolaAvailable(response.ok))
+      .catch(() => guide.setFolaAvailable(false));
+  }
+
   /**
    * Actualiza los elementos visuales de la mascota (imagen, texto alternativo y etiqueta accesible)
    */
@@ -209,7 +217,7 @@ import {
       }
       if (options.speak) {
         guide.playEffect('celebracion');
-        guide.speakInstruction(finSpoken, { returnState: GUIDE_STATES.CELEBRANDO });
+        guide.speakInstruction(finSpoken, { event: 'finRonda', returnState: GUIDE_STATES.CELEBRANDO });
       }
     } else if (viewId === 'aprende') {
       if (!currentRound) {
@@ -226,7 +234,7 @@ import {
       guide.setState(GUIDE_STATES.NORMAL);
 
       if (options.speak && currentRound.aprendeModel) {
-        guide.speakInstruction(currentRound.aprendeModel.narrationText, { returnState: GUIDE_STATES.NORMAL });
+        guide.speakInstruction(currentRound.aprendeModel.narrationText, { event: 'aprende', context: currentRound.aprendeModel, returnState: GUIDE_STATES.NORMAL });
       }
     } else if (viewId === 'juego') {
       if (!currentRound || !currentRound.questionRound) {
@@ -264,6 +272,12 @@ import {
 
       container.appendChild(groupDiv);
     });
+    container.onclick = () => {
+      if (container.dataset.contextHinted === 'true') return;
+      container.dataset.contextHinted = 'true';
+      guide.notifyUserGesture();
+      guide.speakInstruction('Mira los grupos: cada grupo tiene la misma cantidad.', { event: 'mostrarGrupos', returnState: GUIDE_STATES.PENSANDO });
+    };
   }
 
   /**
@@ -374,13 +388,28 @@ import {
         }
 
         btn.addEventListener('click', () => handleOptionSelect(alt, btn));
+        const listen = document.createElement('span');
+        listen.className = 'btn-option-listen';
+        listen.setAttribute('role', 'button');
+        listen.setAttribute('tabindex', '0');
+        listen.setAttribute('aria-label', `Escuchar ${alt.label}`);
+        listen.textContent = '🔊';
+        const listenAlternative = (event) => {
+          event.stopPropagation();
+          guide.notifyUserGesture();
+          guide.speakInstruction(alt.label, { event: currentQ.modalidad === MODALITIES.PREGUNTA_5 ? 'operacion' : 'numero', context: { a: currentRound.a, b: currentRound.b, producto: alt.product, numero: alt.value ?? alt.product }, returnState: GUIDE_STATES.NORMAL });
+        };
+        listen.addEventListener('click', listenAlternative);
+        listen.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); listenAlternative(event); } });
+        btn.appendChild(listen);
         optionsGrid.appendChild(btn);
       });
     }
 
     // 9. Locución si se solicita
     if (shouldSpeak) {
-      guide.speakInstruction(currentQ.spokenPrompt, { returnState: GUIDE_STATES.NORMAL });
+      const event = currentQ.modalidad === MODALITIES.PREGUNTA_5 ? 'inversa' : (currentQ.modalidad === MODALITIES.PREGUNTA_4 ? 'preguntaResultado' : 'pregunta');
+      guide.speakInstruction(currentQ.spokenPrompt, { event, context: { a: currentRound.a, b: currentRound.b, producto: currentQ.product }, returnState: GUIDE_STATES.NORMAL });
     }
   }
 
@@ -421,7 +450,7 @@ import {
 
       guide.playEffect('acierto');
       guide.setState(GUIDE_STATES.CELEBRANDO);
-      guide.speakInstruction(GUIDE_SCRIPT.acierto, { returnState: GUIDE_STATES.CELEBRANDO });
+      guide.speakInstruction(GUIDE_SCRIPT.acierto, { event: 'acierto', context: { a: currentRound.a, b: currentRound.b, producto: currentQ.product }, returnState: GUIDE_STATES.CELEBRANDO });
 
       if (feedbackBox) {
         feedbackBox.hidden = false;
@@ -440,7 +469,7 @@ import {
 
       guide.playEffect('intento');
       guide.setState(GUIDE_STATES.PENSANDO);
-      guide.speakInstruction(GUIDE_SCRIPT.reintento, { returnState: GUIDE_STATES.PENSANDO });
+      guide.speakInstruction(GUIDE_SCRIPT.reintento, { event: 'ayudaReintentar', returnState: GUIDE_STATES.PENSANDO });
 
       if (feedbackBox) {
         feedbackBox.hidden = false;
@@ -476,7 +505,7 @@ import {
       groupsContainer.hidden = false;
     }
 
-    guide.speakInstruction(hintInfo.hintText, { returnState: GUIDE_STATES.PENSANDO });
+    guide.speakInstruction(hintInfo.hintText, { event: 'pistaPasoPaso', context: { a: currentRound.a, b: currentRound.b, producto: currentRound.a * currentRound.b }, returnState: GUIDE_STATES.PENSANDO });
   }
 
   /**
