@@ -7,7 +7,12 @@ Define la demostración inicial que hace visible la relación entre grupos igual
 
 ### Requirement: La actividad Aprende representa grupos, suma repetida y producto
 
-La ronda SHALL comenzar con una única actividad Aprende no evaluable que represente una multiplicación `a × b` como exactamente `a` grupos visualmente separados de `b` manzanas. SHALL mostrar la suma de `b` repetida `a` veces igual al producto y la igualdad `a × b = producto`, manteniendo la misma orientación matemática en todos los elementos.
+La ronda SHALL comenzar con una única actividad Aprende no evaluable que represente cualquier operación `a×b` de las tablas 1 a 10 como exactamente `a` grupos visualmente separados de `b` objetos. SHALL mostrar la suma de `b` repetida `a` veces igual al producto y la igualdad `a × b = producto`, manteniendo la orientación en todos los elementos. Para productos de 25 a 100 SHALL usar arreglos o agrupaciones ordenadas de 5 o 10, con números y sumas legibles, sin exigir 100 íconos diminutos ni scroll horizontal.
+
+#### Scenario: Correspondencia de 3 por 2 y 2 por 3
+- **GIVEN** comienza Aprende con `3 × 2` o `2 × 3`
+- **WHEN** se presenta el contenido visual
+- **THEN** aparecen respectivamente tres grupos de dos o dos grupos de tres, la suma repetida y el producto correcto, sin intercambiar la orientación aunque el resultado coincida
 
 #### Scenario: Correspondencia de una demostración de 3 por 2
 - **GIVEN** comienza la actividad Aprende con la demostración `3 × 2`
@@ -17,11 +22,21 @@ La ronda SHALL comenzar con una única actividad Aprende no evaluable que repres
 #### Scenario: Límites válidos de los factores
 - **GIVEN** se seleccionan los factores de una demostración
 - **WHEN** se prepara la actividad Aprende
-- **THEN** `a` está entre 2 y 5 inclusive y `b` está entre 1 y 5 inclusive
+- **THEN** `a` y `b` están entre 1 y 10 inclusive y la representación conserva la pareja dirigida
+
+#### Scenario: Cobertura completa de factores
+- **GIVEN** se selecciona una tabla disponible entre 1 y 10
+- **WHEN** se prepara una demostración
+- **THEN** `a` y `b` están entre 1 y 10, y los grupos, suma, texto y producto corresponden a la pareja dirigida seleccionada
+
+#### Scenario: Representación de producto alto
+- **GIVEN** la demostración es `10 × 10` o produce entre 25 y 100 objetos
+- **WHEN** se renderiza en un móvil estándar de 360–412 px
+- **THEN** las agrupaciones permanecen completas y legibles, sin desborde horizontal ni scroll innecesario
 
 #### Scenario: Variación del segundo factor
 - **GIVEN** se inicia una nueva ronda del mismo nivel
-- **WHEN** se elige una demostración cuyo segundo factor cambia entre 1 y 5
+- **WHEN** se elige una demostración cuyo segundo factor cambia entre 1 y 10
 - **THEN** la cantidad de grupos, las manzanas por grupo, la suma repetida y el producto siguen correspondiendo a `a × b`
 
 ### Requirement: Aprende ocurre una sola vez y no modifica la evaluación
