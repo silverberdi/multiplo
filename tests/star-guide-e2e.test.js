@@ -5,6 +5,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import puppeteer from 'puppeteer-core';
+import { chromeExecutablePath } from './chrome-executable.js';
 
 const projectRoot = process.cwd();
 
@@ -50,7 +51,7 @@ test.skip('E2E Star Guide: Estados de mascota, voz/texto simultáneo, repetició
   const baseUrl = `http://127.0.0.1:${port}/`;
 
   const browser = await puppeteer.launch({
-    executablePath: '/usr/bin/google-chrome',
+    executablePath: chromeExecutablePath(),
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
   });
 

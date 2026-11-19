@@ -128,7 +128,6 @@ export class StarGuideCoordinator {
     this.activeNarrationId = 0;
     this.lastNarration = null;
     this._hasUserGesture = false;
-    this.folaAvailable = typeof document === 'undefined';
     this.currentSpeechAudio = null;
     this.currentEffectAudio = null;
   }
@@ -147,10 +146,6 @@ export class StarGuideCoordinator {
 
   hasUserGesture() {
     return this._hasUserGesture;
-  }
-
-  setFolaAvailable(available) {
-    this.folaAvailable = Boolean(available);
   }
 
   setState(state) {
@@ -225,8 +220,9 @@ export class StarGuideCoordinator {
     const returnState = options.returnState || GUIDE_STATES.NORMAL;
     const narrationId = ++this.activeNarrationId;
     const clip = options.clip || selectFolaClip(options.event || 'custom', options.context || {}, { clipId: options.clipId });
-    this.lastNarration = { text, options: { ...options }, clip };
-    if (!this.soundEnabled || !this._hasUserGesture || !this.folaAvailable || !clip?.file || !isMathTextCompatible(clip.expectedText || text, options.context || {})) {
+    const { onComplete, ...replayOptions } = options;
+    this.lastNarration = { text, options: replayOptions, clip };
+    if (!this.soundEnabled || !this._hasUserGesture || !clip?.file || !isMathTextCompatible(clip.expectedText || text, options.context || {})) {
       // El fallback textual conserva el estado semántico del evento sin fingir audio.
       this.setState(returnState);
       return null;
@@ -235,14 +231,20 @@ export class StarGuideCoordinator {
     try { audio = this.audioFactory?.(clip.file); } catch (_e) { audio = null; }
     if (!audio || typeof audio.play !== 'function') return null;
     this.currentAudio = audio;
-    const finish = () => { if (this.activeNarrationId === narrationId) { this.currentAudio = null; this.setState(returnState); } };
+    let completed = false;
+    const finish = (result = 'ended') => {
+      if (this.activeNarrationId !== narrationId || completed) return;
+      completed = true;
+      this.currentAudio = null;
+      this.setState(returnState);
+      try { onComplete?.(result); } catch (_e) { /* Completion must not break audio cleanup. */ }
+    };
     audio.onended = finish;
-    audio.onerror = finish;
+    audio.onerror = () => finish('error');
     if (returnState === GUIDE_STATES.NORMAL) {
       audio.onplay = () => { if (this.activeNarrationId === narrationId) this.setState(GUIDE_STATES.HABLANDO); };
-      this.setState(GUIDE_STATES.HABLANDO);
     }
-    try { const result = audio.play(); result?.catch?.(finish); } catch (_e) { finish(); }
+    try { const result = audio.play(); result?.catch?.(() => finish('error')); } catch (_e) { finish('error'); }
     return audio;
   }
 

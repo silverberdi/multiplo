@@ -4,6 +4,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import puppeteer from 'puppeteer-core';
+import { chromeExecutablePath } from './chrome-executable.js';
 
 const projectRoot = process.cwd();
 
@@ -49,7 +50,7 @@ test('E2E Real Browser: Recorrido completo, responsive, accesibilidad y degradac
   const baseUrl = `http://127.0.0.1:${port}/`;
 
   const browser = await puppeteer.launch({
-    executablePath: '/usr/bin/google-chrome',
+    executablePath: chromeExecutablePath(),
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
   });
 
@@ -68,6 +69,7 @@ test('E2E Real Browser: Recorrido completo, responsive, accesibilidad y degradac
 
     // 2. Clic en "¡Jugar!" -> Navega a Vista Aprende
     await page.click('#btn-start-game');
+    await page.waitForSelector('#view-aprende.view-active');
     const isAprendeVisible = await page.$eval('#view-aprende', (el) => !el.hidden && el.classList.contains('view-active'));
     assert.ok(isAprendeVisible, 'Al pulsar ¡Jugar!, debe mostrarse la vista Aprende');
 
@@ -207,6 +209,7 @@ test('E2E Real Browser: Recorrido completo, responsive, accesibilidad y degradac
 
     // Verificar navegación funcionando bajo fallback
     await page.click('#btn-start-game');
+    await page.waitForSelector('#view-aprende.view-active');
     const isAprendeVisible = await page.$eval('#view-aprende', (el) => !el.hidden);
     assert.ok(isAprendeVisible, 'La navegación debe funcionar normalmente con webfonts bloqueadas');
 

@@ -4,6 +4,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import puppeteer from 'puppeteer-core';
+import { chromeExecutablePath } from './chrome-executable.js';
 
 const projectRoot = process.cwd();
 
@@ -49,7 +50,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
   const baseUrl = `http://127.0.0.1:${port}/`;
 
   const browser = await puppeteer.launch({
-    executablePath: '/usr/bin/google-chrome',
+    executablePath: chromeExecutablePath(),
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
   });
 
@@ -191,6 +192,8 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
 
   await t.test('4. Estado visual hablando.svg de la estrella durante la narración y recursos versionados', async () => {
     const page = await browser.newPage();
+    await page.setRequestInterception(true);
+    page.on('request', (request) => request.url().includes('/assets/audio/fola/audios/') ? request.abort() : request.continue());
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
     // Simular voz en speechSynthesis que mantiene el estado hablando
@@ -214,6 +217,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
 
     await page.click('#btn-start-game');
     await page.waitForSelector('#view-aprende.view-active');
+    await page.waitForFunction(() => window.__multiploApp.guide.getState() === 'normal');
 
     // Sin assets Fola preparados, la degradación conserva texto y no finge estado hablado.
     await new Promise((resolve) => setTimeout(resolve, 50));

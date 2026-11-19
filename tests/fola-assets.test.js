@@ -6,7 +6,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import childProcess from 'node:child_process';
 import { validateManifest, validateZipEntries, preparePackage } from '../scripts/validate-fola-assets.mjs';
-import { FOLA_SHA256, FOLA_APPLICATION_IDS, clipFile, selectFolaClip, isMathTextCompatible } from '../js/fola-catalog.js';
+import { FOLA_SHA256, FOLA_APPLICATION_IDS, EVENT_CLIPS, clipFile, selectFolaClip, isMathTextCompatible } from '../js/fola-catalog.js';
+import { createAprendeModel } from '../js/aprende.js';
 import { StarGuideCoordinator } from '../js/star-guide.js';
 
 function fixturePackage() {
@@ -55,8 +56,25 @@ test('Fola: ZIP seguro acepta fixture completo y rechaza ruta de escape/checksum
 });
 
 test('Fola: la cobertura de IDs de aplicación queda dentro del manifiesto versionado', () => {
+  assert.equal(FOLA_APPLICATION_IDS.length, 489);
+  assert.equal(Object.values(EVENT_CLIPS).length, 37);
   assert.equal(new Set(FOLA_APPLICATION_IDS).size, FOLA_APPLICATION_IDS.length);
   for (const id of FOLA_APPLICATION_IDS) assert.match(clipFile(id) || '', /assets\/audio\/fola\/audios\/\d{2,3}_.*\.wav$/);
+  assert.equal(FOLA_APPLICATION_IDS.includes('numero_000'), false);
+  assert.equal(clipFile('numero_000'), 'assets/audio/fola/audios/390_numero_000.wav');
+  assert.equal(selectFolaClip('numero', { numero: 0 }), null);
+  assert.equal(clipFile(EVENT_CLIPS.terminarTablaDiez), 'assets/audio/fola/audios/36_evento_terminar_tabla_diez.wav');
+  assert.equal(clipFile(EVENT_CLIPS.despedida), 'assets/audio/fola/audios/37_evento_despedida.wav');
+
+  const root = path.resolve('assets/audio/fola');
+  if (fs.existsSync(path.join(root, 'manifest.json'))) {
+    const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
+    validateManifest(manifest, root, { requiredIds: FOLA_APPLICATION_IDS });
+    const filesById = new Map(manifest.clips.map(({ id, file }) => [id, file]));
+    for (const id of FOLA_APPLICATION_IDS) {
+      assert.equal(clipFile(id).replace(/^assets\/audio\/fola\//, ''), filesById.get(id), `${id} debe usar su archivo del manifiesto`);
+    }
+  }
 });
 
 test('Fola: selector matemático de 3×2 distingue explicación, pregunta y operación', () => {
@@ -77,10 +95,27 @@ test('Fola: selector matemático de 3×2 distingue explicación, pregunta y oper
   assert.equal(selectFolaClip('aprende', { a: 3, b: 2 }, { expectedText: 'Hay tres grupos de tres.' }), null);
 });
 
+test('Fola: las 100 narraciones Aprende aceptan la cantidad con sustantivo y rechazan inversiones', () => {
+  for (let a = 1; a <= 10; a++) {
+    for (let b = 1; b <= 10; b++) {
+      const model = createAprendeModel(a, b);
+      const clip = selectFolaClip('aprende', model, { expectedText: model.narrationText });
+      assert.ok(clip, `${a}×${b}: la narración correcta debe pasar`);
+      assert.equal(isMathTextCompatible(`${b} grupos de ${a} manzanas`, { a, b }), a === b);
+      assert.equal(isMathTextCompatible(`${numberWordForTest(a)} grupos de ${numberWordForTest(b)} manzanas`, { a, b }), true);
+      assert.equal(isMathTextCompatible(`${a} por ${b} son ${a * b + 1}`, { a, b, producto: a * b }), false);
+    }
+  }
+});
+
+function numberWordForTest(value) {
+  return ['uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'][value - 1];
+}
+
 test('Fola: coordinador cancela reproducción anterior, descarta callback tardío y respeta silencio', () => {
   const audios = [];
   const guide = new StarGuideCoordinator({ storage: null, audioFactory: (src) => {
-    const audio = { src, play: () => Promise.resolve(), pause() { this.paused = true; } };
+    const audio = { src, play() { this.onplay?.(); return Promise.resolve(); }, pause() { this.paused = true; } };
     audios.push(audio); return audio;
   }});
   guide.notifyUserGesture();
