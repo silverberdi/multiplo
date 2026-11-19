@@ -7,7 +7,17 @@ Define el motor de preguntas que convierte una ronda del MVP en cuatro actividad
 
 ### Requirement: La ronda presenta cuatro preguntas evaluables en el orden del MVP
 
-El motor SHALL presentar, después de la única demostración Aprende, exactamente cuatro preguntas evaluables y SHALL respetar la numeración y modalidad obligatorias: la pregunta 2 cuenta grupos visuales y elige el total; la pregunta 3 cuenta grupos visuales y elige el total; la pregunta 4 resuelve `a×b` sin objetos visibles por defecto y ofrece una pista; la pregunta 5 elige cuál de tres multiplicaciones produce el total indicado. Tras confirmar un acierto, el motor SHALL ofrecer una celebración breve y no bloqueante antes de continuar. Completar una pregunta SHALL cerrar únicamente esa pregunta y no cambiar automáticamente de nivel. Al cerrar la cuarta pregunta, el motor SHALL entregar una sola vez el resumen inmutable de 0 a 4 aciertos del primer intento para que la progresión determine si corresponde desbloquear el siguiente nivel; esa decisión SHALL ocurrir después del cierre de ronda y no durante una respuesta individual.
+Después de Aprende, el motor SHALL presentar exactamente cuatro preguntas evaluables. En tabla 1 las cuatro pertenecerán a la tabla actual; en tablas 2–10 exactamente tres pertenecerán a la tabla actual y una será repaso de una tabla anterior disponible. SHALL mezclar orden, modalidad y posición de alternativas sin rotular el repaso como examen, y no SHALL repetir una pareja dirigida dentro de la ronda si existe otra válida. Tras confirmar un acierto, el motor SHALL ofrecer una celebración breve y no bloqueante antes de continuar. Al cerrar la cuarta pregunta, SHALL entregar los aciertos de primer intento y el resultado de repaso por separado.
+
+#### Scenario: Ronda de tabla 7 con repaso
+- **GIVEN** la tabla 7 y tablas anteriores están disponibles
+- **WHEN** se completa una ronda
+- **THEN** hay una demostración y cuatro preguntas, tres de tabla 7 y una de una tabla anterior, en orden y modalidades mezclados
+
+#### Scenario: Tabla 1 sin repaso inexistente
+- **GIVEN** solo está disponible la tabla 1
+- **WHEN** se genera una ronda
+- **THEN** sus cuatro preguntas pertenecen a la tabla 1 y no se selecciona una tabla anterior
 
 #### Scenario: Ejecuta las preguntas evaluables de una ronda
 - **GIVEN** una ronda tiene una demostración no evaluable y cuatro preguntas evaluables
@@ -34,9 +44,24 @@ El motor SHALL presentar, después de la única demostración Aprende, exactamen
 - **WHEN** el motor cierra la ronda
 - **THEN** entrega una sola vez el resumen de 0 a 4 aciertos del primer intento y la progresión puede usarlo para evaluar el umbral de desbloqueo
 
+#### Scenario: Entrega el resultado de repaso por separado
+- **GIVEN** se completaron las cuatro preguntas
+- **WHEN** se cierra la ronda
+- **THEN** entrega los aciertos de primer intento y el resultado de repaso por separado
+
 ### Requirement: Genera factores y alternativas válidas
 
-Para cada pregunta de multiplicación, el motor SHALL usar exactamente cuatro niveles numerados del 1 al 4, con la correspondencia Nivel 1 → `a=2`, Nivel 2 → `a=3`, Nivel 3 → `a=4` y Nivel 4 → `a=5`; el segundo factor `b` SHALL estar entre 1 y 5 inclusive, interpretando `a×b` como `a` grupos de `b`. Esto define 5 parejas por nivel y 20 parejas evaluables en total. Cada pregunta SHALL mostrar exactamente tres respuestas distintas, una correcta y dos distractores matemáticamente válidos. En la modalidad 4, las tres alternativas SHALL ser resultados numéricos distintos: uno SHALL ser el producto correcto y los otros dos SHALL ser productos distintos del resultado solicitado y distintos entre sí. En la modalidad 5, las tres alternativas SHALL ser operaciones con el mismo primer factor `a` del nivel y con segundos factores `b` distintos; exactamente una SHALL producir el total objetivo.
+El catálogo SHALL contener las 100 parejas `a×b` para `a=1..10` y `b=1..10`. Cada alternativa SHALL ser distinta, exactamente una SHALL ser correcta y los distractores no SHALL producir el producto objetivo, incluso por conmutatividad. Las tres modalidades evaluables SHALL seguir siendo contar grupos visuales, resolver multiplicación con pista visual y escoger la operación que corresponde a un resultado.
+
+#### Scenario: Cobertura matemática total
+- **GIVEN** el catálogo de tablas 1 a 10
+- **WHEN** se generan todas las operaciones dirigidas
+- **THEN** existen exactamente 100 pares válidos y cada uno tiene producto `a*b`
+
+#### Scenario: No hay distractor ambiguo
+- **GIVEN** una pregunta de cualquier modalidad
+- **WHEN** se presentan tres alternativas
+- **THEN** son distintas y solo una corresponde al producto objetivo; `2×3` no puede ser distractor de `3×2` cuando ambos dan el objetivo
 
 #### Scenario: Mantiene los factores permitidos
 - **GIVEN** se genera una pregunta para un nivel del MVP
@@ -60,7 +85,12 @@ Para cada pregunta de multiplicación, el motor SHALL usar exactamente cuatro ni
 
 ### Requirement: Varía operaciones sin romper las prioridades del aprendizaje
 
-La selección de operaciones SHALL evitar repetir la misma operación dentro de una ronda cuando exista otra combinación válida, SHALL variar la operación cuando una repetición sea inevitable y SHALL priorizar en rondas futuras las operaciones marcadas como falladas, usando únicamente el estado local previsto por el MVP.
+La selección SHALL evitar secuencias fijas de `b=1,2,3`, favorecer factores diferentes entre rondas y reutilizar la priorización limitada de `multiplo_failed_operations`. Una operación fallada en repaso podrá reaparecer como repaso y no deberá convertir el motor en un sistema adaptativo complejo.
+
+#### Scenario: Cobertura variada
+- **GIVEN** existen varias operaciones de la tabla
+- **WHEN** se generan rondas sucesivas
+- **THEN** el orden no es secuencial fijo y se evita repetir `a,b` dentro de una ronda
 
 #### Scenario: Evita repetir operaciones cuando es posible
 - **GIVEN** existen varias operaciones válidas para completar las preguntas de una ronda
@@ -75,11 +105,16 @@ La selección de operaciones SHALL evitar repetir la misma operación dentro de 
 #### Scenario: Prioriza operaciones falladas en otra ronda
 - **GIVEN** una operación fue fallada en el primer intento de una ronda anterior y existe progreso local de esa ronda
 - **WHEN** se genera una ronda futura del mismo nivel
-- **THEN** esa operación recibe prioridad frente a operaciones no falladas, sin salir de los cuatro niveles 1–4, sus tablas `a=2..5` y `b=1..5`, ni prometer sincronización entre dispositivos
+- **THEN** esa operación recibe prioridad frente a operaciones no falladas, sin salir de tablas 1–10 ni de factores 1–10
 
 ### Requirement: Evalúa solo el primer intento y permite reintentos sin sanción
 
-El motor SHALL registrar de forma inmutable si la primera respuesta de cada pregunta fue correcta. Un fallo inicial SHALL dejar la pregunta como no acertada al primer intento aunque un reintento posterior sea correcto. Después de un fallo, el niño SHALL poder pedir una pista y seleccionar respuestas sin límite ni sanción hasta acertar; al acertar podrá continuar o finalizar la pregunta según el flujo visible.
+El motor SHALL registrar de forma inmutable el acierto del primer intento de cada pregunta. Los reintentos SHALL permitir terminar sin sanción, pero no modificar estrellas ni el resultado inicial. La progresión SHALL recibir por separado los aciertos de la tabla actual y los de repaso.
+
+#### Scenario: Error de repaso
+- **GIVEN** falla la pregunta de repaso
+- **WHEN** finaliza la ronda
+- **THEN** conserva la operación para futuros repasos y ese fallo no reduce el dominio ni el desbloqueo de la tabla actual
 
 #### Scenario: Registra el primer acierto
 - **GIVEN** una pregunta evaluable aún no respondida
@@ -98,7 +133,12 @@ El motor SHALL registrar de forma inmutable si la primera respuesta de cada preg
 
 ### Requirement: Las pistas visuales conservan la operación y la modalidad 5 evalúa por producto
 
-La pregunta 4 SHALL ocultar los objetos al presentarse por defecto y SHALL mostrar, al pulsar Pista, exactamente `a` grupos de `b` objetos sin alterar la operación ni sus alternativas. La pregunta 5 SHALL ofrecer también una Pista opcional que muestre `a` grupos de `b` objetos de la operación objetivo, sin cambiar el total objetivo ni las tres operaciones candidatas y sin presentar una afirmación falsa. En la pregunta 5, el motor SHALL considerar correcta únicamente la operación candidata cuyo producto coincide con el total objetivo, independientemente de la posición de la alternativa.
+La pista SHALL mostrar exactamente `a` grupos de `b` objetos de la operación activa, sin mutar operación, alternativas ni resultado. La modalidad de operación por resultado SHALL evaluar por producto, nunca por posición visual.
+
+#### Scenario: Pista de 10 por 10
+- **GIVEN** se presenta `10×10`
+- **WHEN** el niño pulsa Pista
+- **THEN** ve agrupaciones ordenadas de diez grupos de diez, con el mismo producto y sin desborde horizontal
 
 #### Scenario: Muestra grupos como pista para una respuesta sin objetos
 - **GIVEN** se presenta una pregunta de multiplicación sin dibujo
