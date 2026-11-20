@@ -49,6 +49,16 @@ La experiencia SHALL seleccionar el clip Fola preparado apropiado para introducc
 - **WHEN** se presenta una instrucción
 - **THEN** la guía se ofrece en español y no exige una traducción o locución bilingüe
 
+#### Scenario: Bienvenida al iniciar desde la portada
+- **GIVEN** el sonido está habilitado y el jugador pulsa Jugar
+- **WHEN** la aplicación entra al recorrido guiado por primera vez o en una visita posterior
+- **THEN** reproduce, después del gesto, el clip de bienvenida correspondiente al estado de visita y mantiene visible el saludo equivalente
+
+#### Scenario: Aprende reproduce una narración compatible
+- **GIVEN** se presenta cualquiera de las 100 operaciones del MVP en Aprende
+- **WHEN** se solicita la narración Fola
+- **THEN** se permite reproducir la narración que expresa el número de grupos y objetos por grupo, aunque la frase incluya el sustantivo de los objetos
+
 ### Requirement: La guía controla repetición, silencio y ciclo de voz sin solapamientos
 
 La guía SHALL permitir repetir la instrucción relevante, cancelar audio previo al cambiar de actividad y respetar la preferencia `multiplo_sound_enabled`; silenciar SHALL detener voz y efectos sin alterar preguntas, estrellas ni dominio.
