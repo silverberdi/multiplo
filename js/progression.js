@@ -81,8 +81,9 @@ export function getTableDomainSummary(table, evidence = {}) {
   const normalizedTable = Number(table);
   const domain = evaluateTableDomain(normalizedTable, evidence);
   const coveredFactors = domain.coveredFactors;
-  const pendingFactors = LEVELS_CATALOG.find((item) => item.table === normalizedTable)?.factors
+  const allUncovered = LEVELS_CATALOG.find((item) => item.table === normalizedTable)?.factors
     .filter((b) => !coveredFactors.includes(b)) || [];
+  const pendingFactors = domain.mastered ? [] : allUncovered;
   const nextLevel = normalizedTable + 1;
   const requiresAccumulatedDomain = normalizedTable >= 2;
   const requirements = {

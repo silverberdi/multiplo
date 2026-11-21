@@ -544,18 +544,38 @@ import {
         btn.removeAttribute('aria-disabled');
         btn.classList.remove('level-locked');
         btn.classList.add('level-unlocked');
-        btn.setAttribute('aria-label', `${item.ariaLabel}. Nivel disponible`);
+        const domain = getTableDomainSummary(item.level, progressionState.tables?.[item.level] || {});
+        const progress = btn.querySelector('.level-progress') || document.createElement('span');
+        progress.className = 'level-progress';
+        if (!progress.parentElement) btn.appendChild(progress);
+        if (domain.mastered) {
+          progress.textContent = 'Completada';
+          btn.setAttribute('aria-label', `${item.ariaLabel}. Tabla completada`);
+        } else if (domain.qualifyingRounds > 0 || domain.coveredFactors.length > 0) {
+          progress.textContent = `En progreso · ${domain.requirements.rounds.current}/${domain.requirements.rounds.target} rondas`;
+          btn.setAttribute('aria-label', `${item.ariaLabel}. En progreso`);
+        } else {
+          progress.textContent = 'Disponible';
+          btn.setAttribute('aria-label', `${item.ariaLabel}. Nivel disponible`);
+        }
         const badge = btn.querySelector('.level-badge');
         if (badge) {
           badge.className = 'level-badge available-badge';
           badge.removeAttribute('aria-hidden');
-          badge.textContent = 'Disponible';
+          badge.textContent = domain.mastered ? 'Completada' : 'Disponible';
         }
       } else {
         btn.disabled = true;
         btn.setAttribute('aria-disabled', 'true');
         btn.classList.remove('level-unlocked');
         btn.classList.add('level-locked');
+        const domain = getTableDomainSummary(item.level, progressionState.tables?.[item.level] || {});
+        const progress = btn.querySelector('.level-progress') || document.createElement('span');
+        progress.className = 'level-progress';
+        if (!progress.parentElement) btn.appendChild(progress);
+        progress.textContent = domain.qualifyingRounds > 0 || domain.coveredFactors.length > 0
+          ? `En progreso · ${domain.requirements.rounds.current}/${domain.requirements.rounds.target} rondas`
+          : '';
         btn.setAttribute('aria-label', `${item.ariaLabel}. Bloqueado`);
         const badge = btn.querySelector('.level-badge');
         if (badge) {
@@ -674,7 +694,8 @@ import {
       if (currentLevel === 1) {
         domainText.textContent = `Rondas válidas: ${domain.requirements.rounds.current} de ${domain.requirements.rounds.target}.`;
       } else {
-        domainText.textContent = `Rondas válidas: ${domain.requirements.rounds.current} de ${domain.requirements.rounds.target}. Factores pendientes: ${domain.pendingFactors.length}.`;
+        domainText.textContent = `Rondas válidas: ${domain.requirements.rounds.current} de ${domain.requirements.rounds.target}.`;
+        if (!domain.mastered) domainText.textContent += ` Factores pendientes: ${domain.pendingFactors.length}.`;
       }
     }
     const pendingText = document.getElementById('fin-pending-factors');
@@ -682,7 +703,7 @@ import {
       pendingText.textContent = domain.pendingFactors.length
         ? `Faltan los factores: ${domain.pendingFactors.join(', ')}.`
         : 'Todos los factores necesarios están cubiertos.';
-      pendingText.hidden = currentLevel === 1 || domain.pendingFactors.length === 0;
+      pendingText.hidden = currentLevel === 1 || domain.mastered || domain.pendingFactors.length === 0;
     }
 
     // 4. Encabezado, mensaje positivo y locución hablada según estrellas
@@ -738,7 +759,7 @@ import {
     const btnNext = document.getElementById('btn-fin-next');
     if (btnNext) {
       // Invariante de MVP: nunca ofrecer un Nivel 5
-      if (nextLevel <= MAX_LEVEL && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel) && progressionResult?.unlockedNewLevel) {
+      if (nextLevel <= MAX_LEVEL && domain.mastered && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel)) {
         btnNext.hidden = false;
         btnNext.textContent = 'Siguiente nivel';
         btnNext.setAttribute('aria-label', `Siguiente nivel: Tabla del ${getLevelConfig(nextLevel).table}`);

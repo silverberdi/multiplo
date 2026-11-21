@@ -74,6 +74,16 @@ test('Request #29 separa 4/4 de dominio y desbloqueo de tabla 1', () => {
   assert.equal(getTableDomainSummary(2, result.state.tables[2]).pendingFactors.length, 10);
 });
 
+test('Request #29 no muestra factores pendientes cuando la tabla ya está dominada', () => {
+  const state = createInitialProgressionState();
+  const round = { table: 2, firstAttemptSuccesses: 3, currentInitialSuccesses: 3, currentFactors: [1, 2, 3, 4], currentFirstAttemptCorrect: [true, true, true, true] };
+  let result = recordRoundEvidence(state, round);
+  result = recordRoundEvidence(result.state, { ...round, currentFactors: [5, 6, 7], currentFirstAttemptCorrect: [true, true, true] });
+  const summary = getTableDomainSummary(2, result.state.tables[2]);
+  assert.equal(summary.mastered, true);
+  assert.deepEqual(summary.pendingFactors, []);
+});
+
 test('Request #29 selecciona pendientes primero y cubre siete factores sin sorteo indefinido', () => {
   const pending = [7, 8, 9, 10];
   const first = selectRoundBValues(2, { pendingFactors: pending, randomFn: () => 0 });

@@ -77,7 +77,18 @@ test('Request #29 E2E: 4/4 conserva dominio pendiente, cierre limitado y recarga
   assert.equal(await page.$eval('#btn-level-10', (button) => button.disabled), true);
   await page.evaluate(() => window.__multiploApp.setHighestUnlockedLevel(10));
   await page.evaluate(() => window.__multiploApp.startNewRound(10, { bValues: [1, 2, 3, 4], modalities: [2, 3, 4, 5], randomFn: () => 0 }));
-  await page.evaluate(() => window.__multiploApp.navigateTo('fin'));
+  await page.evaluate(() => window.__multiploApp.navigateTo('aprende'));
+  await page.click('#btn-aprende-continue');
+  for (let index = 0; index < 4; index += 1) {
+    await page.evaluate(() => {
+      const question = window.__multiploApp.getCurrentQuestion();
+      const correct = question.alternatives.find((option) => option.isCorrect || option.product === question.product);
+      const value = question.modalidad === 5 ? correct.product : correct.value;
+      document.querySelector(`[data-option="${value}"]`).click();
+    });
+    await page.click('#btn-juego-continue');
+  }
+  await page.waitForSelector('#view-fin.view-active');
   assert.equal(await page.$eval('#btn-fin-next', (button) => button.hidden), true);
   assert.doesNotMatch(await page.$eval('#view-fin', (element) => element.textContent), /tabla 11/i);
   await page.close();
