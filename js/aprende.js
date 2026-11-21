@@ -60,6 +60,18 @@ export function capitalize(str) {
 }
 
 /**
+ * Compone el texto dirigido de grupos y objetos para todas las superficies.
+ * La primera cantidad siempre es el número de grupos (a) y la segunda el
+ * número de objetos por grupo (b); nunca se intercambia la orientación.
+ */
+export function formatGroupDescription(a, b, { capitalizeFirst = false } = {}) {
+  const groupText = a === 1 ? 'un grupo' : `${numberToWord(a)} grupos`;
+  const objectText = b === 1 ? 'una manzana' : `${numberToWord(b)} manzanas`;
+  const description = `${groupText} de ${objectText}`;
+  return capitalizeFirst ? capitalize(description) : description;
+}
+
+/**
  * Valida los factores dirigidos de las tablas ampliadas.
  */
 export function validateAprendeFactors(a, b) {
@@ -78,9 +90,7 @@ export function validateAprendeFactors(a, b) {
  *     3x1 -> "Tres grupos de una manzana"
  */
 export function formatAprendeInstruction(a, b) {
-  const aWord = capitalize(numberToWord(a));
-  const bWord = b === 1 ? 'una manzana' : `${numberToWord(b)} manzanas`;
-  return `${aWord} grupos de ${bWord}`;
+  return formatGroupDescription(a, b, { capitalizeFirst: true });
 }
 
 /**
@@ -89,8 +99,8 @@ export function formatAprendeInstruction(a, b) {
  *     3x1 -> "Mira: tres grupos de una manzana. Uno más uno más uno son tres. Tres por uno son tres."
  */
 export function formatAprendeNarration(a, b) {
+  const groupDescription = formatGroupDescription(a, b);
   const aWord = numberToWord(a);
-  const bWord = b === 1 ? 'una manzana' : `${numberToWord(b)} manzanas`;
   const product = a * b;
   const productWord = numberToWord(product);
 
@@ -98,7 +108,7 @@ export function formatAprendeNarration(a, b) {
   const sumPhrase = `${capitalize(sumTermsWords)} son ${productWord}`;
   const multPhrase = `${capitalize(aWord)} por ${numberToWord(b)} son ${productWord}`;
 
-  return `Mira: ${aWord} grupos de ${bWord}. ${sumPhrase}. ${multPhrase}.`;
+  return `Mira: ${groupDescription}. ${sumPhrase}. ${multPhrase}.`;
 }
 
 /**
@@ -115,7 +125,8 @@ export function createAprendeModel(a, b) {
   const instructionText = formatAprendeInstruction(a, b);
   const narrationText = formatAprendeNarration(a, b);
 
-  const groupsAriaLabel = `Demostración visual de ${a} grupos de ${b} ${b === 1 ? 'manzana' : 'manzanas'}`;
+  const groupAriaText = a === 1 ? '1 grupo' : `${a} grupos`;
+  const groupsAriaLabel = `Demostración visual de ${groupAriaText} de ${b} ${b === 1 ? 'manzana' : 'manzanas'}`;
 
   const groups = Array.from({ length: a }, (_, idx) => {
     const groupNum = idx + 1;
