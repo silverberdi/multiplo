@@ -7,7 +7,7 @@ Define una guía de estrella accesible para acompañar las actividades del MVP c
 
 ### Requirement: La estrella presenta instrucciones en español con texto y voz opcional
 
-La experiencia SHALL seleccionar el clip Fola preparado apropiado para introducción de tabla, Aprende, pregunta, pista, acierto, error y cierre según el evento y la operación real `a×b`, incluyendo tablas 1–10. No SHALL generar audio nuevo, usar TTS/IA ni describir una orientación distinta. El texto e imágenes equivalentes SHALL permanecer disponibles y el audio no SHALL bloquear.
+La experiencia SHALL seleccionar el clip Fola preparado apropiado para la bienvenida según sea primera visita o regreso, y para introducción de tabla, Aprende, pregunta, pista, acierto, error y cierre según el evento y la operación real `a×b`, incluyendo tablas 1–10. Al pulsar Jugar, SHALL mostrar inmediatamente el saludo textual y mantenerlo visible durante la bienvenida; el gesto SHALL habilitar el intento de reproducción de audio. No SHALL intentar una reproducción audible automática al cargar Inicio. No SHALL generar audio nuevo, usar TTS/IA ni describir una orientación distinta. El texto, la navegación y las imágenes equivalentes SHALL permanecer disponibles y el audio no SHALL bloquear.
 
 #### Scenario: Introducción automática de tabla
 - **GIVEN** el niño selecciona una tabla disponible y el sonido está habilitado
@@ -59,9 +59,24 @@ La experiencia SHALL seleccionar el clip Fola preparado apropiado para introducc
 - **WHEN** se solicita la narración Fola
 - **THEN** se permite reproducir la narración que expresa el número de grupos y objetos por grupo, aunque la frase incluya el sustantivo de los objetos
 
+#### Scenario: Bienvenida tras el gesto de Jugar
+- **GIVEN** el jugador está en el Inicio simplificado
+- **WHEN** pulsa Jugar
+- **THEN** aparece inmediatamente el saludo textual, permanece visible durante la bienvenida y se solicita el clip de primera visita o regreso después de ese gesto
+
+#### Scenario: No reproducir al cargar
+- **GIVEN** el jugador carga Inicio sin haber pulsado Jugar
+- **WHEN** termina de cargar la página
+- **THEN** no se intenta una reproducción audible automática
+
+#### Scenario: Fallback inmediato de clip ausente
+- **GIVEN** el jugador inició la bienvenida y el audio está silenciado, falta o falla
+- **WHEN** el sistema detecta que no puede reproducir el clip
+- **THEN** la selección de niveles aparece inmediatamente y el texto y la navegación permanecen disponibles sin voz robótica ni bloqueo
+
 ### Requirement: La guía controla repetición, silencio y ciclo de voz sin solapamientos
 
-La guía SHALL permitir repetir la instrucción relevante, cancelar audio previo al cambiar de actividad y respetar la preferencia `multiplo_sound_enabled`; silenciar SHALL detener voz y efectos sin alterar preguntas, estrellas ni dominio.
+La guía SHALL permitir avanzar desde la bienvenida mientras el clip está sonando, repetir la instrucción relevante, cancelar audio previo al cambiar a la selección o a una partida y respetar la preferencia `multiplo_sound_enabled`; silenciar SHALL detener voz y efectos sin alterar preguntas, estrellas, niveles ni dominio.
 
 #### Scenario: Repaso de voz sin mutar progreso
 - **GIVEN** existe una instrucción visible
@@ -102,6 +117,26 @@ La guía SHALL permitir repetir la instrucción relevante, cancelar audio previo
 - **GIVEN** el jugador silencia el sonido
 - **WHEN** se recarga el mismo navegador o se inicia una nueva sesión
 - **THEN** la preferencia `multiplo_sound_enabled` o estado equivalente permanece deshabilitada hasta reactivación explícita
+
+#### Scenario: Continuar antes del final del clip
+- **GIVEN** la bienvenida está reproduciendo su clip
+- **WHEN** el jugador continúa hacia la selección de niveles
+- **THEN** se cancela la voz anterior, la selección aparece sin esperar al final y la navegación ocurre una sola vez
+
+#### Scenario: Pasar al terminar
+- **GIVEN** el jugador inició la bienvenida y no la adelantó
+- **WHEN** el clip termina
+- **THEN** aparece la selección de niveles una sola vez
+
+#### Scenario: Audio restringido por el navegador
+- **GIVEN** el navegador rechaza la reproducción aun después del gesto o el sonido está silenciado
+- **WHEN** se inicia la bienvenida
+- **THEN** el flujo textual continúa y la selección queda disponible sin depender de audio audible
+
+#### Scenario: No solapar ni reanudar la voz anterior
+- **GIVEN** se está reproduciendo la bienvenida
+- **WHEN** cambia la pantalla hacia la selección o una partida
+- **THEN** la locución de bienvenida se detiene antes de presentar la nueva actividad y no se reproducen dos locuciones simultáneamente
 
 ### Requirement: La estrella refleja estados y retroalimentación empática
 
