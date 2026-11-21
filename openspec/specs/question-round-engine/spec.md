@@ -7,7 +7,7 @@ Define el motor de preguntas que convierte una ronda del MVP en cuatro actividad
 
 ### Requirement: La ronda presenta cuatro preguntas evaluables en el orden del MVP
 
-Después de Aprende, el motor SHALL presentar exactamente cuatro preguntas evaluables. En tabla 1 las cuatro pertenecerán a la tabla actual; en tablas 2–10 exactamente tres pertenecerán a la tabla actual y una será repaso de una tabla anterior disponible. SHALL mezclar orden, modalidad y posición de alternativas sin rotular el repaso como examen, y no SHALL repetir una pareja dirigida dentro de la ronda si existe otra válida. Tras confirmar un acierto, el motor SHALL ofrecer una celebración breve y no bloqueante antes de continuar. Al cerrar la cuarta pregunta, SHALL entregar los aciertos de primer intento y el resultado de repaso por separado.
+Después de Aprende, el motor SHALL presentar exactamente cuatro preguntas evaluables. En tabla 1 las cuatro pertenecerán a la tabla actual; en tablas 2–10 exactamente tres pertenecerán a la tabla actual y una será repaso de una tabla anterior disponible. SHALL mezclar orden, modalidad y posición de alternativas sin rotular el repaso como examen, y no SHALL repetir una pareja dirigida dentro de la ronda si existe otra válida. La selección SHALL registrar los factores `b` de las preguntas actuales acertadas inicialmente para que la progresión pueda mostrar y completar el dominio acumulado. Tras confirmar un acierto, el motor SHALL ofrecer una celebración breve y no bloqueante antes de continuar. Al cerrar la cuarta pregunta, SHALL entregar los aciertos de primer intento y el resultado de repaso por separado.
 
 #### Scenario: Ronda de tabla 7 con repaso
 - **GIVEN** la tabla 7 y tablas anteriores están disponibles
@@ -49,6 +49,16 @@ Después de Aprende, el motor SHALL presentar exactamente cuatro preguntas evalu
 - **WHEN** se cierra la ronda
 - **THEN** entrega los aciertos de primer intento y el resultado de repaso por separado
 
+#### Scenario: Entrega factores de dominio sin contar repaso
+- **GIVEN** una ronda contiene preguntas actuales y una pregunta de repaso
+- **WHEN** el niño responde las preguntas
+- **THEN** solo los factores `b` de preguntas actuales acertadas inicialmente se entregan al progreso y un factor repetido no aumenta el conjunto de factores distintos
+
+#### Scenario: Celebra un acierto sin bloquear
+- **GIVEN** el niño responde correctamente una pregunta evaluable
+- **WHEN** el motor confirma la respuesta
+- **THEN** muestra una felicitación breve y permite continuar a la siguiente pregunta sin exigir esperar una animación o audio
+
 ### Requirement: Genera factores y alternativas válidas
 
 El catálogo SHALL contener las 100 parejas `a×b` para `a=1..10` y `b=1..10`. Cada alternativa SHALL ser distinta, exactamente una SHALL ser correcta y los distractores no SHALL producir el producto objetivo, incluso por conmutatividad. Las tres modalidades evaluables SHALL seguir siendo contar grupos visuales, resolver multiplicación con pista visual y escoger la operación que corresponde a un resultado.
@@ -85,7 +95,7 @@ El catálogo SHALL contener las 100 parejas `a×b` para `a=1..10` y `b=1..10`. C
 
 ### Requirement: Varía operaciones sin romper las prioridades del aprendizaje
 
-La selección SHALL evitar secuencias fijas de `b=1,2,3`, favorecer factores diferentes entre rondas y reutilizar la priorización limitada de `multiplo_failed_operations`. Una operación fallada en repaso podrá reaparecer como repaso y no deberá convertir el motor en un sistema adaptativo complejo.
+La progresión SHALL exponer para la tabla objetivo `coveredFactors` y `pendingFactors`, y `startNewRound` SHALL pasar ambos valores a `createQuestionRound`. La selección SHALL aceptar ese contrato, evitar secuencias fijas, favorecer primero factores `b` pendientes y después reutilizar la priorización limitada de `multiplo_failed_operations`, sin repetir parejas dentro de la ronda cuando existan alternativas. Para una tabla con suficientes factores disponibles, el motor SHALL producir una selección que avance la cobertura de factores distintos requerida por dominio antes de repetir factores no prioritarios. Una operación fallada podrá reaparecer, pero la estrategia no SHALL depender de repeticiones aleatorias indefinidas ni convertirse en un sistema adaptativo complejo.
 
 #### Scenario: Cobertura variada
 - **GIVEN** existen varias operaciones de la tabla
@@ -107,9 +117,19 @@ La selección SHALL evitar secuencias fijas de `b=1,2,3`, favorecer factores dif
 - **WHEN** se genera una ronda futura del mismo nivel
 - **THEN** esa operación recibe prioridad frente a operaciones no falladas, sin salir de tablas 1–10 ni de factores 1–10
 
+#### Scenario: Permite completar el conjunto de factores
+- **GIVEN** faltan factores `b` distintos para cumplir el requisito de dominio
+- **WHEN** progresión pasa `pendingFactors` a `startNewRound` y este lo entrega a `createQuestionRound` en rondas sucesivas
+- **THEN** la selección ofrece los factores pendientes de forma alcanzable, cubre siete factores distintos en la evidencia de primer intento cuando se responden correctamente y no exige que el mismo factor se repita indefinidamente
+
+#### Scenario: La selección consume el contrato de cobertura
+- **GIVEN** progresión informa `coveredFactors=[1,2,3]` y `pendingFactors=[4,5,6,7]` para la tabla actual
+- **WHEN** `startNewRound` crea una ronda
+- **THEN** `createQuestionRound` recibe esa evidencia y prioriza factores de `pendingFactors` en las preguntas actuales, dejando el repaso fuera de la cobertura de la tabla
+
 ### Requirement: Evalúa solo el primer intento y permite reintentos sin sanción
 
-El motor SHALL registrar de forma inmutable el acierto del primer intento de cada pregunta. Los reintentos SHALL permitir terminar sin sanción, pero no modificar estrellas ni el resultado inicial. La progresión SHALL recibir por separado los aciertos de la tabla actual y los de repaso.
+El motor SHALL registrar de forma inmutable el acierto del primer intento de cada pregunta. Los reintentos SHALL permitir terminar sin sanción, pero no modificar estrellas ni el resultado inicial. La progresión SHALL recibir por separado los aciertos de la tabla actual, sus factores `b` distintos y los de repaso.
 
 #### Scenario: Error de repaso
 - **GIVEN** falla la pregunta de repaso
