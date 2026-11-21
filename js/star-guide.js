@@ -50,7 +50,7 @@ export const GUIDE_SCRIPT = {
   acierto: '¡Muy bien!',
   reintento: 'Cuenta otra vez',
   cierre: '¡Terminaste la aventura!',
-  pista: 'Mira los grupos: cada uno tiene dos manzanas.'
+  pista: 'Mira los grupos: cada grupo tiene la misma cantidad de manzanas.'
 };
 
 export const SOUND_STORAGE_KEY = 'multiplo_sound_enabled';

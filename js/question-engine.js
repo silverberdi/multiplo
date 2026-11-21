@@ -22,7 +22,7 @@
 import {
   createAprendeModel,
   numberToWord,
-  capitalize,
+  formatGroupDescription,
   validateAprendeFactors,
   MANZANA_ASSET
 } from './aprende.js';
@@ -438,16 +438,14 @@ export function createQuestion(modalidad, a, b, questionIndex, options = {}) {
     spokenPrompt = `¿Cuánto es ${numberToWord(a)} por ${numberToWord(b)}?`;
     hasVisualGroups = false; // Sin objetos visibles por defecto
     hintAvailable = true;
-    const bWord = b === 1 ? 'una manzana' : `${numberToWord(b)} manzanas`;
-    hintText = `💡 Pista: ${capitalize(numberToWord(a))} grupos de ${bWord}.`;
+    hintText = `💡 Pista: ${formatGroupDescription(a, b, { capitalizeFirst: true })}.`;
     alternatives = generateNumericAlternatives(a, b, options);
   } else if (modalidad === MODALITIES.PREGUNTA_5) {
     prompt = `¿Cuál multiplicación da ${product}?`;
     spokenPrompt = `¿Cuál multiplicación da ${numberToWord(product)}?`;
     hasVisualGroups = false;
     hintAvailable = true;
-    const bWord = b === 1 ? 'una manzana' : `${numberToWord(b)} manzanas`;
-    hintText = `💡 Pista: El total ${product} se forma con ${numberToWord(a)} grupos de ${bWord}.`;
+    hintText = `💡 Pista: El total ${product} se forma con ${formatGroupDescription(a, b)}.`;
     alternatives = generateOperationAlternatives(a, b, options);
   } else {
     throw new RangeError(`Modalidad no soportada: ${modalidad}`);

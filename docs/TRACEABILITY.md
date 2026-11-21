@@ -1,6 +1,19 @@
 # Múltiplo — Trazabilidad de objetivos a requisitos, issues y activos
 **Estado:** matriz actualizada con trazabilidad técnica de v1.2; no sustituye la evidencia de Verify.
 
+## Request #32 — concordancia singular/plural en grupos dirigidos
+
+| Comportamiento | Implementación | Evidencia Apply |
+|---|---|---|
+| Composición común `a×b`, con `a=1` en singular y `b=1` como «una manzana» | `js/aprende.js`, `js/question-engine.js` | `tests/request-32-singular-plural.test.js` |
+| Aprende, pistas y narración conservan la orientación dirigida y los assets existentes | `js/aprende.js`, `js/question-engine.js`, `js/star-guide.js` | `tests/request-32-singular-plural.test.js`, `tests/request-32-singular-plural-e2e.test.js` |
+| Fallback no bloqueante ante fallo de reproducción Fola | `js/star-guide.js` | `tests/request-32-singular-plural.test.js`, suite Fola de `npm test` |
+| Responsive y producto alto sin regresión | `tests/request-32-singular-plural-e2e.test.js`, `tests/v12-e2e.test.js` | `npm run test:e2e` |
+
+La evidencia de Apply de este cambio se ejecutó en el worktree activo con `npm run test:unit`, `npm run test:e2e` y `npm test`, todos con exit code 0. La búsqueda de plantillas no encontró formas discordantes en código ni recorridos afectados. Esta sección no certifica Verify, revisión independiente, publicación ni despliegue.
+
+Cobertura de requisitos: Request #32 afecta RF-02, RF-03 y RF-04, además de RNF-02, RNF-05 y RNF-07; los escenarios de singular/plural, orientación `a×b`, pista, fallback y responsive están cubiertos por las pruebas citadas arriba.
+
 ## Request #29 — estrellas, dominio y cierre condicionado
 
 | Comportamiento | Implementación | Evidencia Apply |

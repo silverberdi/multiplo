@@ -98,7 +98,7 @@ test.skip('1.3 Caso canónico 3 × 2: tres grupos de dos manzanas, 2+2+2=6, 3×2
   );
 });
 
-test.skip('1.4 Caso singular b = 1: concordancia gramatical en español (una manzana, no un manzanas)', () => {
+test.skip('1.4 Caso singular b = 1: concordancia gramatical en español', () => {
   const model = createAprendeModel(4, 1);
   assert.equal(model.instructionText, 'Cuatro grupos de una manzana');
   assert.equal(model.sumExpression, '1 + 1 + 1 + 1 = 4');
