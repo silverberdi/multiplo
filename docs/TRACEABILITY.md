@@ -1,6 +1,17 @@
 # Múltiplo — Trazabilidad de objetivos a requisitos, issues y activos
 **Estado:** matriz actualizada con trazabilidad técnica de v1.2; no sustituye la evidencia de Verify.
 
+## Request #29 — estrellas, dominio y cierre condicionado
+
+| Comportamiento | Implementación | Evidencia Apply |
+|---|---|---|
+| Estrellas separadas del dominio; tabla 1 avanza con >=3/4 y tablas 2–10 requieren rondas + 7 factores | `js/progression.js`, `js/app.js` | `tests/v12-change.test.js`, `tests/v12-e2e.test.js` |
+| Factores pendientes dirigidos, primer intento y repaso separados | `js/question-engine.js`, `js/app.js` | `tests/v12-change.test.js` |
+| Cierre muestra rondas/factores pendientes y no ofrece tabla inexistente | `index.html`, `js/app.js` | `tests/v12-e2e.test.js` |
+| Persistencia local defensiva y acceso tras recarga | `js/progression.js` | `tests/v12-change.test.js`, `tests/v12-e2e.test.js` |
+
+La evidencia candidata se obtuvo con `npm run test`, `npm run test:unit` y `npm run test:e2e`, todos con salida 0. El paquete Fola ignorado se preparó con SHA-256 `202f108b81331e54b53c46bc983b87b65719dc8d1cac3079a12327a2d2d86929` según `docs/ASSETS.md`; no forma parte del candidato Git.
+
 ## Request #21
 
 | Requisito | Implementación | Evidencia |

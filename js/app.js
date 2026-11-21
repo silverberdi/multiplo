@@ -39,7 +39,7 @@ import {
   isLevelUnlocked,
   getUnlockedLevels,
   closeRoundProgression,
-  evaluateProgressionUnlock,
+  getTableDomainSummary,
   normalizeHighestUnlockedLevel,
   createInitialProgressionState
 } from './progression.js';
@@ -88,6 +88,10 @@ import {
       ...(forcedRoundOptions || {}),
       ...options
     };
+    const tableEvidence = progressionState.tables?.[validatedLevel] || {};
+    roundOptions.pendingFactors ??= getTableDomainSummary(validatedLevel, tableEvidence).pendingFactors;
+    roundOptions.coveredFactors ??= tableEvidence.coveredFactors || [];
+    roundOptions.failedHistory ??= tableEvidence.failedOperations || [];
 
     const qRound = createQuestionRound(validatedLevel, roundOptions);
 
@@ -540,18 +544,38 @@ import {
         btn.removeAttribute('aria-disabled');
         btn.classList.remove('level-locked');
         btn.classList.add('level-unlocked');
-        btn.setAttribute('aria-label', `${item.ariaLabel}. Nivel disponible`);
+        const domain = getTableDomainSummary(item.level, progressionState.tables?.[item.level] || {});
+        const progress = btn.querySelector('.level-progress') || document.createElement('span');
+        progress.className = 'level-progress';
+        if (!progress.parentElement) btn.appendChild(progress);
+        if (domain.mastered) {
+          progress.textContent = 'Completada';
+          btn.setAttribute('aria-label', `${item.ariaLabel}. Tabla completada`);
+        } else if (domain.qualifyingRounds > 0 || domain.coveredFactors.length > 0) {
+          progress.textContent = `En progreso · ${domain.requirements.rounds.current}/${domain.requirements.rounds.target} rondas`;
+          btn.setAttribute('aria-label', `${item.ariaLabel}. En progreso`);
+        } else {
+          progress.textContent = 'Disponible';
+          btn.setAttribute('aria-label', `${item.ariaLabel}. Nivel disponible`);
+        }
         const badge = btn.querySelector('.level-badge');
         if (badge) {
           badge.className = 'level-badge available-badge';
           badge.removeAttribute('aria-hidden');
-          badge.textContent = 'Disponible';
+          badge.textContent = domain.mastered ? 'Completada' : 'Disponible';
         }
       } else {
         btn.disabled = true;
         btn.setAttribute('aria-disabled', 'true');
         btn.classList.remove('level-unlocked');
         btn.classList.add('level-locked');
+        const domain = getTableDomainSummary(item.level, progressionState.tables?.[item.level] || {});
+        const progress = btn.querySelector('.level-progress') || document.createElement('span');
+        progress.className = 'level-progress';
+        if (!progress.parentElement) btn.appendChild(progress);
+        progress.textContent = domain.qualifyingRounds > 0 || domain.coveredFactors.length > 0
+          ? `En progreso · ${domain.requirements.rounds.current}/${domain.requirements.rounds.target} rondas`
+          : '';
         btn.setAttribute('aria-label', `${item.ariaLabel}. Bloqueado`);
         const badge = btn.querySelector('.level-badge');
         if (badge) {
@@ -661,6 +685,27 @@ import {
       scoreText.textContent = `Aciertos al primer intento: ${stars} de 4`;
     }
 
+    const domain = progressionResult?.domain || getTableDomainSummary(
+      currentLevel,
+      progressionState.tables?.[currentLevel] || {}
+    );
+    const domainText = document.getElementById('fin-domain-summary');
+    if (domainText) {
+      if (currentLevel === 1) {
+        domainText.textContent = `Rondas válidas: ${domain.requirements.rounds.current} de ${domain.requirements.rounds.target}.`;
+      } else {
+        domainText.textContent = `Rondas válidas: ${domain.requirements.rounds.current} de ${domain.requirements.rounds.target}.`;
+        if (!domain.mastered) domainText.textContent += ` Factores pendientes: ${domain.pendingFactors.length}.`;
+      }
+    }
+    const pendingText = document.getElementById('fin-pending-factors');
+    if (pendingText) {
+      pendingText.textContent = domain.pendingFactors.length
+        ? `Faltan los factores: ${domain.pendingFactors.join(', ')}.`
+        : 'Todos los factores necesarios están cubiertos.';
+      pendingText.hidden = currentLevel === 1 || domain.mastered || domain.pendingFactors.length === 0;
+    }
+
     // 4. Encabezado, mensaje positivo y locución hablada según estrellas
     const heading = document.getElementById('heading-fin');
     const message = document.getElementById('fin-summary-message');
@@ -710,11 +755,11 @@ import {
       }
     }
 
-    // 6. Botón de Siguiente nivel: solo para 3/4 o 4/4 cuando exista un nivel posterior
+    // 6. Botón de Siguiente nivel: solo si existe y está desbloqueado.
     const btnNext = document.getElementById('btn-fin-next');
     if (btnNext) {
       // Invariante de MVP: nunca ofrecer un Nivel 5
-      if (nextLevel <= MAX_LEVEL && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel) && stars >= 3) {
+      if (nextLevel <= MAX_LEVEL && domain.mastered && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel)) {
         btnNext.hidden = false;
         btnNext.textContent = 'Siguiente nivel';
         btnNext.setAttribute('aria-label', `Siguiente nivel: Tabla del ${getLevelConfig(nextLevel).table}`);

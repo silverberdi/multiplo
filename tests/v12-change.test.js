@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   LEVELS_CATALOG, MAX_LEVEL, createInitialProgressionState, evaluateTableDomain,
-  migrateLegacyProgression, recordRoundEvidence, loadProgressionState, saveProgressionState
+  getTableDomainSummary, migrateLegacyProgression, recordRoundEvidence, loadProgressionState, saveProgressionState
 } from '../js/progression.js';
 import { createAprendeModel, validateAprendeFactors } from '../js/aprende.js';
-import { createQuestionRound, getAllValidPairs, MODALITIES, generateNumericAlternatives, generateOperationAlternatives } from '../js/question-engine.js';
+import { createQuestionRound, getAllValidPairs, MODALITIES, generateNumericAlternatives, generateOperationAlternatives, selectRoundBValues } from '../js/question-engine.js';
 
 const memoryStorage = () => {
   const map = new Map();
@@ -54,14 +54,56 @@ test('v1.2 alternativas son tres, únicas y correctas por valor/producto', () =>
 
 test('v1.2 dominio requiere dos rondas calificadas y siete factores, no solo estrellas', () => {
   const state = createInitialProgressionState();
-  const allCorrect = { table: 1, firstAttemptSuccesses: 4, currentInitialSuccesses: 4, currentFactors: [1, 2, 3, 4], currentFirstAttemptCorrect: [true, true, true, true] };
+  const allCorrect = { table: 2, firstAttemptSuccesses: 4, currentInitialSuccesses: 3, currentFactors: [1, 2, 3, 4], currentFirstAttemptCorrect: [true, true, true, true] };
   let result = recordRoundEvidence(state, allCorrect);
   assert.equal(result.unlockedNewLevel, false);
   result = recordRoundEvidence(result.state, { ...allCorrect, currentFactors: [5, 6, 7, 8], currentFirstAttemptCorrect: [true, true, true, true] });
   assert.equal(result.domain.mastered, true);
+  assert.equal(result.unlockedNewLevel, false, 'La tabla 2 no puede abrirse fuera de secuencia');
+  assert.equal(result.state.highestUnlockedLevel, 1);
+  assert.equal(evaluateTableDomain(2, result.state.tables[2]).coveredFactors.length, 8);
+});
+
+test('Request #29 separa 4/4 de dominio y desbloqueo de tabla 1', () => {
+  const state = createInitialProgressionState();
+  const perfect = { table: 1, firstAttemptSuccesses: 4, currentInitialSuccesses: 4, currentFactors: [1, 2, 3, 4], currentFirstAttemptCorrect: [true, true, true, true] };
+  const result = recordRoundEvidence(state, perfect);
+  assert.equal(result.domain.mastered, true);
   assert.equal(result.unlockedNewLevel, true);
   assert.equal(result.state.highestUnlockedLevel, 2);
-  assert.equal(evaluateTableDomain(1, result.state.tables[1]).coveredFactors.length, 8);
+  assert.equal(getTableDomainSummary(2, result.state.tables[2]).pendingFactors.length, 10);
+});
+
+test('Request #29 no muestra factores pendientes cuando la tabla ya está dominada', () => {
+  const state = createInitialProgressionState();
+  const round = { table: 2, firstAttemptSuccesses: 3, currentInitialSuccesses: 3, currentFactors: [1, 2, 3, 4], currentFirstAttemptCorrect: [true, true, true, true] };
+  let result = recordRoundEvidence(state, round);
+  result = recordRoundEvidence(result.state, { ...round, currentFactors: [5, 6, 7], currentFirstAttemptCorrect: [true, true, true] });
+  const summary = getTableDomainSummary(2, result.state.tables[2]);
+  assert.equal(summary.mastered, true);
+  assert.deepEqual(summary.pendingFactors, []);
+});
+
+test('Request #29 selecciona pendientes primero y cubre siete factores sin sorteo indefinido', () => {
+  const pending = [7, 8, 9, 10];
+  const first = selectRoundBValues(2, { pendingFactors: pending, randomFn: () => 0 });
+  const second = selectRoundBValues(2, { pendingFactors: [3, 4, 5, 6, 7, 8, 9], coveredFactors: [1, 2], randomFn: () => 0.999 });
+  assert.deepEqual(new Set(first), new Set(pending));
+  assert.ok(second.every((b) => [3, 4, 5, 6, 7, 8, 9].includes(b)));
+  assert.equal(new Set([...second, 1, 2]).size, 6);
+});
+
+test('Request #29 no duplica evidencia por reintento ni por factor repetido', () => {
+  const state = createInitialProgressionState();
+  const result = recordRoundEvidence(state, {
+    table: 2,
+    firstAttemptSuccesses: 2,
+    currentInitialSuccesses: 2,
+    currentFactors: [4, 4],
+    currentFirstAttemptCorrect: [true, true]
+  });
+  assert.deepEqual(result.state.tables[2].coveredFactors, [4]);
+  assert.equal(result.domain.qualifyingRounds, 1);
 });
 
 test('v1.2 migración legacy es idempotente, conserva sonido y fallos válidos', () => {
@@ -83,6 +125,8 @@ test('v1.2 almacenamiento corrupto o ausente degrada a memoria sin lanzar', () =
   assert.equal(result.state.highestUnlockedLevel, 1);
   assert.ok(result.warning);
   assert.equal(loadProgressionState(null).storageAvailable, false);
+  const securityError = { getItem: () => { throw new DOMException('denied', 'SecurityError'); } };
+  assert.equal(loadProgressionState(securityError).state.highestUnlockedLevel, 1);
 });
 
 test('v1.2 no existe tabla 11 y se conservan límites de catálogo', () => {

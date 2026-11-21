@@ -1,19 +1,18 @@
 /**
  * Múltiplo — Modelo de progresión de niveles, desbloqueo y persistencia local
- * Alcance: MVP-05 (Issue #5 - Progresión de niveles 1 a 4, desbloqueo por umbral y persistencia local)
+ * Alcance: MVP-05 / Request #29 (tablas 1 a 10, dominio y persistencia local)
  *
  * Cumple con:
- * - Catálogo canónico de cuatro niveles (1..4) correspondientes a las tablas del 2, 3, 4 y 5
- * - Factores b en 1..5, convención a × b = a grupos de b (20 parejas válidas)
+ * - Catálogo canónico de diez tablas (1..10), con factores b en 1..10
  * - Estado inicial: solo Nivel 1 abierto (highestUnlockedLevel = 1)
- * - Disponibilidad estrictamente secuencial derivada de highestUnlockedLevel (1..4)
- * - Umbral de desbloqueo: >= 3 aciertos en el primer intento (3/4 o 4/4) de la ronda completada
+ * - Disponibilidad estrictamente secuencial derivada de highestUnlockedLevel (1..10)
+ * - Tabla 1: >= 3 aciertos iniciales en una ronda; tablas 2..10: dominio acumulado
  * - Cierre idempotente: consume una sola vez el resumen inmutable del motor
  * - Conservación incondicional de niveles ya abiertos ante fallos o repeticiones
  * - Persistencia mínima en localStorage (highestUnlockedLevel y soundEnabled)
  * - Tolerancia total a localStorage ausente, bloqueado (SecurityError), cuota excedida o JSON corrupto
  * - Aviso seguro para adulto si el almacenamiento falla, sin llamadas de red ni telemetría
- * - Sin nivel 5 (en Nivel 4 no se ofrece siguiente nivel)
+ * - Sin tabla 11 (en Tabla 10 no se ofrece siguiente tabla)
  */
 
 export const PROGRESSION_STORAGE_KEY = 'multiplo_progression_v1';
@@ -47,7 +46,7 @@ export function getLevelConfig(level) {
   const lvl = Number(level);
   const found = LEVELS_CATALOG.find((item) => item.level === lvl);
   if (!found) {
-    throw new RangeError(`Nivel inválido: ${level}. Los niveles del MVP van del 1 al 4.`);
+    throw new RangeError(`Nivel inválido: ${level}. Las tablas del MVP van del 1 al 10.`);
   }
   return found;
 }
@@ -74,12 +73,53 @@ export function getAllCatalogPairs() {
   return pairs;
 }
 
+/**
+ * Resume la evidencia de dominio que necesita una tabla para avanzar.
+ * Las estrellas de la ronda nunca se mezclan con este resumen.
+ */
+export function getTableDomainSummary(table, evidence = {}) {
+  const normalizedTable = Number(table);
+  const domain = evaluateTableDomain(normalizedTable, evidence);
+  const coveredFactors = domain.coveredFactors;
+  const allUncovered = LEVELS_CATALOG.find((item) => item.table === normalizedTable)?.factors
+    .filter((b) => !coveredFactors.includes(b)) || [];
+  const pendingFactors = domain.mastered ? [] : allUncovered;
+  const nextLevel = normalizedTable + 1;
+  const requiresAccumulatedDomain = normalizedTable >= 2;
+  const requirements = {
+    rounds: {
+      current: domain.qualifyingRounds,
+      target: requiresAccumulatedDomain ? 2 : 1,
+      met: requiresAccumulatedDomain ? domain.hasEnoughRounds : domain.hasEnoughRounds
+    },
+    factors: {
+      current: coveredFactors.length,
+      target: DOMAIN_FACTORS_REQUIRED,
+      met: requiresAccumulatedDomain ? domain.hasEnoughFactors : true
+    }
+  };
+  const mastered = requiresAccumulatedDomain
+    ? domain.hasEnoughRounds && domain.hasEnoughFactors
+    : domain.hasEnoughRounds;
+  return {
+    table: normalizedTable,
+    coveredFactors,
+    pendingFactors,
+    qualifyingRounds: domain.qualifyingRounds,
+    requirements,
+    mastered,
+    tableComplete: mastered,
+    nextLevel: nextLevel <= MAX_LEVEL ? nextLevel : null,
+    action: nextLevel <= MAX_LEVEL && mastered ? 'avanzar' : 'repetir'
+  };
+}
+
 export function emptyTableEvidence() {
   return { recentRounds: [], coveredFactors: [], failedOperations: [] };
 }
 
 /**
- * Normaliza y valida el nivel máximo desbloqueado (1..4).
+ * Normaliza y valida el nivel máximo desbloqueado (1..10).
  * Si el valor no es un entero en [1, 4], retorna 1 (estado inicial seguro).
  * @param {any} val
  * @returns {number}
@@ -293,7 +333,7 @@ export function saveProgressionState(state, storage = undefined) {
  * Invariantes:
  * - Solo se desbloquea si el nivel jugado estaba entre los niveles desbloqueados.
  * - Desbloquea como máximo el nivel inmediatamente posterior (level + 1).
- * - En ningún caso se desbloquea un nivel > 4 (no existe Nivel 5).
+ * - En ningún caso se desbloquea un nivel > 10 (no existe Tabla 11).
  * - Los niveles ya abiertos NUNCA se vuelven a bloquear ante fallos posteriores.
  * - Una respuesta corregida no incrementa el umbral ni desbloquea si firstAttemptSuccesses < 3.
  *
@@ -337,23 +377,26 @@ export function evaluateProgressionUnlock(currentHighestUnlocked, roundSummary) 
   const hasSubsequentLevel = targetNextLevel <= MAX_LEVEL;
 
   const domain = roundSummary.domain || null;
-  if (metThreshold && hasSubsequentLevel && domain?.mastered) {
+  const canAdvance = playedLevel === 1 ? metThreshold : metThreshold && domain?.mastered;
+  if (canAdvance && hasSubsequentLevel) {
     const newMax = Math.max(currentMax, targetNextLevel);
     const unlockedNewLevel = newMax > currentMax;
     return {
       highestUnlockedLevel: newMax,
       unlockedNewLevel,
       nextLevel: targetNextLevel,
-      eligibleForNext: true
+      eligibleForNext: true,
+      domain
     };
   }
 
-  // Si superó el Nivel 4 (metThreshold && !hasSubsequentLevel), no hay Nivel 5
+  // Si superó la Tabla 10 (metThreshold && !hasSubsequentLevel), no hay Tabla 11.
   return {
     highestUnlockedLevel: currentMax,
     unlockedNewLevel: false,
     nextLevel: null,
-    eligibleForNext: metThreshold && !hasSubsequentLevel
+    eligibleForNext: metThreshold && !hasSubsequentLevel,
+    domain
   };
 }
 
@@ -363,7 +406,10 @@ export function evaluateTableDomain(table, evidence) {
   const rounds = Array.isArray(evidence?.recentRounds) ? evidence.recentRounds : [];
   const factors = Array.isArray(evidence?.coveredFactors) ? [...new Set(evidence.coveredFactors)] : [];
   const qualifyingRounds = rounds.filter((round) => !round.review && Number(round.currentInitialSuccesses ?? round.initialSuccesses) >= domainThreshold(table)).length;
-  return { table: Number(table), qualifyingRounds, coveredFactors: factors, hasEnoughRounds: qualifyingRounds >= 2, hasEnoughFactors: factors.length >= DOMAIN_FACTORS_REQUIRED, mastered: qualifyingRounds >= 2 && factors.length >= DOMAIN_FACTORS_REQUIRED };
+  const normalizedTable = Number(table);
+  const hasEnoughRounds = qualifyingRounds >= (normalizedTable === 1 ? 1 : 2);
+  const hasEnoughFactors = factors.length >= DOMAIN_FACTORS_REQUIRED;
+  return { table: normalizedTable, qualifyingRounds, coveredFactors: factors, hasEnoughRounds, hasEnoughFactors, mastered: normalizedTable === 1 ? hasEnoughRounds : hasEnoughRounds && hasEnoughFactors };
 }
 
 export function recordRoundEvidence(state, summary) {
@@ -371,7 +417,9 @@ export function recordRoundEvidence(state, summary) {
   const next = validateAndNormalizeState(state);
   if (!Number.isInteger(table) || !next.tables[table]) return { state: next, domain: null, unlockedNewLevel: false, nextLevel: null };
   const evidence = next.tables[table];
-  const factors = Array.isArray(summary.currentFactors) ? summary.currentFactors : [];
+  const factors = Array.isArray(summary.currentFactors)
+    ? [...new Set(summary.currentFactors.filter((b) => Number.isInteger(b) && b >= 1 && b <= 10))]
+    : [];
   const correct = Array.isArray(summary.currentFirstAttemptCorrect) ? summary.currentFirstAttemptCorrect : [];
   evidence.recentRounds.push({ initialSuccesses: Number(summary.firstAttemptSuccesses || 0), currentInitialSuccesses: Number(summary.currentInitialSuccesses ?? summary.firstAttemptSuccesses ?? 0), review: false, factors });
   evidence.recentRounds = evidence.recentRounds.slice(-DOMAIN_ROUND_LIMIT);
@@ -381,9 +429,9 @@ export function recordRoundEvidence(state, summary) {
     if (!evidence.failedOperations.some((item) => item.a === operation.a && item.b === operation.b)) evidence.failedOperations.push({ a: operation.a, b: operation.b, source: operation.source });
   }
   evidence.failedOperations = evidence.failedOperations.slice(-20);
-  const domain = evaluateTableDomain(table, evidence);
+  const domain = getTableDomainSummary(table, evidence);
   const nextLevel = table + 1;
-  const unlockedNewLevel = domain.mastered && nextLevel <= MAX_LEVEL && next.highestUnlockedLevel < nextLevel;
+  const unlockedNewLevel = domain.mastered && nextLevel <= MAX_LEVEL && next.highestUnlockedLevel === table;
   if (unlockedNewLevel) { next.highestUnlockedLevel = nextLevel; next.openTables = getUnlockedLevels(nextLevel); }
   return { state: next, domain, unlockedNewLevel, nextLevel: unlockedNewLevel ? nextLevel : null };
 }
