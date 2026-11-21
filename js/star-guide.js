@@ -264,6 +264,10 @@ export class StarGuideCoordinator {
    * Dispara un efecto sonoro respetando soundEnabled sin interferir con el canal de narración.
    */
   playEffect(name) {
+    // Un efecto nuevo pertenece al evento actual: una locución anterior no
+    // debe seguir sonando por debajo del feedback ni reactivar su estado.
+    this.cancelSpeech();
+    this.stopCurrentEffectAudio();
     const audio = playAudioEffect(name, this.soundEnabled, this.audioFactory);
     this.currentEffectAudio = audio;
     return audio;

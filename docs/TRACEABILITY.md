@@ -1,6 +1,16 @@
 # Múltiplo — Trazabilidad de objetivos a requisitos, issues y activos
 **Estado:** matriz actualizada con trazabilidad técnica de v1.2; no sustituye la evidencia de Verify.
 
+## Request #33 — celebraciones breves y variadas
+
+| Comportamiento | Implementación | Evidencia Apply |
+|---|---|---|
+| Acierto ordinario: feedback textual/semántico inmediato, estado celebrando y `acierto.wav`, sin felicitación Fola repetitiva | `js/app.js`, `js/star-guide.js`, `css/styles.css` | `tests/request-33-celebration.test.js`, `tests/fola-audio-routing-e2e.test.js` |
+| Voz reservada para bienvenida, Aprende, consigna, pista y cierre; cancelación de voz/efectos obsoletos | `js/app.js`, `js/star-guide.js` | `tests/request-33-celebration.test.js`, `tests/fola-audio-routing-e2e.test.js` |
+| Silencio, fallback de reproducción, reduced-motion y continuidad rápida | `js/star-guide.js`, `css/styles.css` | `tests/request-33-celebration.test.js`, `tests/fola-audio-routing-e2e.test.js` |
+
+La evidencia de Apply de Request #33 se ejecuta en el worktree candidato con los comandos y exit codes registrados en sus tareas OpenSpec. No afirma Verify, revisión independiente, validación humana, publicación ni despliegue.
+
 ## Request #32 — concordancia singular/plural en grupos dirigidos
 
 | Comportamiento | Implementación | Evidencia Apply |
