@@ -7,7 +7,7 @@ Define el motor de preguntas que convierte una ronda del MVP en cuatro actividad
 
 ### Requirement: La ronda presenta cuatro preguntas evaluables en el orden del MVP
 
-Después de Aprende, el motor SHALL presentar exactamente cuatro preguntas evaluables. En tabla 1 las cuatro pertenecerán a la tabla actual; en tablas 2–10 exactamente tres pertenecerán a la tabla actual y una será repaso de una tabla anterior disponible. SHALL mezclar orden, modalidad y posición de alternativas sin rotular el repaso como examen, y no SHALL repetir una pareja dirigida dentro de la ronda si existe otra válida. La selección SHALL registrar los factores `b` de las preguntas actuales acertadas inicialmente para que la progresión pueda mostrar y completar el dominio acumulado. Tras confirmar un acierto, el motor SHALL ofrecer una celebración breve y no bloqueante antes de continuar. Al cerrar la cuarta pregunta, SHALL entregar los aciertos de primer intento y el resultado de repaso por separado.
+Después de Aprende, el motor SHALL presentar exactamente cuatro preguntas evaluables. En tabla 1 las cuatro pertenecerán a la tabla actual; en tablas 2–10 exactamente tres pertenecerán a la tabla actual y una será repaso de una tabla anterior disponible. SHALL mezclar orden, modalidad y posición de alternativas sin rotular el repaso como examen, y no SHALL repetir una pareja dirigida dentro de la ronda si existe otra válida. La selección SHALL registrar los factores `b` de las preguntas actuales acertadas inicialmente para que la progresión pueda mostrar y completar el dominio acumulado. Tras confirmar un acierto, el motor SHALL mostrar feedback textual inmediato, activar una celebración visual breve y ofrecer `Continuar` sin exigir esperar una animación o una narración. Al cerrar la cuarta pregunta, SHALL entregar los aciertos de primer intento y el resultado de repaso por separado.
 
 #### Scenario: Ronda de tabla 7 con repaso
 - **GIVEN** la tabla 7 y tablas anteriores están disponibles
@@ -27,7 +27,7 @@ Después de Aprende, el motor SHALL presentar exactamente cuatro preguntas evalu
 #### Scenario: Celebra un acierto sin bloquear
 - **GIVEN** el niño responde correctamente una pregunta evaluable
 - **WHEN** el motor confirma la respuesta
-- **THEN** muestra una felicitación breve y permite continuar a la siguiente pregunta sin exigir esperar una animación o audio
+- **THEN** muestra feedback textual inmediato, anima brevemente la estrella y permite pulsar Continuar sin esperar audio o animación
 
 #### Scenario: Presenta las modalidades en el orden obligatorio
 - **GIVEN** comienza la secuencia evaluable de una ronda
@@ -202,7 +202,7 @@ La pista SHALL mostrar exactamente `a` grupos de `b` objetos de la operación ac
 
 ### Requirement: Usa feedback y multimedia aprobados sin bloquear la experiencia
 
-El motor SHALL mostrar instrucciones y feedback breves en español, usará `pensando.svg` para pistas o reflexión, `celebrando.svg` para aciertos y cierre, `manzana.svg` para grupos visuales, `intento.wav` para fallos y `acierto.wav` para aciertos. La voz y los efectos SHALL ser opcionales y no SHALL impedir continuar si faltan, fallan o están silenciados.
+El motor SHALL mostrar instrucciones y feedback breves en español, usará `pensando.svg` para pistas o reflexión, `celebrando.svg` para aciertos y cierre, `manzana.svg` para grupos visuales, `intento.wav` para fallos y `acierto.wav` para aciertos. Los aciertos ordinarios SHALL recibir feedback textual inmediato y una animación visual breve, sin depender del color ni de una felicitación hablada repetida. La voz y los efectos SHALL ser opcionales y no SHALL impedir continuar si faltan, fallan o están silenciados.
 
 #### Scenario: Vincula los recursos del motor
 - **GIVEN** se presenta una pregunta, una pista, un fallo o un acierto
@@ -213,3 +213,8 @@ El motor SHALL mostrar instrucciones y feedback breves en español, usará `pens
 - **GIVEN** la síntesis o un archivo WAV no existe, falla o está silenciado
 - **WHEN** ocurre un fallo o acierto durante la pregunta
 - **THEN** el feedback textual, las alternativas, la pista y la navegación siguen funcionando sin bloqueo
+
+#### Scenario: Observa solicitudes y continuidad rápida
+- **GIVEN** se ejecuta una ronda con varios aciertos y el jugador continúa rápidamente
+- **WHEN** una prueba de navegador observa las solicitudes de audio y la navegación
+- **THEN** verifica el número y orden de los efectos y no quedan narraciones solapadas ni una espera artificial antes de Continuar
