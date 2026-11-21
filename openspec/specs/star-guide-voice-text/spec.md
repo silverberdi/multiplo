@@ -171,7 +171,7 @@ La experiencia SHALL seleccionar el clip Fola preparado apropiado para la bienve
 
 ### Requirement: La guía controla repetición, silencio y ciclo de voz sin solapamientos
 
-La guía SHALL permitir avanzar desde la bienvenida mientras el clip está sonando, repetir la instrucción relevante, cancelar audio previo al cambiar a la selección o a una partida y respetar la preferencia `multiplo_sound_enabled`; silenciar SHALL detener voz y efectos sin alterar preguntas, estrellas, niveles ni dominio.
+La guía SHALL permitir avanzar desde la bienvenida mientras el clip está sonando, repetir la instrucción relevante, cancelar audio previo al cambiar a la selección o a una partida y respetar la preferencia `multiplo_sound_enabled`; silenciar SHALL detener voz y efectos sin alterar preguntas, estrellas, niveles ni dominio. Un acierto ordinario SHALL reproducir el efecto de acierto y feedback visual/textual sin iniciar la misma felicitación hablada en cada acierto; la voz SHALL reservarse para bienvenida, explicación, pista, hito o cierre, y cualquier narración iniciada SHALL cancelarse o terminar antes de que comience otra.
 
 #### Scenario: Repaso de voz sin mutar progreso
 - **GIVEN** existe una instrucción visible
@@ -187,6 +187,21 @@ La guía SHALL permitir avanzar desde la bienvenida mientras el clip está sonan
 - **GIVEN** existe una instrucción o pregunta visible
 - **WHEN** el jugador usa el control independiente de Repetir
 - **THEN** se vuelve a reproducir el clip relevante una vez sin cambiar la pregunta, respuestas, intentos, estrellas ni progreso
+
+#### Scenario: Aciertos ordinarios no repiten la misma voz
+- **GIVEN** el niño obtiene varios aciertos ordinarios en una ronda
+- **WHEN** se procesa cada acierto
+- **THEN** se mantiene el feedback visual/textual y el efecto de acierto, pero no se solicita la misma felicitación hablada para cada acierto ordinario
+
+#### Scenario: Voz reservada para contenido valioso
+- **GIVEN** ocurre la bienvenida, una explicación, una pista, un hito o el cierre de la ronda
+- **WHEN** la guía determina que la voz aporta contenido o valor de celebración
+- **THEN** puede solicitar el clip Fola correspondiente, sin convertir los aciertos ordinarios en una narración repetitiva
+
+#### Scenario: No solapar discursos ni efectos
+- **GIVEN** se está reproduciendo una locución Fola o un efecto
+- **WHEN** se presenta otra instrucción o evento sonoro
+- **THEN** el audio anterior se cancela o termina antes de iniciar el nuevo, y nunca se reproducen dos locuciones ni una locución y un efecto incompatible simultáneamente
 
 #### Scenario: No solapar discursos
 - **GIVEN** se está reproduciendo una locución Fola
@@ -206,7 +221,7 @@ La guía SHALL permitir avanzar desde la bienvenida mientras el clip está sonan
 #### Scenario: Modo silencioso
 - **GIVEN** el jugador silencia el sonido
 - **WHEN** hay una locución, un efecto o una navegación
-- **THEN** voz y efectos cesan, y no se reproducen nuevos sonidos
+- **THEN** voz y efectos cesan, no se reproducen nuevos sonidos, y el texto, feedback visual, preguntas, estrellas y navegación permanecen disponibles
 
 #### Scenario: Conservar la preferencia local de silencio
 - **GIVEN** el jugador silencia el sonido
@@ -235,7 +250,7 @@ La guía SHALL permitir avanzar desde la bienvenida mientras el clip está sonan
 
 ### Requirement: La estrella refleja estados y retroalimentación empática
 
-La experiencia SHALL representar los estados normal, hablando, celebrando y pensando con los SVG aprobados de la mascota. Ante un error de una pregunta evaluable SHALL invitar a otro intento con lenguaje amable, SHALL conservar la actividad y SHALL poder mostrar una pista sin regaño, castigo, pérdida de progreso ni dependencia exclusiva del color. Ante un acierto SHALL comunicarlo con una celebración visual y/o textual breve, SHALL permitir continuar sin convertir un reintento correcto en un acierto de primer intento y SHALL completar la ronda con un estado de celebración diferenciado.
+La experiencia SHALL representar los estados normal, hablando, celebrando y pensando con los SVG aprobados de la mascota. Ante un error de una pregunta evaluable SHALL invitar a otro intento con lenguaje amable, SHALL conservar la actividad y SHALL poder mostrar una pista sin regaño, castigo, pérdida de progreso ni dependencia exclusiva del color. Ante un acierto SHALL comunicarlo inmediatamente con feedback textual y una celebración visual breve, SHALL permitir continuar sin esperar una animación o una locución y SHALL conservar un estado de celebración diferenciado para el cierre. Un acierto ordinario no SHALL requerir una felicitación hablada repetida.
 Una interacción con objetos o grupos no evaluables SHALL poder ofrecer contexto sin seleccionar respuestas ni iniciar locuciones repetitivas por toques sucesivos.
 
 #### Scenario: Estados visuales de la mascota
@@ -247,6 +262,11 @@ Una interacción con objetos o grupos no evaluables SHALL poder ofrecer contexto
 - **GIVEN** el niño da una respuesta fallida
 - **WHEN** la estrella reacciona
 - **THEN** invita a intentarlo otra vez, puede ofrecer Pista, conserva la pregunta y no regaña, castiga ni descuenta progreso
+
+#### Scenario: Acierto ordinario inmediato
+- **GIVEN** el niño responde correctamente una pregunta evaluable
+- **WHEN** el motor confirma el acierto ordinario
+- **THEN** aparece feedback textual inmediato, la estrella asociada se anima brevemente y el niño puede usar Continuar sin esperar la animación ni una felicitación hablada
 
 #### Scenario: Feedback de acierto tardío
 - **GIVEN** el niño falló el primer intento y después selecciona la respuesta correcta
@@ -270,12 +290,17 @@ Una interacción con objetos o grupos no evaluables SHALL poder ofrecer contexto
 
 ### Requirement: Los sonidos originales se reproducen de forma discreta y respetan el silencio
 
-La experiencia SHALL asociar acierto, intento, celebración y clic con sus respectivos WAV versionados, SHALL evitar superponer efectos con la voz Fola y SHALL tratar un error de carga o reproducción como no bloqueante. Cuando el sonido está silenciado no SHALL reproducir ninguno de esos efectos ni locuciones. En el motor de preguntas, un fallo SHALL asociarse a `intento.wav`, un acierto SHALL asociarse a `acierto.wav` y el cierre de la ronda SHALL poder asociarse una vez a `celebracion.wav`.
+La experiencia SHALL asociar acierto, intento, celebración y clic con sus respectivos WAV versionados, SHALL tratar un error de carga o reproducción como no bloqueante y SHALL evitar superponer efectos con la voz Fola. Un acierto ordinario SHALL solicitar `acierto.wav` como efecto breve, no SHALL solicitar una felicitación hablada repetitiva y SHALL dejar disponible Continuar de inmediato. Cuando el sonido está silenciado no SHALL reproducir ninguno de esos efectos ni locuciones. El motor SHALL asociar un fallo a `intento.wav`, un acierto a `acierto.wav` y el cierre de la ronda podrá asociarse una vez a `celebracion.wav`.
 
 #### Scenario: Sonidos originales discretos
 - **GIVEN** el sonido está habilitado
 - **WHEN** ocurre un acierto, un intento, una celebración o un clic
 - **THEN** se reproduce, si está disponible, el efecto original discreto correspondiente sin bloquear el flujo ni mezclarlo invasivamente con la locución
+
+#### Scenario: Acierto ordinario sin voz repetitiva
+- **GIVEN** el sonido está habilitado y se confirman varios aciertos ordinarios
+- **WHEN** se observan las solicitudes de audio
+- **THEN** cada acierto solicita su efecto sonoro en el orden esperado y no solicita la misma felicitación hablada ordinaria en cada respuesta
 
 #### Scenario: El silencio aplica a todos los sonidos
 - **GIVEN** el jugador ha silenciado el sonido
