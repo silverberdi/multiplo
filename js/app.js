@@ -39,7 +39,7 @@ import {
   isLevelUnlocked,
   getUnlockedLevels,
   closeRoundProgression,
-  evaluateProgressionUnlock,
+  getTableDomainSummary,
   normalizeHighestUnlockedLevel,
   createInitialProgressionState
 } from './progression.js';
@@ -88,6 +88,10 @@ import {
       ...(forcedRoundOptions || {}),
       ...options
     };
+    const tableEvidence = progressionState.tables?.[validatedLevel] || {};
+    roundOptions.pendingFactors ??= getTableDomainSummary(validatedLevel, tableEvidence).pendingFactors;
+    roundOptions.coveredFactors ??= tableEvidence.coveredFactors || [];
+    roundOptions.failedHistory ??= tableEvidence.failedOperations || [];
 
     const qRound = createQuestionRound(validatedLevel, roundOptions);
 
@@ -661,6 +665,26 @@ import {
       scoreText.textContent = `Aciertos al primer intento: ${stars} de 4`;
     }
 
+    const domain = progressionResult?.domain || getTableDomainSummary(
+      currentLevel,
+      progressionState.tables?.[currentLevel] || {}
+    );
+    const domainText = document.getElementById('fin-domain-summary');
+    if (domainText) {
+      if (currentLevel === 1) {
+        domainText.textContent = `Rondas válidas: ${domain.requirements.rounds.current} de ${domain.requirements.rounds.target}.`;
+      } else {
+        domainText.textContent = `Rondas válidas: ${domain.requirements.rounds.current} de ${domain.requirements.rounds.target}. Factores pendientes: ${domain.pendingFactors.length}.`;
+      }
+    }
+    const pendingText = document.getElementById('fin-pending-factors');
+    if (pendingText) {
+      pendingText.textContent = domain.pendingFactors.length
+        ? `Faltan los factores: ${domain.pendingFactors.join(', ')}.`
+        : 'Todos los factores necesarios están cubiertos.';
+      pendingText.hidden = currentLevel === 1 || domain.pendingFactors.length === 0;
+    }
+
     // 4. Encabezado, mensaje positivo y locución hablada según estrellas
     const heading = document.getElementById('heading-fin');
     const message = document.getElementById('fin-summary-message');
@@ -710,11 +734,11 @@ import {
       }
     }
 
-    // 6. Botón de Siguiente nivel: solo para 3/4 o 4/4 cuando exista un nivel posterior
+    // 6. Botón de Siguiente nivel: solo si existe y está desbloqueado.
     const btnNext = document.getElementById('btn-fin-next');
     if (btnNext) {
       // Invariante de MVP: nunca ofrecer un Nivel 5
-      if (nextLevel <= MAX_LEVEL && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel) && stars >= 3) {
+      if (nextLevel <= MAX_LEVEL && isLevelUnlocked(nextLevel, progressionState.highestUnlockedLevel) && progressionResult?.unlockedNewLevel) {
         btnNext.hidden = false;
         btnNext.textContent = 'Siguiente nivel';
         btnNext.setAttribute('aria-label', `Siguiente nivel: Tabla del ${getLevelConfig(nextLevel).table}`);

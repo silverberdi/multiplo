@@ -161,7 +161,8 @@ export function selectRoundBValues(level, options = {}) {
 
   const randomFn = typeof options.randomFn === 'function' ? options.randomFn : Math.random;
 
-  // Determinar candidatos fallados para este factor 'a'
+  // Determinar candidatos dirigidos para este factor 'a'. Los pendientes son
+  // evidencia de dominio, no una sugerencia aleatoria: siempre van primero.
   const storage = options.storage || (typeof localStorage !== 'undefined' ? localStorage : null);
   const rawFailed = Array.isArray(options.failedHistory)
     ? options.failedHistory
@@ -175,12 +176,19 @@ export function selectRoundBValues(level, options = {}) {
       .map((op) => op.b)
   );
 
+  const validUnique = (values) => [...new Set(Array.isArray(values) ? values : [])]
+    .filter((b) => VALID_B_VALUES.includes(b));
+  const pending = validUnique(options.pendingFactors);
+  const covered = new Set(validUnique(options.coveredFactors));
+
   // Barajar valores disponibles usando randomFn
   const pool = [...VALID_B_VALUES];
 
   // Separar en fallados y no fallados
-  const prioritized = pool.filter((b) => failedBSet.has(b));
-  const normal = pool.filter((b) => !failedBSet.has(b));
+  const prioritized = pool.filter((b) => pending.includes(b));
+  const failedPrioritized = pool.filter((b) => !pending.includes(b) && failedBSet.has(b));
+  const normal = pool.filter((b) => !pending.includes(b) && !failedBSet.has(b) && !covered.has(b));
+  const fallback = pool.filter((b) => !pending.includes(b) && !failedBSet.has(b) && !normal.includes(b));
 
   // Función interna para barajar
   function shuffle(arr) {
@@ -192,19 +200,23 @@ export function selectRoundBValues(level, options = {}) {
     return copy;
   }
 
-  // Priorizar hasta 2 fallados para mantener variedad si hay muchos
-  const selectedPrioritized = shuffle(prioritized).slice(0, 2);
-  const remainingSlots = 4 - selectedPrioritized.length;
-
-  const normalShuffled = shuffle(normal);
-  const selectedNormal = normalShuffled.slice(0, remainingSlots);
-
-  let combined = [...selectedPrioritized, ...selectedNormal];
+  const combined = [];
+  const add = (values, limit = values.length) => {
+    for (const b of shuffle(values)) {
+      if (combined.length >= limit || combined.includes(b)) break;
+      combined.push(b);
+    }
+  };
+  add(prioritized, 4);
+  // El repaso de errores conserva prioridad acotada, después del dominio pendiente.
+  add(failedPrioritized, Math.min(4, combined.length + 2));
+  add(normal, 4);
+  add(fallback, 4);
 
   // Si aún no se completan 4 (por ejemplo si la suma dio menos), rellenar del pool restante
   if (combined.length < 4) {
     const remainingPool = shuffle(pool.filter((b) => !combined.includes(b)));
-    combined = combined.concat(remainingPool.slice(0, 4 - combined.length));
+    combined.push(...remainingPool.slice(0, 4 - combined.length));
   }
 
   // Barajar la lista final de 4 b para que la posición no sea predecible
@@ -500,6 +512,8 @@ export function createQuestionRound(level = 1, options = {}) {
     level: lvl,
     a,
     bList: selectedPairs.map((pair) => pair.b),
+    coveredFactors: Array.isArray(options.coveredFactors) ? [...options.coveredFactors] : [],
+    pendingFactors: Array.isArray(options.pendingFactors) ? [...options.pendingFactors] : [],
     questions,
     currentIndex: 0,
     isFinished: false,
