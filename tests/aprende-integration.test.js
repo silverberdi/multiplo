@@ -43,6 +43,20 @@ function createStaticServer() {
   return server;
 }
 
+async function startFromWelcome(page) {
+  await page.click('#btn-start-game');
+  await page.waitForFunction(() => {
+    const levels = document.getElementById('levels-section');
+    const continueButton = document.getElementById('btn-welcome-continue');
+    return !levels.hidden || !continueButton.hidden;
+  });
+  const canContinue = await page.$eval('#btn-welcome-continue', (button) => !button.hidden);
+  if (canContinue) await page.click('#btn-welcome-continue');
+  await page.waitForSelector('#levels-section:not([hidden])');
+  await page.click('#btn-level-1');
+  await page.waitForSelector('#view-aprende.view-active');
+}
+
 test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degradación y responsive', async (t) => {
   const server = createStaticServer();
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -69,8 +83,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
     });
 
     // Iniciar actividad
-    await page.click('#btn-start-game');
-    await page.waitForSelector('#view-aprende.view-active');
+    await startFromWelcome(page);
 
     // Verificar que solo hay un contenedor semántico y ninguna demo estática duplicada
     const demoContainers = await page.$$('#aprende-content');
@@ -121,8 +134,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
       window.__multiploApp.setAprendeFactors(3, 4);
     });
 
-    await page.click('#btn-start-game');
-    await page.waitForSelector('#view-aprende.view-active');
+    await startFromWelcome(page);
 
     // Verificar texto visible
     const instruction = await page.$eval('#aprende-instruction', (el) => el.textContent.trim());
@@ -160,8 +172,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
-    await page.click('#btn-start-game');
-    await page.waitForSelector('#view-aprende.view-active');
+    await startFromWelcome(page);
 
     // Verificar estado de ronda en Aprende
     const roundBeforeContinue = await page.evaluate(() => {
@@ -215,8 +226,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
       };
     });
 
-    await page.click('#btn-start-game');
-    await page.waitForSelector('#view-aprende.view-active');
+    await startFromWelcome(page);
     await page.waitForFunction(() => window.__multiploApp.guide.getState() === 'normal');
 
     // Sin assets Fola preparados, la degradación conserva texto y no finge estado hablado.
@@ -242,8 +252,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
       window.__multiploApp.guide.utteranceFactory = null;
     });
 
-    await page.click('#btn-start-game');
-    await page.waitForSelector('#view-aprende.view-active');
+    await startFromWelcome(page);
 
     // Texto visible y botón Continuar disponibles inmediatamente
     const instruction = await page.$eval('#aprende-instruction', (el) => el.textContent.trim());
@@ -271,8 +280,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
     assert.ok(isMuted, 'El sonido debe estar silenciado');
 
     // Navegar a Aprende
-    await page.click('#btn-start-game');
-    await page.waitForSelector('#view-aprende.view-active');
+    await startFromWelcome(page);
 
     // El texto permanece visible
     const instruction = await page.$eval('#aprende-instruction', (el) => el.textContent.trim());
@@ -304,8 +312,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
         window.__multiploApp.setAprendeFactors(5, 5);
       });
 
-      await page.click('#btn-start-game');
-      await page.waitForSelector('#view-aprende.view-active');
+      await startFromWelcome(page);
 
       // Verificar que no hay desbordamiento horizontal en body ni en contenedor de demo
       const overflowInfo = await page.evaluate(() => {
@@ -348,8 +355,7 @@ test('E2E Aprende: Demostración visual, correspondencia matemática, voz, degra
     await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
-    await page.click('#btn-start-game');
-    await page.waitForSelector('#view-aprende.view-active');
+    await startFromWelcome(page);
 
     // Verificar que la animación está deshabilitada bajo movimiento reducido
     const animName = await page.$eval('#aprende-content', (el) => {

@@ -46,22 +46,25 @@
         <div class="view-card">
           <div class="mascot-wrapper">
             <img id="mascot-img-inicio" src="assets/mascot/normal.svg" alt="Mascota estrella Múltiplo sonriendo alegremente" class="mascot-img mascot-normal" width="160" height="160">
-            <div id="mascot-status-inicio" class="mascot-status-tag" data-state="normal" aria-live="polite">
+            <div id="mascot-status-inicio" class="mascot-status-tag" data-state="normal" aria-live="polite" hidden>
               <span class="status-icon" aria-hidden="true">⭐</span>
               <span class="status-text">Lista</span>
             </div>
           </div>
           <h1 id="heading-inicio" class="view-title">¡Hola! Soy Múltiplo</h1>
-          <p class="instruction-text">¡Vamos a aprender jugando!</p>
+          <p class="instruction-text" hidden>¡Vamos a aprender jugando!</p>
           <div id="storage-status-banner" class="storage-banner" role="status" aria-live="polite" hidden></div>
 
           <div class="actions-group">
-            <button id="btn-start-game" class="btn btn-primary btn-large" type="button">
+            <button id="btn-start-game" class="btn btn-primary btn-large btn-start-invitation" type="button">
               ¡Jugar!
+            </button>
+            <button id="btn-welcome-continue" class="btn btn-secondary btn-large" type="button" hidden>
+              Continuar
             </button>
           </div>
 
-          <div class="levels-section" aria-labelledby="heading-levels">
+          <div id="levels-section" class="levels-section" aria-labelledby="heading-levels" hidden>
             <h2 id="heading-levels" class="section-subtitle">Elige tu nivel</h2>
             <div class="levels-grid" role="group" aria-label="Niveles de multiplicación">
               
