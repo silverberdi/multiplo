@@ -41,9 +41,11 @@ test('E2E Fola: bienvenida, Aprende, ayuda y cierre solicitan los clips exactos 
   page.setDefaultTimeout(8000);
   await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
   const folaRequests = [];
+  const wavRequests = [];
   page.on('request', (request) => {
     const requestUrl = new URL(request.url());
     if (requestUrl.pathname.startsWith('/assets/audio/fola/audios/')) folaRequests.push(requestUrl.pathname);
+    if (requestUrl.pathname.endsWith('.wav')) wavRequests.push(requestUrl.pathname);
   });
   await page.evaluateOnNewDocument(() => {
     window.__folaStarted = [];
@@ -128,7 +130,6 @@ test('E2E Fola: bienvenida, Aprende, ayuda y cierre solicitan los clips exactos 
     const correctIndex = question.alternatives.findIndex((alternative) => alternative.isCorrect);
     const optionButtons = await page.$$('.btn-option');
     await optionButtons[correctIndex].click();
-    await assertClipStarted(selectFolaClip('acierto', question));
     const continueButton = await page.$('#btn-juego-continue');
     const label = await continueButton.evaluate((button) => button.textContent.trim());
     await page.click('#btn-juego-continue');
@@ -144,6 +145,8 @@ test('E2E Fola: bienvenida, Aprende, ayuda y cierre solicitan los clips exactos 
   assert.ok(observed.includes(`/${firstQuestionClip.file}`));
   assert.ok(observed.includes(`/${selectFolaClip('finRonda').file}`));
   assert.ok(observed.every((url) => url.startsWith('/assets/audio/fola/audios/')), 'Efectos ajenos no pueden satisfacer la aserción Fola');
+  assert.equal(wavRequests.filter((url) => url.endsWith('/assets/audio/acierto.wav')).length, 4, 'Cada acierto ordinario solicita exactamente su efecto WAV');
+  assert.equal(observed.filter((url) => url.includes('acierto')).length, 0, 'Los aciertos ordinarios no solicitan felicitación Fola repetitiva');
 
   await page.evaluate(() => window.__multiploApp.setHighestUnlockedLevel(2));
   await page.setViewport({ width: 1280, height: 800, isMobile: false, hasTouch: false });
@@ -152,6 +155,36 @@ test('E2E Fola: bienvenida, Aprende, ayuda y cierre solicitan los clips exactos 
   await page.click('#btn-start-game');
   await assertClipStarted(selectFolaClip('bienvenidaRegreso'));
   assert.equal(await page.$eval('#heading-inicio', (node) => node.textContent), '¡Qué bueno verte de nuevo!');
+});
+
+test('Request #33 E2E: silencio y movimiento reducido conservan feedback y Continuar', async (t) => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  let browser;
+  t.after(async () => {
+    if (browser) await browser.close();
+    server.closeAllConnections?.();
+    await new Promise((resolve) => server.close(resolve));
+  });
+  browser = await puppeteer.launch({ executablePath: chromeExecutablePath(), args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'] });
+  const page = await browser.newPage();
+  await page.setViewport({ width: 360, height: 667, isMobile: true, hasTouch: true });
+  await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+  await page.goto(`http://127.0.0.1:${server.address().port}/`, { waitUntil: 'domcontentloaded' });
+  await page.evaluate(() => localStorage.clear());
+  await page.click('#btn-start-game');
+  if (await page.$eval('#btn-welcome-continue', (button) => !button.hidden)) await page.click('#btn-welcome-continue');
+  await page.waitForSelector('#levels-section:not([hidden])');
+  await page.click('#btn-level-1');
+  await page.click('#btn-aprende-continue');
+  await page.click('#btn-sound-toggle');
+  const correctIndex = await page.evaluate(() => window.__multiploApp.getCurrentQuestion().alternatives.findIndex((option) => option.isCorrect));
+  await (await page.$$('.btn-option'))[correctIndex].click();
+  assert.equal(await page.$eval('#juego-feedback-box', (element) => element.textContent.includes('Respuesta correcta.')), true);
+  assert.equal(await page.$eval('#btn-juego-continue', (element) => element.hidden), false);
+  assert.equal(await page.$eval('#btn-sound-toggle', (element) => element.getAttribute('aria-pressed')), 'false');
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), true);
+  assert.equal(await page.$eval('#juego-feedback-box', (element) => getComputedStyle(element).animationName), 'none');
 });
 
 test('Fola: el catálogo mantiene rutas distintas para despedida y cierre de tabla diez', () => {

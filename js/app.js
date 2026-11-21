@@ -506,13 +506,16 @@ import {
         });
       }
 
+      // La celebración ordinaria es inmediata y breve: texto + estado visual
+      // + efecto WAV. Las narraciones Fola quedan reservadas para contenido,
+      // pistas, hitos y cierre de ronda.
       guide.playEffect('acierto');
       guide.setState(GUIDE_STATES.CELEBRANDO);
-      guide.speakInstruction(GUIDE_SCRIPT.acierto, { event: 'acierto', context: { a: currentQ.a, b: currentQ.b, producto: currentQ.product }, returnState: GUIDE_STATES.CELEBRANDO });
 
       if (feedbackBox) {
         feedbackBox.hidden = false;
         feedbackBox.className = 'feedback-box feedback-success';
+        feedbackBox.setAttribute('data-feedback', 'correcto');
         feedbackBox.textContent = '¡Muy bien! Respuesta correcta.';
       }
 

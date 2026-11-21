@@ -131,19 +131,19 @@ test('Fola: coordinador cancela reproducción anterior, descarta callback tardí
   assert.equal(guide.speakInstruction('no debe sonar', { event: 'bienvenida' }), null);
 });
 
-test('Audio: playEffect no es cancelado por speakInstruction inmediata y respeta canales independientes', () => {
+test('Audio: un efecto nuevo cancela voz y efecto anteriores sin bloquear', () => {
   const audios = [];
   const guide = new StarGuideCoordinator({ storage: null, audioFactory: (src) => {
     const audio = { src, play: () => Promise.resolve(), pause() { this.paused = true; } };
     audios.push(audio); return audio;
   }});
   guide.notifyUserGesture();
+  const speechAudio = guide.speakInstruction('Mira: tres grupos de dos.', { event: 'aprende', context: { a: 3, b: 2 } });
   const effectAudio = guide.playEffect('acierto');
-  guide.speakInstruction('¡Muy bien!', { event: 'acierto', context: { a: 3, b: 2, producto: 6 } });
-  
-  assert.equal(effectAudio.paused, undefined, 'El efecto sonoro no debe ser pausado por speakInstruction');
+
+  assert.equal(speechAudio.paused, true, 'El efecto debe cancelar una locución obsoleta');
   assert.equal(guide.currentEffectAudio, effectAudio);
-  
+
   // Cuando se deshabilita el sonido, se deben pausar ambos canales
   guide.setSoundEnabled(false);
   assert.equal(effectAudio.paused, true, 'El efecto sonoro debe pausarse al apagar el sonido');

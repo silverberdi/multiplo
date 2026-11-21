@@ -290,6 +290,13 @@ html, body {
   background-color: #E8F8EE;
   border: 2px solid var(--color-green);
   color: #1E6B32;
+  animation: celebrateFeedback 0.35s ease-out;
+}
+
+@keyframes celebrateFeedback {
+  0% { transform: scale(0.98); }
+  60% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 .feedback-box.feedback-retry {
@@ -723,6 +730,12 @@ html, body {
   box-shadow: 0 6px 0 var(--color-green), 0 8px 16px var(--color-shadow);
 }
 
+.btn-option.option-correct::after {
+  content: ' ✓ Correcta';
+  color: #1E6B32;
+  font-weight: 800;
+}
+
 .btn-option.option-retry {
   background-color: #FFF4E5;
   border-color: var(--color-yellow-dark);
@@ -1043,6 +1056,10 @@ html, body {
 
 /* Accesibilidad: Reducción de movimiento */
 @media (prefers-reduced-motion: reduce) {
+  .feedback-box.feedback-success {
+    animation: none !important;
+  }
+
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
