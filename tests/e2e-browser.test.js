@@ -66,9 +66,24 @@ test('E2E Real Browser: Recorrido completo, responsive, accesibilidad y degradac
     // 1. Vista Inicio visible inicialmente
     const isInicioVisible = await page.$eval('#view-inicio', (el) => !el.hidden && el.classList.contains('view-active'));
     assert.ok(isInicioVisible, 'La vista Inicio debe estar activa inicialmente');
+    assert.equal(await page.$eval('#levels-section', (el) => el.hidden), true, 'La cuadrícula permanece oculta antes de Jugar');
+    assert.equal(await page.$eval('#btn-welcome-continue', (el) => el.hidden), true, 'Continuar no aparece antes de la bienvenida');
 
-    // 2. Clic en "¡Jugar!" -> Navega a Vista Aprende
+    // 2. Clic en "¡Jugar!" -> saludo inmediato y selección visible
     await page.click('#btn-start-game');
+    assert.equal(await page.$eval('#heading-inicio', (el) => el.textContent.trim()), '¡Hola! Soy Múltiplo');
+    await page.waitForFunction(() => {
+      const levels = document.getElementById('levels-section');
+      const continueButton = document.getElementById('btn-welcome-continue');
+      return !levels.hidden || !continueButton.hidden;
+    });
+    if (await page.$eval('#btn-welcome-continue', (button) => !button.hidden)) {
+      await page.click('#btn-welcome-continue');
+    }
+    await page.waitForSelector('#levels-section:not([hidden])');
+    await page.$eval('#btn-level-2', (el) => el.click());
+    assert.equal(await page.evaluate(() => window.__multiploApp.getCurrentView()), 'inicio', 'Una tabla bloqueada no cambia de vista');
+    await page.click('#btn-level-1');
     await page.waitForSelector('#view-aprende.view-active');
     const isAprendeVisible = await page.$eval('#view-aprende', (el) => !el.hidden && el.classList.contains('view-active'));
     assert.ok(isAprendeVisible, 'Al pulsar ¡Jugar!, debe mostrarse la vista Aprende');
@@ -209,6 +224,12 @@ test('E2E Real Browser: Recorrido completo, responsive, accesibilidad y degradac
 
     // Verificar navegación funcionando bajo fallback
     await page.click('#btn-start-game');
+    await page.waitForFunction(() => !document.getElementById('levels-section').hidden || !document.getElementById('btn-welcome-continue').hidden);
+    if (await page.$eval('#btn-welcome-continue', (button) => !button.hidden)) {
+      await page.click('#btn-welcome-continue');
+    }
+    await page.waitForSelector('#levels-section:not([hidden])');
+    await page.click('#btn-level-1');
     await page.waitForSelector('#view-aprende.view-active');
     const isAprendeVisible = await page.$eval('#view-aprende', (el) => !el.hidden);
     assert.ok(isAprendeVisible, 'La navegación debe funcionar normalmente con webfonts bloqueadas');
@@ -227,6 +248,15 @@ test('E2E Real Browser: Recorrido completo, responsive, accesibilidad y degradac
     const toggledSoundState = await page.$eval('#btn-sound-toggle', (el) => el.getAttribute('aria-pressed'));
     assert.equal(toggledSoundState, 'false', 'Al pulsar, sonido debe marcarse como desactivado');
 
+    await page.close();
+  });
+
+  await t.test('6. Invitación Jugar respeta movimiento reducido', async () => {
+    const page = await browser.newPage();
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    const animation = await page.$eval('#btn-start-game', (el) => getComputedStyle(el).animationName);
+    assert.equal(animation, 'none', 'La invitación de Jugar no debe animarse con movimiento reducido');
     await page.close();
   });
 });

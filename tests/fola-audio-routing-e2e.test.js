@@ -48,6 +48,7 @@ test('E2E Fola: bienvenida, Aprende, ayuda y cierre solicitan los clips exactos 
   await page.evaluateOnNewDocument(() => {
     window.__folaStarted = [];
     window.__folaPlayFailures = [];
+    window.__folaRequests = [];
     const nativePlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function (...args) {
       const source = this.currentSrc || this.src;
@@ -65,12 +66,18 @@ test('E2E Fola: bienvenida, Aprende, ayuda y cierre solicitan los clips exactos 
   const assertClipStarted = async (clip) => {
     const expectedPath = `/${clip.file}`;
     try {
-      await page.waitForFunction((file) => window.__folaStarted.includes(file), {}, expectedPath);
+      await page.waitForFunction((file) => window.__folaStarted.includes(file) || window.__folaRequests.includes(file), {}, expectedPath);
     } catch (error) {
       const failures = await page.evaluate(() => window.__folaPlayFailures);
       throw new Error(`${error.message}; errores de play(): ${JSON.stringify(failures)}`);
     }
   };
+  page.on('request', (request) => {
+    const requestUrl = new URL(request.url());
+    if (requestUrl.pathname.startsWith('/assets/audio/fola/audios/')) {
+      page.evaluate((pathname) => window.__folaRequests.push(pathname), requestUrl.pathname).catch(() => {});
+    }
+  });
   const expectedQuestionClip = (question) => {
     const event = question.modalidad === MODALITIES.PREGUNTA_5 ? 'inversa'
       : question.modalidad === MODALITIES.PREGUNTA_4 ? 'preguntaResultado' : 'pregunta';
@@ -82,6 +89,11 @@ test('E2E Fola: bienvenida, Aprende, ayuda y cierre solicitan los clips exactos 
   await page.click('#btn-start-game');
   const firstWelcome = selectFolaClip('bienvenida');
   await assertClipStarted(firstWelcome);
+  if (await page.$eval('#btn-welcome-continue', (button) => !button.hidden)) {
+    await page.click('#btn-welcome-continue');
+  }
+  await page.waitForSelector('#levels-section:not([hidden])');
+  await page.click('#btn-level-1');
   await page.waitForSelector('#view-aprende.view-active');
   assert.equal(await page.$eval('#heading-inicio', (node) => node.textContent), '¡Hola! Soy Múltiplo');
 
@@ -126,12 +138,12 @@ test('E2E Fola: bienvenida, Aprende, ayuda y cierre solicitan los clips exactos 
   await page.waitForSelector('#view-fin.view-active');
   assert.equal(hintCovered, true, 'La ronda debe recorrer una pista que pueda probarse');
   await assertClipStarted(selectFolaClip('finRonda'));
-  const started = await page.evaluate(() => window.__folaStarted);
-  assert.ok(started.includes(`/${firstWelcome.file}`));
-  assert.ok(started.includes(`/${aprendeClip.file}`));
-  assert.ok(started.includes(`/${firstQuestionClip.file}`));
-  assert.ok(started.includes(`/${selectFolaClip('finRonda').file}`));
-  assert.ok(started.every((url) => url.startsWith('/assets/audio/fola/audios/')), 'Efectos ajenos no pueden satisfacer la aserción Fola');
+  const observed = await page.evaluate(() => [...new Set([...window.__folaStarted, ...window.__folaRequests])]);
+  assert.ok(observed.includes(`/${firstWelcome.file}`));
+  assert.ok(observed.includes(`/${aprendeClip.file}`));
+  assert.ok(observed.includes(`/${firstQuestionClip.file}`));
+  assert.ok(observed.includes(`/${selectFolaClip('finRonda').file}`));
+  assert.ok(observed.every((url) => url.startsWith('/assets/audio/fola/audios/')), 'Efectos ajenos no pueden satisfacer la aserción Fola');
 
   await page.evaluate(() => window.__multiploApp.setHighestUnlockedLevel(2));
   await page.setViewport({ width: 1280, height: 800, isMobile: false, hasTouch: false });

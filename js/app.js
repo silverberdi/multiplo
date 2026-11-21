@@ -60,6 +60,8 @@ import {
   let forcedAprendeFactors = null;
   let forcedRoundOptions = null;
   let startingFromHome = false;
+  let welcomeToken = 0;
+  let levelsVisible = false;
 
   /**
    * Inicia una nueva ronda para un nivel dado con factores derivados o seleccionados.
@@ -128,6 +130,9 @@ import {
   function prepareWelcomeCopy(isReturning) {
     const heading = document.getElementById('heading-inicio');
     const subtitle = document.querySelector('#view-inicio .instruction-text');
+    const mascotStatus = document.getElementById('mascot-status-inicio');
+    if (subtitle) subtitle.hidden = false;
+    if (mascotStatus) mascotStatus.hidden = false;
     if (isReturning) {
       if (heading) heading.textContent = '¡Qué bueno verte de nuevo!';
       if (subtitle) subtitle.textContent = '¿Jugamos otra ronda?';
@@ -136,6 +141,34 @@ import {
     if (heading) heading.textContent = '¡Hola! Soy Múltiplo';
     if (subtitle) subtitle.textContent = '¡Qué alegría jugar contigo!';
     return { text: '¡Hola! Soy Múltiplo. ¡Qué alegría jugar contigo!', event: 'bienvenida' };
+  }
+
+  function setLevelsVisibility(visible) {
+    levelsVisible = Boolean(visible);
+    const levelsSection = document.getElementById('levels-section');
+    if (levelsSection) levelsSection.hidden = !levelsVisible;
+  }
+
+  function finishWelcome(token) {
+    if (token !== welcomeToken || !startingFromHome) return false;
+    startingFromHome = false;
+    guide.cancelSpeech();
+    setLevelsVisibility(true);
+
+    const startButton = document.getElementById('btn-start-game');
+    const continueButton = document.getElementById('btn-welcome-continue');
+    if (startButton) {
+      startButton.disabled = false;
+      startButton.hidden = true;
+    }
+    if (continueButton) continueButton.hidden = true;
+
+    const levelsHeading = document.getElementById('heading-levels');
+    if (levelsHeading) {
+      levelsHeading.setAttribute('tabindex', '-1');
+      levelsHeading.focus();
+    }
+    return true;
   }
 
   // Inicializar el coordinador de la guía
@@ -218,7 +251,10 @@ import {
     if (viewId === 'inicio') {
       startingFromHome = false;
       const startButton = document.getElementById('btn-start-game');
-      if (startButton) startButton.disabled = false;
+      if (startButton) {
+        startButton.disabled = false;
+        startButton.hidden = levelsVisible;
+      }
     }
 
     // Configurar estado inicial de la mascota según la vista
@@ -821,15 +857,27 @@ import {
       btnStart.addEventListener('click', () => {
         if (startingFromHome) return;
         startingFromHome = true;
+        const token = ++welcomeToken;
         btnStart.disabled = true;
+        btnStart.hidden = true;
+        setLevelsVisibility(false);
+        const continueButton = document.getElementById('btn-welcome-continue');
+        if (continueButton) continueButton.hidden = false;
         guide.notifyUserGesture();
         const welcome = prepareWelcomeCopy(hasPreviousProgress());
-        const beginRound = () => {
-          startNewRound(progressionState.highestUnlockedLevel);
-          navigateTo('aprende', { speak: true });
-        };
-        const audio = guide.speakInstruction(welcome.text, { event: welcome.event, onComplete: beginRound });
-        if (!audio) beginRound();
+        const audio = guide.speakInstruction(welcome.text, {
+          event: welcome.event,
+          onComplete: () => finishWelcome(token)
+        });
+        if (!audio) finishWelcome(token);
+      });
+    }
+
+    const btnWelcomeContinue = document.getElementById('btn-welcome-continue');
+    if (btnWelcomeContinue) {
+      btnWelcomeContinue.addEventListener('click', () => {
+        guide.notifyUserGesture();
+        finishWelcome(welcomeToken);
       });
     }
 
@@ -964,6 +1012,9 @@ import {
     }
 
     // Iniciar en la vista inicio
+    setLevelsVisibility(false);
+    const startButton = document.getElementById('btn-start-game');
+    if (startButton) startButton.hidden = false;
     navigateTo('inicio');
   }
 
@@ -996,6 +1047,8 @@ import {
       renderFinView,
       renderFinStars,
       updateLevelsView,
+      finishWelcome: () => finishWelcome(welcomeToken),
+      isLevelsVisible: () => levelsVisible,
       getProgressionState: () => ({ ...progressionState }),
       setHighestUnlockedLevel: (lvl) => {
         progressionState.highestUnlockedLevel = normalizeHighestUnlockedLevel(lvl);
