@@ -1,6 +1,6 @@
 # Múltiplo — Índice canónico de contexto
 
-**Estado del producto:** MVP v1.0 definido y documentado; **implementación del juego aún no iniciada**.
+**Estado del producto:** Múltiplo v1.2 está implementado. Los documentos de MVP iniciales conservan decisiones históricas que fueron actualizadas por Requests y Changes OpenSpec posteriores.
 
 ## Orientación para agentes y personas
 
@@ -22,17 +22,17 @@
 
 - [Configuración de proyecto](../openspec/config.yaml): contexto corto e instrucciones por artefacto; **no representa ejecución previa del CLI**.
 - [AGENTS.md](../AGENTS.md): instrucciones generales al agente.
-- [Backlog de issues #1–#7](https://github.com/silverberdi/multiplo/issues): entregables y Gherkin.
+- [Backlog vigente](https://github.com/silverberdi/multiplo/issues): issues con estado, alcance y Gherkin. V3-01 (#42) es historial local sin transmisión; V3-02 (#43) y V3-03 (#44) son issues separados y etiquetados `disabled`.
 - [Catálogo multimedia](ASSETS.md) y directorio [assets/](../assets/): insumos ya versionados.
 
 ## Precedencia cuando haya conflicto
-1. Decisión expresa de producto que actualiza este conjunto documental (registrada en DECISIONS.md).
-2. Reglas aprobadas en MVP.md y LEARNING_MODEL.md.
-3. Restricciones de arquitectura y UX registradas.
-4. Issues, que concretan la entrega pero no deben ampliar el MVP por omisión.
-5. Sugerencias técnicas de implementación que no afecten comportamiento aprobado.
+1. Contrato del issue y Change OpenSpec autorizado para el trabajo activo, dentro de las decisiones de producto aprobadas.
+2. Código y Changes OpenSpec archivados para identificar el comportamiento implementado.
+3. Decisiones vigentes de DECISIONS.md y documentación de producto; las reglas iniciales de MVP.md/LEARNING_MODEL.md pueden estar supersedidas.
+4. Restricciones de arquitectura y UX que sigan vigentes.
+5. Sugerencias técnicas que no alteren el comportamiento aprobado.
 
 Si se detecta contradicción entre fuentes de la misma jerarquía, detener la **decisión de alcance**, documentar el conflicto y resolverlo antes de implementar; no elegir arbitrariamente. Una vez implementado un cambio, las specs canónicas de OpenSpec deben reflejar el comportamiento efectivamente entregado.
 
 ## Límites de responsabilidad
-Este conjunto es una **base de conocimiento para desarrollo**. No incluye código del juego, resultados de pruebas con el niño ni despliegues. Las propuestas OpenSpec y la implementación serán trabajo autorizado por separado.
+Este conjunto es contexto de producto y desarrollo, no prueba por sí solo de implementación, pruebas o despliegue. Confirma el estado en código, Changes archivados y evidencia disponible.

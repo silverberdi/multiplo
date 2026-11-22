@@ -2,7 +2,7 @@
 
 **Juego educativo para un niño de 6 años:** aprender a multiplicar mediante grupos de objetos, sumas repetidas y desafíos positivos.
 
-**Estado:** MVP v1.0 de producto **definido; no implementado**. El repositorio contiene documentación, issues y recursos multimedia listos para ser usados por un agente de desarrollo mediante OpenSpec.
+**Estado:** el juego Múltiplo v1.2 está implementado en este repositorio. La documentación original del MVP conserva decisiones históricas; para el comportamiento vigente, consulta también los Changes OpenSpec archivados y el código actual. El Issue #42 autoriza una extensión local de historial educativo y métricas derivadas, sin telemetría ni transmisión.
 
 ## Empezar aquí
 
@@ -12,16 +12,16 @@
 - [Roadmap](docs/ROADMAP.md) — secuencia de ejecución y criterios de salida.
 - [Decisiones](docs/DECISIONS.md) — decisiones aprobadas, sugeridas y pendientes.
 - [Transferencia a OpenSpec](docs/OPENSPEC_HANDOFF.md) y [configuración](openspec/config.yaml).
-- [Backlog de siete issues](../../issues) y [recursos multimedia](docs/ASSETS.md).
+- [Backlog vigente](https://github.com/silverberdi/multiplo/issues) y [recursos multimedia](docs/ASSETS.md).
 
 ## Alcance del MVP
 
-Cuatro niveles progresivos (tablas del 2 al 5, factores del 1 al 5). Cada ronda tiene una demostración con grupos iguales y suma repetida, dos ejercicios visuales, un desafío de multiplicación y otro de encontrar la operación correcta. Tres opciones por pregunta, una correcta. Se avanza con 3 de 4 aciertos en primer intento; existen pistas y reintentos ilimitados.
+El juego actual incluye tablas y factores del 1 al 10, dominio acumulado y progreso local. Cada ronda conserva una demostración y cuatro preguntas evaluables, con pistas y reintentos ilimitados; la evaluación usa el primer intento. La convención es `a × b` = **a grupos de b objetos**.
 
-Una estrella amarilla guía con voz y texto. El juego será una web responsive/PWA para celular, tablet y computador, con progreso local y sin cuentas, backend, IA, anuncios ni analítica infantil.
+Una estrella amarilla guía con voz y texto. Es una web responsive/PWA para celular, tablet y computador, con progreso local. No incluye cuentas ni backend de juego. El Change del Issue #42 añade solo historial y agregados locales; no envía datos ni incorpora telemetría.
 
 **Convención:** `a × b` significa **a grupos de b objetos**; por ejemplo `3×2` son tres grupos de dos, no al revés.
 
 ## Reglas para desarrollo
 
-La documentación describe el **producto deseado**, no un producto ya terminado. La implementación solo se inicia mediante una tarea autorizada y usando el workflow nativo de OpenSpec; [AGENTS.md](AGENTS.md) describe las restricciones. No incrementar alcance del MVP sin una decisión explícita.
+Los documentos de producto describen decisiones, algunas ya sustituidas por Requests posteriores. Antes de implementar, consulta [AGENTS.md](AGENTS.md), `docs/INDEX.md` y el Change OpenSpec autorizado; no uses como estado actual las afirmaciones históricas de preimplementación. No amplíes el alcance autorizado.

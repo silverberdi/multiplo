@@ -1,10 +1,9 @@
-# Contexto del proyecto Múltiplo para OpenSpec.
-# Este archivo configura planificación; NO significa que el juego esté implementado.
+# Contexto vigente del proyecto Múltiplo para OpenSpec.
 schema: spec-driven
 
 context: |
   Proyecto: Múltiplo, web/PWA educativa en español para un niño de seis años.
-  Estado actual: repositorio greenfield en planificación; NO existe juego implementado.
+  Estado actual: juego web/PWA v1.2 implementado; consultar código y Changes archivados para su comportamiento vigente.
   Intención: enseñar el significado de multiplicar por grupos iguales y sumas repetidas,
   en sesiones cortas, alegres, sin cronómetro, castigos ni datos de menores.
   Fuente de verdad de intención de producto: docs/PRODUCT_VISION.md y docs/MVP.md.
@@ -13,16 +12,17 @@ context: |
   Arquitectura: docs/ARCHITECTURE.md. Secuencia: docs/ROADMAP.md.
   Trazabilidad: docs/TRACEABILITY.md; QA: docs/QUALITY_AND_VALIDATION.md.
   Recursos disponibles: docs/ASSETS.md y assets/ (SVG y WAV).
-  Backlog aprobado: GitHub issues #1–#7, silverberdi/multiplo.
-  MVP invariante: tablas 2,3,4,5 con segundo factor 1–5; a x b = a grupos de b;
-  ronda de 1 demostración no evaluable + 4 preguntas; 3 opciones distintas, 1 correcta;
-  pistas/reintentos ilimitados; el primer intento define la estrella; se desbloquea con 3/4.
+  Backlog V3: #42 historial educativo local sin transmisión, #43 ingestión anónima Worker/D1 y #44 integración/CI/CD/informe mensual. #43 y #44 son issues separados etiquetados disabled; no están autorizados por el #42.
+  El juego vigente admite tablas y factores 1–10; a x b = a grupos de b. La progresión acumulada v1.2 y la evaluación de primer intento se mantienen. Cada ronda contiene 1 demostración no evaluable y 4 preguntas evaluables; pistas y reintentos son ilimitados.
   UX: estrella amarilla como guía, instrucciones mediante voz en español + texto/fallback,
   pantallas responsive para móvil/tablet/PC, toque y clic.
-  Arquitectura objetivo: HTML/CSS/JS, PWA con soporte progresivo, localStorage,
+  Arquitectura actual: HTML/CSS/JS, PWA progresiva, localStorage,
   voz nativa del navegador, hosting estático; sin backend, cuentas, IA, publicidad,
   telemetría infantil, rankings, monedas ni pantallas innecesarias.
-  El objetivo es el MVP funcional completo, no plataformas o abstractions de futuro.
+  El Change del Issue #42 autoriza únicamente historial educativo y agregados locales,
+  con clave separada multiplo_learning_history_v1; sin requests, cola, Worker, D1,
+  backend ni transmisión. No modificar multiplo_progression_v1 ni reglas del juego.
+  No extrapolar autorización a #43 o #44.
   Escribir artefactos de producto y escenarios de aceptación en español; conservar
   las palabras clave Gherkin Given / When / Then.
   No declarar funcionalidad entregada hasta que haya implementación y evidencia.

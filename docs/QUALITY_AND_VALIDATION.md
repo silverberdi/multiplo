@@ -11,7 +11,8 @@ Las pruebas deterministas cubren 100 parejas, orientación 2×3/3×2, rondas act
 - **Accesibilidad funcional**: voz y texto, botones grandes, pantallas adaptadas y feedback que no depende solo de colores.
 - **Ausencia de castigos**: errores no bloquean el progreso ni eliminan oportunidades de practicar.
 - **Fiabilidad**: puntaje de primer intento, desbloqueo y datos locales consistentes.
-- **Privacidad**: sin cuentas, nombres de menores, anuncios, telemetría ni identificadores.
+- **Privacidad**: sin cuentas, nombres de menores, anuncios, identificadores persistentes ni transmisión de actividad.
+- **V3-01 (#42)**: el historial educativo es local, acotado, separado del progreso y nunca transmite eventos.
 - **Sencillez técnica**: sin dependencias ni servicios que no aporten valor directo.
 
 ## 2. Escenarios transversales de aceptación
@@ -74,6 +75,44 @@ Las pruebas deterministas cubren 100 parejas, orientación 2×3/3×2, rondas act
 **Given** cualquier ronda normal
 **When** el usuario juega, acierta, se equivoca y reabre
 **Then** no se solicita ni transmite nombre, ubicación, escuela, foto, identificador, credenciales ni perfil.
+
+### V3-01 — historial educativo local
+#### Q-13 — No inicia historial al abrir Inicio
+**Given** la aplicación se carga sin iniciar una ronda
+**When** se consulta `multiplo_learning_history_v1`
+**Then** no se ha creado una sesión de juego ni sumado tiempo activo.
+
+#### Q-14 — Primer intento y repaso
+**Given** una respuesta se corrige tras un error o la pregunta pertenece a repaso
+**When** la actividad se resuelve
+**Then** el historial conserva el primer resultado, intentos, pista, origen y par dirigido real una sola vez.
+
+#### Q-15 — Ronda y sesión
+**Given** cuatro preguntas completadas y luego otra ronda iniciada antes de volver a Inicio
+**When** se confirma el cierre de cada ronda
+**Then** ambas rondas pertenecen a una sesión; cada cierre ocurre una sola vez y una ronda incompleta solo se abandona al volver explícitamente a Inicio.
+
+#### Q-16 — Interrupción y tiempo activo
+**Given** una actividad guardada queda activa
+**When** se oculta la pestaña o se recarga/cierra inesperadamente
+**Then** no se suma el periodo oculto ni se inventa hora de fin; la actividad se marca interrumpida al próximo inicio si hay evidencia guardada.
+
+#### Q-17 — Métricas y denominadores
+**Given** hay actividad local de varias fechas UTC, tablas y pares dirigidos
+**When** se calculan métricas
+**Then** se aplican las fórmulas del Issue #42 y los denominadores vacíos producen `null`/«Sin datos».
+
+#### Q-18 — Retención acotada
+**Given** hay detalle vencido o el historial excede sus límites
+**When** se compacta
+**Then** conserva acumulados permitidos en dimensiones fijas y elimina detalle antiguo sin tocar el progreso.
+
+#### Q-19 — Aislamiento, degradación y ausencia de red
+**Given** storage está bloqueado, corrupto, lleno o el navegador está desconectado tras cargar
+**When** se juega y se registra historial
+**Then** el juego/progreso siguen funcionando, `multiplo_progression_v1` permanece intacto y no sale ninguna solicitud con métricas.
+
+**Evidencia de Apply V3-01:** `tests/learning-history.test.js` cubre métricas, fechas UTC, retención, almacenamiento y aislamiento; `tests/learning-history-e2e.test.js` recorre varias rondas reales de UI, reintento/pista, offline, interrupción y documento oculto. `npm test` terminó con 68 aprobadas, 33 omitidas y 0 fallidas. Esta evidencia técnica no declara despliegue ni validación con un niño.
 
 ## 3. Matriz de pruebas funcionales
 | Área | Pruebas mínimas | Modalidad |
