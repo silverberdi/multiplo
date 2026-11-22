@@ -80,6 +80,6 @@ La primera evaluación con el niño decide si existe valor para ampliar el produ
 
 ## 9. V3 — historial y métricas opcionales
 - #42 conserva historial y agregados localmente.
-- #43 añade un receptor Worker/D1 aislado y apagado.
-- #44 integra una outbox apagada, Pages allowlisted, pipelines independientes y herramientas manuales de informe.
+- #43 añadió un receptor Worker/D1 aislado, ya desplegado y apagado para datos reales.
+- #44 integró una outbox apagada, Pages allowlisted, pipelines independientes y herramientas manuales de informe; la migración y el Worker están desplegados mediante workflows protegidos.
 - Datos reales requieren evaluación de privacidad infantil y autorización operativa separadas. Ninguno de estos pasos se activa por push.
