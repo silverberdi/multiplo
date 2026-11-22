@@ -691,22 +691,6 @@ html, body {
   position: relative;
 }
 
-.btn-option-listen {
-  position: absolute;
-  right: 0.45rem;
-  bottom: 0.35rem;
-  min-width: 2rem;
-  min-height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.btn-option-listen:focus-visible { outline: 3px solid var(--color-coral); outline-offset: 2px; }
-
 .option-number {
   font-family: var(--font-title);
   font-size: 2.5rem;

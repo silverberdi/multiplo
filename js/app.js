@@ -446,20 +446,6 @@ import {
         }
 
         btn.addEventListener('click', () => handleOptionSelect(alt, btn));
-        const listen = document.createElement('span');
-        listen.className = 'btn-option-listen';
-        listen.setAttribute('role', 'button');
-        listen.setAttribute('tabindex', '0');
-        listen.setAttribute('aria-label', `Escuchar ${alt.label}`);
-        listen.textContent = '🔊';
-        const listenAlternative = (event) => {
-          event.stopPropagation();
-          guide.notifyUserGesture();
-          guide.speakInstruction(alt.label, { event: currentQ.modalidad === MODALITIES.PREGUNTA_5 ? 'operacion' : 'numero', context: { a: currentQ.a, b: currentQ.b, producto: alt.product, numero: alt.value ?? alt.product }, returnState: GUIDE_STATES.NORMAL });
-        };
-        listen.addEventListener('click', listenAlternative);
-        listen.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); listenAlternative(event); } });
-        btn.appendChild(listen);
         optionsGrid.appendChild(btn);
       });
     }
