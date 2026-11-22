@@ -1,0 +1,45 @@
+name: Metrics Worker validation
+
+on:
+  pull_request:
+    paths:
+      - "metrics/**"
+      - "js/metrics-outbox.js"
+      - "js/learning-history.js"
+      - "js/app.js"
+      - "tests/metrics-outbox-e2e.test.js"
+      - "tests/metrics-worker.integration.test.js"
+      - "scripts/build-pages-artifact.mjs"
+      - "scripts/generate-monthly-report.mjs"
+      - "scripts/protect-d1-backup.mjs"
+      - "tests/metrics-backup.test.js"
+      - "openspec/changes/v3-02-worker-d1-ingesta-anonima/**"
+      - "openspec/changes/v3-03-integracion-ci-cd-y-reporte-mensual/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/metrics-pr.yml"
+      - ".github/workflows/metrics-d1-migrate.yml"
+      - ".github/workflows/metrics-d1-restore.yml"
+      - ".github/workflows/metrics-worker-deploy.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: metrics-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  worker-local:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Prepare verified Fola assets for Pages artifact checks
+        run: npm run prepare:fola
+      - name: Validate Worker and D1 locally
+        run: npm run test:metrics

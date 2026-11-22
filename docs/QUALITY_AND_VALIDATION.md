@@ -196,3 +196,7 @@ Duración de una ronda: objetivo aproximado 3–5 minutos, sin cronómetro oblig
 Si se descubre que una regla pedagógica no funciona (p. ej., no entiende «3 grupos de 2»), formular un hallazgo antes de ajustar. No reinterpretar el aprendizaje ni crear nuevas mecánicas sin registrar la decisión y abrir/ajustar el cambio OpenSpec correspondiente.
 
 **Referencias:** [MVP.md](MVP.md), [LEARNING_MODEL.md](LEARNING_MODEL.md), [DECISIONS.md](DECISIONS.md) y [ROADMAP.md](ROADMAP.md).
+
+## 8. V3-03 — validación local de métricas
+
+`npm run test:metrics` ejecuta Worker con D1 local sintética, prueba la outbox en Chromium, construye el artefacto Pages allowlisted y verifica el reporte sintético y el periodo sin datos. Estas comprobaciones no usan D1 remota, no despliegan Worker/Pages y no habilitan transmisión real. El funcionamiento de rutas, permisos y Environment de producción requiere revisión en las cuentas antes de ejecutar workflows manuales.

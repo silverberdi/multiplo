@@ -1,6 +1,6 @@
 # Ingesta de métricas V3-02
 
-Este Worker es una capacidad técnica aislada para recibir agregados. Este Change no integra el cliente ni modifica Pages. El Worker arranca con `METRICS_INGEST_ENABLED=false`; no se deben activar datos reales desde este Change.
+Este Worker es una capacidad técnica aislada para recibir agregados. En el candidato #44 existe una outbox de navegador, pero `METRICS_TRANSMISSION_ENABLED=false`; el Worker también arranca con `METRICS_INGEST_ENABLED=false`. Pages publica `dist/pages`, generado desde una allowlist que excluye `metrics/`, SQL y documentos internos. No se deben activar datos reales desde este Change.
 
 ## Desarrollo local
 
@@ -39,4 +39,4 @@ El binding de rate limit del Worker usa `CF-Connecting-IP` como clave efímera, 
 
 ## Activación futura
 
-Antes de conectar cliente o usar datos reales hacen falta la decisión de privacidad infantil y autorización operativa. El operador debe configurar y verificar los bindings de prueba/producción separados, el host/ruta exactos, el Environment protegido, el alcance del token y la retención de logs del proveedor. La integración del cliente, el despliegue y cualquier activación pertenecen a Changes independientes.
+Antes de conectar cliente o usar datos reales hacen falta la decisión de privacidad infantil y autorización operativa. El operador debe configurar y verificar los bindings de prueba/producción separados, el host/ruta exactos, el Environment protegido, el alcance del token y la retención de logs del proveedor. El pipeline de Pages del candidato #44 construye la allowlist; su verificación final contra SHA inmutable ocurre en CI después de fijar el candidato.

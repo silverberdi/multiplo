@@ -9,7 +9,7 @@
 
 ## Autoridad y límites
 - Priorizar comprensión de un niño de seis años, exactitud matemática y experiencia breve.
-- No introducir funciones, datos personales, cuentas ni transmisión/telemetría fuera del Change autorizado. #42 conserva datos solo localmente; #43 añade únicamente un receptor Worker/D1 separado, sin integración de cliente y apagado para datos reales. La activación requiere evaluación de privacidad infantil y autorización operativa explícitas.
+- No introducir funciones, datos personales, cuentas, transmisión/telemetría o frameworks pesados fuera del Change autorizado. #42 conserva historial local; #43/#44 preparan un receptor agregado, outbox apagado y operación protegida. Ningún agente debe activar telemetría ni migrar/desplegar D1 productiva sin gates de privacidad y autorización explícita.
 - No afirmar que una versión está probada, desplegada o terminada sin evidencia.
 - Reutilizar primero los SVG/WAV versionados, sin depender del historial de chat.
 - Si hay contradicción entre documentos, issues y decisiones, exponerla y resolverla con decisión de producto; no ocultarla.
@@ -19,5 +19,7 @@
 - Pruebas proporcionales al producto, en especial generador de ejercicios, 3/4, voz/fallback y responsive.
 - Trazabilidad del trabajo a issues y [matriz de requisitos](docs/TRACEABILITY.md).
 - Actualizar artefactos de OpenSpec según el flujo de la versión instalada, reflejando comportamiento realmente implementado.
+- Pages debe publicar solo `dist/pages` desde su allowlist. Cambios de Worker, SQL, docs o tests no deben disparar el deploy Pages.
+- Probar Worker/D1 solo localmente con Wrangler `--local` y datos sintéticos; no añadir credenciales ni usar `--remote` en validaciones de PR.
 
 La tarea autorizada actual es la única fuente de alcance de implementación; sigue el workflow nativo OpenSpec instalado.

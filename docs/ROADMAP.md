@@ -77,3 +77,9 @@ La primera evaluación con el niño decide si existe valor para ampliar el produ
 
 ## 8. Principio de ejecución
 **Primero un juego útil; después refinamientos.** Toda desviación del contrato se documenta en [DECISIONS.md](DECISIONS.md) y se tramita mediante OpenSpec. Ver [OPENSPEC_HANDOFF.md](OPENSPEC_HANDOFF.md).
+
+## 9. V3 — historial y métricas opcionales
+- #42 conserva historial y agregados localmente.
+- #43 añade un receptor Worker/D1 aislado y apagado.
+- #44 integra una outbox apagada, Pages allowlisted, pipelines independientes y herramientas manuales de informe.
+- Datos reales requieren evaluación de privacidad infantil y autorización operativa separadas. Ninguno de estos pasos se activa por push.

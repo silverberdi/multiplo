@@ -129,3 +129,15 @@ Para cada propuesta OpenSpec:
 6. Mantener las especificaciones canónicas de OpenSpec alineadas al comportamiento **efectivamente implementado**; no declararlas cumplidas solo por haber escrito estos documentos.
 
 **Fuentes principales:** [PRODUCT_VISION.md](PRODUCT_VISION.md), [MVP.md](MVP.md), [LEARNING_MODEL.md](LEARNING_MODEL.md), [QUALITY_AND_VALIDATION.md](QUALITY_AND_VALIDATION.md).
+
+## 7. V3-03 (#44): integración y operación opcional
+
+| Resultado | Implementación/operación | Evidencia requerida |
+|---|---|---|
+| Outbox agregada apagada y separada | `js/metrics-outbox.js`, `js/app.js`, IndexedDB `multiplo_metrics_outbox_v1` | E2E en navegador, dos contextos, reintento estable y ausencia de envío al estar apagada |
+| Pages allowlisted | `scripts/build-pages-artifact.mjs`, `.github/workflows/deploy.yaml` | Inventario de `dist/pages`, manifest/CNAME/iconos y assets Fola; SHA inmutable del workflow |
+| Worker/D1 aislado | `metrics/`, `.github/workflows/metrics-pr.yml` | CI local sintética con persistencia y deduplicación D1 |
+| Operación productiva | workflows manuales protegidos; gates en [`metrics/OPERATIONS.md`](../metrics/OPERATIONS.md) | Environment/roles/bindings/route revisados en GitHub y Cloudflare antes de usar; no consta como verificado por el código local |
+| Informe mensual | `metrics/queries/monthly.sql`, `scripts/generate-monthly-report.mjs` | fixture sintético, periodo vacío, CSV/Markdown y fuentes/delimitaciones explícitas |
+
+La preparación de pipelines y tooling no equivale a despliegue productivo, autorización de privacidad ni transmisión real.

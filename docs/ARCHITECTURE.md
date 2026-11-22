@@ -120,3 +120,7 @@ No se necesita despliegue de producción para redactar y revisar los documentos 
 
 ## 10. Documento relacionado
 [PRODUCT_VISION.md](PRODUCT_VISION.md) · [MVP.md](MVP.md) · [USER_EXPERIENCE.md](USER_EXPERIENCE.md) · [DECISIONS.md](DECISIONS.md) · [QUALITY_AND_VALIDATION.md](QUALITY_AND_VALIDATION.md).
+
+## V3-03 — publicación y métricas opcionales
+
+El artefacto Pages se compone con allowlist en `dist/pages`; no se publica la raíz del repo. Los filtros de Pages contemplan solo archivos del frontend y assets. La outbox del navegador usa una IndexedDB propia, separada del historial/progreso, y permanece apagada. El Worker de #43/D1 tiene pipeline PR local aislado; deploy y migración productivos son workflows manuales separados con Environment protegido. La operación y los gates están en [metrics/OPERATIONS.md](../metrics/OPERATIONS.md). No hay endpoint público de lectura ni scheduler/report automático.

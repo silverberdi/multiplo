@@ -8,7 +8,8 @@
     "test:unit": "node --test tests/v12-change.test.js tests/fola-assets.test.js tests/manifest.test.js tests/css-tokens.test.js tests/request-32-singular-plural.test.js tests/learning-history.test.js",
     "test:e2e": "node --test --test-concurrency=1 tests/aprende-integration.test.js tests/fola-audio-routing-e2e.test.js tests/v12-e2e.test.js tests/request-32-singular-plural-e2e.test.js tests/request-45-branding-e2e.test.js tests/request-46-option-controls-e2e.test.js tests/learning-history-e2e.test.js",
     "prepare:fola": "node scripts/validate-fola-assets.mjs",
-    "metrics:test:worker": "node scripts/test-metrics-worker.mjs",
+    "build:pages": "node scripts/build-pages-artifact.mjs",
+    "test:metrics": "node scripts/test-metrics-worker.mjs && node --test --test-concurrency=1 tests/metrics-backup.test.js tests/metrics-outbox-e2e.test.js tests/learning-history-e2e.test.js && npm run build:pages && node scripts/test-monthly-report.mjs",
     "metrics:dev": "wrangler dev --config metrics/wrangler.jsonc --local --var METRICS_ALLOWED_HOST:127.0.0.1",
     "metrics:db:migrate": "wrangler d1 migrations apply multiplo-metrics-local --local --config metrics/wrangler.jsonc",
     "metrics:db:purge:local": "wrangler d1 execute multiplo-metrics-local --local --config metrics/wrangler.jsonc --file metrics/maintenance/purge-expired.sql"

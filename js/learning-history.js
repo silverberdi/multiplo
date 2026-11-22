@@ -117,6 +117,7 @@ function normalizeSession(session) {
     for (const question of questions) resolvedQuestionIndexes.push(question.index);
     return {
       id: Number.isInteger(round.id) ? round.id : 0,
+      metricsEventId: typeof round.metricsEventId === 'string' ? round.metricsEventId : null,
       table: TABLES.includes(Number(round.table)) ? Number(round.table) : 1,
       startedAtUtc: typeof round.startedAtUtc === 'string' ? round.startedAtUtc : null,
       completedAtUtc: typeof round.completedAtUtc === 'string' ? round.completedAtUtc : null,
@@ -498,6 +499,7 @@ export function createLearningHistoryStore(options = {}) {
     }
     activeRound = {
       id: state.nextId++,
+      metricsEventId: globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`,
       table,
       startedAtUtc: nowUtc().toISOString(),
       completedAtUtc: null,
@@ -622,6 +624,7 @@ export function createLearningHistoryStore(options = {}) {
     resume,
     getState,
     hasActiveSession: () => Boolean(activeSession),
+    getActiveRoundMetricsEventId: () => activeRound?.metricsEventId || null,
     wasStarted: () => sessionStarted
   };
 }
