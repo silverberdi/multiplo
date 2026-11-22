@@ -11,6 +11,16 @@
 
 La evidencia de Apply de Request #33 se ejecuta en el worktree candidato con los comandos y exit codes registrados en sus tareas OpenSpec. No afirma Verify, revisión independiente, validación humana, publicación ni despliegue.
 
+## Request #45 — atribución de Beastie Studio
+
+| Comportamiento | Implementación | Evidencia Apply |
+|---|---|---|
+| Footer existente conserva su texto informativo y muestra una sola vez las frases aprobadas `Desarrollado por Beastie Studio` y `Juegos hechos con cariño`, sin variantes de marca ni enlaces | `index.html` | `tests/request-45-branding.test.js`, `tests/request-45-branding-e2e.test.js` |
+| Atribución secundaria, estática, accesible y con wrapping natural dentro de la única superficie `footer.app-footer` | `css/styles.css`, `index.html` | `tests/request-45-branding.test.js`, `tests/request-45-branding-e2e.test.js` |
+| Navegación y responsive sin overflow en móvil estrecho, tablet y escritorio | `tests/request-45-branding-e2e.test.js` | `npm run test:e2e` |
+
+La cobertura de Request #45 se vincula a Request #45, RF-01 y RNF-03/RNF-04/RNF-07, y a los escenarios del delta `web-base-responsive-pwa` (frases exactas, superficie existente, responsive, accesibilidad estática y ausencia de variantes). Esta sección registra evidencia técnica de Apply únicamente; no certifica Verify, revisión independiente, validación humana, publicación ni despliegue.
+
 ## Request #32 — concordancia singular/plural en grupos dirigidos
 
 | Comportamiento | Implementación | Evidencia Apply |
