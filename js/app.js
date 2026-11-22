@@ -58,7 +58,7 @@ import { createMetricsOutbox } from './metrics-outbox.js';
   let progressionLoadResult = loadProgressionState();
   let progressionState = progressionLoadResult.state;
   const learningHistory = createLearningHistoryStore();
-  const METRICS_TRANSMISSION_ENABLED = false;
+  const METRICS_TRANSMISSION_ENABLED = true;
   const metricsOutbox = createMetricsOutbox({ enabled: METRICS_TRANSMISSION_ENABLED });
   const metricsReady = metricsOutbox.initialize(METRICS_TRANSMISSION_ENABLED
     ? getDailyLearningDeltas(learningHistory.getState())
