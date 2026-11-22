@@ -44,6 +44,8 @@ import {
   createInitialProgressionState
 } from './progression.js';
 
+import { createLearningHistoryStore, calculateLearningMetrics } from './learning-history.js';
+
 (function () {
   'use strict';
 
@@ -54,6 +56,7 @@ import {
   // Estado persistido y en memoria de la progresión de niveles
   let progressionLoadResult = loadProgressionState();
   let progressionState = progressionLoadResult.state;
+  const learningHistory = createLearningHistoryStore();
 
   // Estado de la ronda actual (nivel, demo Aprende, ronda de preguntas y resumen)
   let currentRound = null;
@@ -116,6 +119,8 @@ import {
         return this.questionRound ? this.questionRound.summary : null;
       }
     };
+
+    learningHistory.startRound(validatedLevel);
 
     return currentRound;
   }
@@ -227,6 +232,8 @@ import {
     // Cancelar voz anterior de forma inmediata antes de cambiar de actividad
     guide.cancelSpeech();
 
+    if (viewId === 'inicio' && currentView !== 'inicio') learningHistory.endSession('completed');
+
     VALID_VIEWS.forEach((id) => {
       const section = document.getElementById(`view-${id}`);
       if (!section) return;
@@ -266,6 +273,11 @@ import {
           progressionState,
           currentRound,
           undefined
+        );
+        learningHistory.completeRound(
+          currentRound.questionRound.summary,
+          progressionResult,
+          currentRound.questionRound.isFinished === true
         );
         updateLevelsView();
         const finInfo = renderFinView(currentRound.questionRound.summary, progressionResult);
@@ -346,6 +358,7 @@ import {
     const qRound = currentRound.questionRound;
     const currentQ = qRound.questions[qRound.currentIndex];
     if (!currentQ) return;
+    learningHistory.startQuestion(currentQ.index);
 
     // 1. Progreso: "Pregunta 1 de 4", etc.
     const progressText = document.getElementById('game-progress-text');
@@ -481,6 +494,7 @@ import {
     btn.classList.add('selected');
 
     if (evalResult.isCorrect) {
+      learningHistory.recordResolvedQuestion(currentQ);
       // Acierto
       btn.classList.add('option-correct');
 
@@ -833,6 +847,13 @@ import {
    * Inicializa los escuchadores de eventos del shell y las cuatro vistas
    */
   function initApp() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') learningHistory.pause();
+      else learningHistory.resume();
+    });
+    window.addEventListener('pagehide', () => learningHistory.pause());
+    window.addEventListener('pageshow', () => learningHistory.resume());
+
     // Sincronizar estado inicial del botón de sonido según preferencia persistida
     guide.setSoundEnabled(progressionState.soundEnabled);
     syncSoundToggleButton(guide.isSoundEnabled());
@@ -1039,6 +1060,8 @@ import {
       finishWelcome: () => finishWelcome(welcomeToken),
       isLevelsVisible: () => levelsVisible,
       getProgressionState: () => ({ ...progressionState }),
+      getLearningHistory: () => learningHistory.getState(),
+      getLearningMetrics: (range) => calculateLearningMetrics(learningHistory.getState(), range),
       setHighestUnlockedLevel: (lvl) => {
         progressionState.highestUnlockedLevel = normalizeHighestUnlockedLevel(lvl);
         saveProgressionState(progressionState);

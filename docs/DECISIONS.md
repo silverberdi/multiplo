@@ -54,6 +54,8 @@ El requisito firme es **voz + texto**. La síntesis nativa es la decisión de di
 ### D-012 / D-020: privacidad y progreso
 Progreso solo en el navegador actual. No enviar datos del niño a servidores, sincronización ni analítica. Si se borran los datos del sitio, no hay restauración de progreso como parte del MVP.
 
+**Alcance adicional autorizado por V3-01 (#42):** se puede conservar en el mismo navegador un historial educativo acotado y calcular agregados/deltas locales de sesiones, rondas y preguntas para una evolución posterior. Usa una clave separada de `multiplo_progression_v1`, no incluye identificadores persistentes ni se transmite. Esta autorización no habilita ingestión Worker/D1, cola, HTTP, informe remoto ni los Issues #43/#44; cualquier transmisión requiere esos cambios y su aprobación de privacidad por separado. El detalle se limita a 90 días y a los límites de almacenamiento definidos por el Change #42.
+
 ### D-018: assets vs implementación
 Los SVG y WAV son insumos aprobados para implementar. El rol de elaboración documental y multimedia es distinto del agente que construye la aplicación. No exigir regenerar recursos que ya existen sin motivo.
 

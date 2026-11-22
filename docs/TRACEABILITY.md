@@ -1,6 +1,16 @@
 # Múltiplo — Trazabilidad de objetivos a requisitos, issues y activos
 **Estado:** matriz actualizada con trazabilidad técnica de v1.2; no sustituye la evidencia de Verify.
 
+## V3-01 (#42) — historial educativo local sin telemetría
+
+| Comportamiento | Implementación prevista | Criterios de trazabilidad |
+|---|---|---|
+| Historial acotado de sesiones, rondas y preguntas concluidas, separado del progreso | `js/learning-history.js`, `js/app.js` | RF-07, RNF-03, RNF-06; delta `learning-history-local-metrics` |
+| Métricas/deltas puros por fecha UTC, tabla y par dirigido; primer intento, pista, reintentos y tiempo activo | `js/learning-history.js` | Escenarios de métricas y privacidad del Issue #42 |
+| Persistencia local tolerante; ninguna petición de red | `js/learning-history.js`, `js/app.js` | Q-13–Q-19; tests unitarios y E2E abajo |
+
+Evidencia de Apply: `npm run test:unit` (35 aprobadas), `npm run test:e2e` (los tres nuevos E2E de V3-01 aprobados; un fallo transitorio de otra prueba antigua de bienvenida) y `npm test` (68 aprobadas, 33 omitidas, 0 fallidas). Esto no implica Verify, revisión independiente ni despliegue. La ingestión remota de #43 y la integración de #44 son cambios separados y no forman parte de #42.
+
 ## Request #33 — celebraciones breves y variadas
 
 | Comportamiento | Implementación | Evidencia Apply |
@@ -80,7 +90,7 @@ La evidencia candidata se obtuvo con `npm run test`, `npm run test:unit` y `npm 
 | RF-04 | Tres tipos de ejercicio, tres respuestas únicas, pistas | D-009, D-010 | [#4](https://github.com/silverberdi/multiplo/issues/4) | Q-03, Q-04 |
 | RF-05 | Reintentos sin sanción y primer intento inmutable | D-010, D-019 | [#4](https://github.com/silverberdi/multiplo/issues/4) | Q-04, Q-06 |
 | RF-06 | Tablas 1–10, dominio acumulado y cierre sin tabla 11 | D-007, D-011, Request #21 | [#5](https://github.com/silverberdi/multiplo/issues/5) | Q-05, Q-06, Q-07 |
-| RF-07 | Progreso local y repetición de niveles | D-012 | [#5](https://github.com/silverberdi/multiplo/issues/5) | Q-08 |
+| RF-07 | Progreso local/repetición y, por V3-01, historial educativo local derivado | D-012, D-020 | [#5](https://github.com/silverberdi/multiplo/issues/5), [#42](https://github.com/silverberdi/multiplo/issues/42) | Q-08, Q-13–Q-19 |
 | RF-08 | Recompensas y cierre positivo | D-006, D-008 | [#6](https://github.com/silverberdi/multiplo/issues/6) | Q-05–Q-07 |
 | RF-09 | PWA cuando soporte exista | D-014 | [#1](https://github.com/silverberdi/multiplo/issues/1) | Q-11 |
 
@@ -89,10 +99,10 @@ La evidencia candidata se obtuvo con `npm run test`, `npm run test:unit` y `npm 
 |---|---|---|---|
 | RNF-01 | Web responsive: celular, tablet y PC, toque/clic | #1, #7 | Q-10 |
 | RNF-02 | Voz degradable a texto; audio no bloqueante | #2, #7 | Q-09 |
-| RNF-03 | Privacidad: sin datos personales, cuentas, telemetría infantil | #1–#7 | Q-12 |
+| RNF-03 | Privacidad: sin cuentas, identificadores persistentes ni transmisión de historial; V3-01 solo guarda eventos educativos localmente | #1–#7, #42 | Q-12–Q-19 |
 | RNF-04 | Stack estático ligero, sin backend ni IA | #1–#7 | Inspección de dependencias |
 | RNF-05 | Reglas matemáticas correctas | #3, #4, #5, #7 | Q-02–Q-07 |
-| RNF-06 | Persistencia local sin sincronización | #5, #7 | Q-08 |
+| RNF-06 | Persistencia local sin sincronización; historial V3-01 separado de `multiplo_progression_v1` | #5, #7, #42 | Q-08, Q-13–Q-19 |
 | RNF-07 | Controles grandes, texto breve, feedback no dependiente solo de color | #1, #2, #7 | Q-01, Q-10 |
 
 La implementación de Request #20 añade la preparación reproducible de Fola v1.1.0, sin versionar sus WAV; la evidencia publicada del ZIP se conserva en las tareas OpenSpec y no se considera por sí sola evidencia de candidate SHA.
