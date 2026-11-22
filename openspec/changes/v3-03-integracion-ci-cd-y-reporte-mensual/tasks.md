@@ -24,6 +24,6 @@
 ## 5. Privacidad, integración y evidencia final
 
 - [x] 5.1 Documentar gates de privacidad infantil y operación, metadatos Cloudflare, accesos, retención, supresión, habilitación, apagado, cuotas y rollback.
-- [ ] 5.2 Probar en PR los flujos Worker/D1 y cola cliente en entorno aislado; verificar duplicados, fallos/offline, límites, recarga, dos pestañas y que el juego continúa sin telemetría.
-- [ ] 5.3 Verificar artefacto Pages desplegable y la separación de workflows con evidencia contra SHA inmutable; mantener ingestión y migraciones productivas apagadas mientras falten aprobaciones.
+- [x] 5.2 Probar en PR los flujos Worker/D1 y cola cliente en entorno aislado; verificar duplicados, fallos/offline, límites, recarga, dos pestañas y que el juego continúa sin telemetría.
+- [x] 5.3 Verificar artefacto Pages desplegable y la separación de workflows con evidencia contra SHA inmutable; mantener ingestión y migraciones productivas apagadas mientras falten aprobaciones.
 - [x] 5.4 Actualizar README, AGENTS, arquitectura, decisiones, roadmap y trazabilidad al comportamiento y operación realmente implementados, sin borrar registros históricos.
