@@ -11,11 +11,16 @@ on:
       - "tests/metrics-worker.integration.test.js"
       - "scripts/build-pages-artifact.mjs"
       - "scripts/generate-monthly-report.mjs"
+      - "scripts/protect-d1-backup.mjs"
+      - "tests/metrics-backup.test.js"
       - "openspec/changes/v3-02-worker-d1-ingesta-anonima/**"
       - "openspec/changes/v3-03-integracion-ci-cd-y-reporte-mensual/**"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/metrics-pr.yml"
+      - ".github/workflows/metrics-d1-migrate.yml"
+      - ".github/workflows/metrics-d1-restore.yml"
+      - ".github/workflows/metrics-worker-deploy.yml"
 
 permissions:
   contents: read

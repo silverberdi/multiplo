@@ -24,7 +24,7 @@ Construir un directorio temporal de publicación copiando solo `index.html`, `cs
 
 ### 3. Pipelines separados con producción manualmente protegida
 
-Usar filtros por rutas para que cambios frontend ejecuten Pages y cambios Worker ejecuten build/tests de Worker sin publicar Pages. PR ejecuta migración y Worker local con D1 sintética, sin secrets. El workflow de producción del Worker usa `workflow_dispatch`, GitHub Environment protegido y token Cloudflare de alcance mínimo. Separar migraciones productivas en paso manual tras backup/revisión; dejar registros verificables y ruta de rollback. Ningún job habilita `METRICS_INGEST_ENABLED` ni billing.
+Usar filtros por rutas para que cambios frontend ejecuten Pages y cambios Worker ejecuten build/tests de Worker sin publicar Pages. PR ejecuta migración y Worker local con D1 sintética, sin secrets. El workflow de producción del Worker usa `workflow_dispatch`, GitHub Environment protegido y token Cloudflare de alcance mínimo. Separar migraciones productivas en paso manual tras backup/revisión. Como el repositorio es público, cifrar el backup D1 con AES-256-GCM mediante una clave del GitHub Environment antes de subirlo como artefacto; abortar antes de migrar si el cifrado o la preservación falla. La recuperación se ejecuta manualmente desde ese artefacto autenticado hacia una D1 de reemplazo vacía, sin sobrescribir tablas existentes. Ningún job habilita `METRICS_INGEST_ENABLED` ni billing.
 
 **Alternativa:** despliegue conjunto en push a main o ejecutar migraciones en cada release. Se descarta por riesgo de alterar producción sin autorización.
 
@@ -55,7 +55,7 @@ Los defaults de cliente y Worker permanecen apagados. Un registro de aprobación
 2. Fusionar implementación solo después de CI verde y verificación independiente contra SHA inmutable. La publicación de Pages ocurre por su pipeline filtrado.
 3. Crear/configurar D1 y route Worker de producción solo desde workflow manual protegido; backup y migración explícitos, comprobación posterior y rollback documentado. Mantener kill switch apagado.
 4. Generar ejemplo de informe con fixtures; el primer informe real requiere gate de privacidad y autorización operativa separados.
-5. Para rollback Pages/Worker, redeplegar artifact o versión de Worker anterior; D1 requiere restauración desde backup verificado, no borrar tablas automáticamente.
+5. Para rollback Pages/Worker, redeplegar artifact o versión de Worker anterior; D1 requiere restauración desde backup cifrado y autenticado hacia una base vacía de reemplazo, no borrar tablas automáticamente. La clave no aparece en logs ni artefactos.
 
 ## Open Questions
 

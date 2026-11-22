@@ -44,10 +44,12 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           BACKUP_REFERENCE: ${{ inputs.backup_reference }}
+          D1_BACKUP_ENCRYPTION_KEY: ${{ secrets.D1_BACKUP_ENCRYPTION_KEY }}
         run: |
           test -n "$CLOUDFLARE_API_TOKEN"
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$BACKUP_REFERENCE"
+          test -n "$D1_BACKUP_ENCRYPTION_KEY"
           mkdir -p .wrangler/backup
           printf 'Backup reference: %s\n' "$BACKUP_REFERENCE" >> "$GITHUB_STEP_SUMMARY"
           npx wrangler d1 export multiplo-metrics-production --remote --config .wrangler/metrics-production.jsonc --output .wrangler/backup/pre-migration.sql
@@ -56,6 +58,19 @@ jobs:
           npx wrangler d1 execute multiplo-metrics-production --local --config .wrangler/metrics-production.jsonc --json --command "PRAGMA integrity_check" > .wrangler/backup/integrity.json
           node -e 'const fs=require("node:fs"); const result=JSON.parse(fs.readFileSync(".wrangler/backup/integrity.json","utf8")); if (!JSON.stringify(result).includes("\"integrity_check\":\"ok\"")) process.exit(1);'
           shasum -a 256 .wrangler/backup/pre-migration.sql
+      - name: Encrypt the verified backup before preserving it
+        env:
+          D1_BACKUP_ENCRYPTION_KEY: ${{ secrets.D1_BACKUP_ENCRYPTION_KEY }}
+        run: |
+          node scripts/protect-d1-backup.mjs encrypt .wrangler/backup/pre-migration.sql .wrangler/backup/pre-migration.sql.enc
+          rm .wrangler/backup/pre-migration.sql
+          test -s .wrangler/backup/pre-migration.sql.enc
+      - uses: actions/upload-artifact@v4
+        with:
+          name: multiplo-metrics-pre-migration-backup
+          path: .wrangler/backup/pre-migration.sql.enc
+          if-no-files-found: error
+          retention-days: 30
       - name: Apply explicit remote migration
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -68,10 +83,3 @@ jobs:
         run: |
           npx wrangler d1 execute multiplo-metrics-production --remote --config .wrangler/metrics-production.jsonc --json --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('daily_metrics','daily_operation_metrics','processed_batches') ORDER BY name" > .wrangler/backup/post-migration.json
           node -e 'const fs=require("node:fs"); const result=JSON.parse(fs.readFileSync(".wrangler/backup/post-migration.json","utf8")); const names=JSON.stringify(result); for (const name of ["daily_metrics","daily_operation_metrics","processed_batches"]) if (!names.includes(name)) process.exit(1);'
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: multiplo-metrics-pre-migration-backup-${{ github.run_id }}
-          path: .wrangler/backup/pre-migration.sql
-          if-no-files-found: ignore
-          retention-days: 30

@@ -13,7 +13,7 @@
 
 - [x] 3.1 Añadir workflow de PR del Worker con Wrangler fijado, D1 local sintética, pruebas integradas y permisos mínimos, sin secretos ni despliegue productivo.
 - [ ] 3.2 Añadir despliegue Worker solo manual y con GitHub Environment protegido; limitar el token Cloudflare, bindings y ruta a `multiplo.silverman.pro/api/metrics` y no modificar hosts vecinos.
-- [ ] 3.3 Ejecutar migraciones productivas solo en etapa explícita separada con backup verificado, comprobación posterior y recuperación documentada; no habilitar telemetría ni billing por push.
+- [ ] 3.3 Mantener migraciones productivas en etapa explícita separada: exportar y verificar backup, cifrarlo antes de conservarlo, aplicar migración solo tras preservarlo, comprobar el esquema y ofrecer restauración manual a D1 vacía de reemplazo; no habilitar telemetría ni billing por push.
 
 ## 4. Informe mensual reproducible
 

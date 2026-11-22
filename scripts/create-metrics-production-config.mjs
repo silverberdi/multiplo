@@ -10,8 +10,11 @@ for (const name of required) {
 }
 
 const hexId = /^[a-f0-9]{32}$/i;
-for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_ZONE_ID', 'METRICS_DATABASE_ID']) {
+for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_ZONE_ID']) {
   if (!hexId.test(process.env[name])) throw new Error(`${name} debe ser un ID hexadecimal de 32 caracteres`);
+}
+if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(process.env.METRICS_DATABASE_ID)) {
+  throw new Error('METRICS_DATABASE_ID debe ser un UUID válido de Cloudflare D1');
 }
 if (!/^\d+$/.test(process.env.METRICS_RATE_LIMIT_NAMESPACE)) {
   throw new Error('METRICS_RATE_LIMIT_NAMESPACE debe ser numérico');
