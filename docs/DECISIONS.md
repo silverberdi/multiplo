@@ -25,10 +25,10 @@ Request #21 sustituye los límites históricos 2–5 por tablas dirigidas 1–10
 | D-014 | HTML/CSS/JS, hosting estático y PWA | **Aprobada como solución para MVP** | Una sola aplicación, sencilla y sin tiendas nativas |
 | D-015 | Voz del navegador y fallback escrito | **Diseño de apoyo** | Evita servicios externos y tolera diferencias entre plataformas |
 | D-016 | Animaciones/efectos breves, sin música elaborada | **Diseño de apoyo** | No distraer de la operación, reducir tamaño/alcance |
-| D-017 | No añadir backend, IA, anuncios, monedas, ranking o paneles | **Aprobada** | Evitar ingeniería y contenido ajenos al objetivo inicial |
+| D-017 | No añadir backend de juego, IA, anuncios, monedas, ranking o paneles | **Aprobada con excepción técnica V3-02** | Evitar ingeniería ajena al objetivo inicial. #43 permite únicamente un receptor Worker/D1 de escritura agregada, separado y apagado para datos reales; no modifica el juego ni autoriza su conexión |
 | D-018 | Recursos versionados en `assets/` y ligados a issues | **Diseño de apoyo** | Permite que el agente use material reproducible; evita adjuntos temporales |
 | D-019 | Aciertos iniciales inmutables después de errores | **Aprobada (precisión de D-011)** | No permitir avanzar por ensayo repetido sin demostrar reconocimiento inicial |
-| D-020 | Sin telemetría infantil ni identificadores del niño | **Diseño de apoyo de privacidad** | El MVP no necesita datos personales |
+| D-020 | Sin telemetría infantil ni identificadores del niño | **Diseño de apoyo con gate V3-02** | No recoger identidad ni presentar eventos como usuarios únicos o evidencia de aprendizaje. #43 permite probar un receptor aislado solo con datos sintéticos; ninguna actividad real sale del navegador hasta una evaluación de privacidad infantil y autorización operativa posteriores |
 | D-021 | No exigir offline total ni notificaciones push | **Diseño de apoyo** | PWA no equivale a requisitos de caché avanzada o mensajería |
 | D-022 | Modelo de negocio/comercialización | **Pendiente** | No asumir monetización, lanzamiento público ni SaaS |
 | D-023 | Proveedor de hosting y URL final | **Pendiente** | Elegir al desplegar; mantener plataforma estática |
@@ -55,6 +55,8 @@ El requisito firme es **voz + texto**. La síntesis nativa es la decisión de di
 Progreso solo en el navegador actual. No enviar datos del niño a servidores, sincronización ni analítica. Si se borran los datos del sitio, no hay restauración de progreso como parte del MVP.
 
 **Alcance adicional autorizado por V3-01 (#42):** se puede conservar en el mismo navegador un historial educativo acotado y calcular agregados/deltas locales de sesiones, rondas y preguntas para una evolución posterior. Usa una clave separada de `multiplo_progression_v1`, no incluye identificadores persistentes ni se transmite. Esta autorización no habilita ingestión Worker/D1, cola, HTTP, informe remoto ni los Issues #43/#44; cualquier transmisión requiere esos cambios y su aprobación de privacidad por separado. El detalle se limita a 90 días y a los límites de almacenamiento definidos por el Change #42.
+
+**V3-02 (#43):** excepción de arquitectura solo para un Worker/D1 separado, write-only, con ingestión apagada por defecto y pruebas sintéticas. El cliente no envía datos; UUID, CORS y `Origin` no autentican jugadores. La fuente es falsificable y no prueba niños únicos ni impacto causal. D1 conserva únicamente agregados, pero el proveedor puede procesar metadatos de red/logs: revisar esos metadatos, accesos, retención y supresión de celdas pequeñas antes de habilitar datos reales. La integración del cliente y cualquier activación pertenecen a Changes separados y requieren evaluación de privacidad infantil y autorización operativa explícita.
 
 ### D-018: assets vs implementación
 Los SVG y WAV son insumos aprobados para implementar. El rol de elaboración documental y multimedia es distinto del agente que construye la aplicación. No exigir regenerar recursos que ya existen sin motivo.
