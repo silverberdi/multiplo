@@ -16,7 +16,7 @@ Orden recomendado (contexto de producto primero, decisiones y restricciones desp
 7. [ROADMAP.md](ROADMAP.md): orden de entrega y evidencia de salida.
 8. [TRACEABILITY.md](TRACEABILITY.md) y [QUALITY_AND_VALIDATION.md](QUALITY_AND_VALIDATION.md): cobertura y pruebas.
 9. [ASSETS.md](ASSETS.md) + directorio [assets/](../assets/): recursos que ya existen.
-10. [Issues de Múltiplo](https://github.com/silverberdi/multiplo/issues): el issue activo determina el alcance autorizado. V3-01 #42 trata historial y agregados locales; V3-02 #43 y V3-03 #44 completaron sus Changes OpenSpec. El Worker/D1 están desplegados con transmisión e ingesta apagadas hasta aprobar los gates de privacidad/operación.
+10. [Issues de Múltiplo](https://github.com/silverberdi/multiplo/issues): el issue activo determina el alcance autorizado. V3-01 #42 trata historial local; V3-02 #43 y V3-03 #44 completaron la preparación de Worker/D1. #44 se reabrió para activar la colección agregada ya autorizada, en etapas y con el límite de Cloudflare documentado.
 
 No usar la conversación original como fuente oculta: los acuerdos útiles deben quedar en el repositorio.
 
