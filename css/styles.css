@@ -911,6 +911,16 @@ html, body {
   margin: 0;
 }
 
+.footer-attribution {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 var(--space-md);
+  margin-top: var(--space-xs);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
 /* 12. Reglas Responsive (Celular, Tablet, Computador) */
 
 /* Celular pequeño / pantallas estrechas (<= 480px) */
