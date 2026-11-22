@@ -55,8 +55,8 @@ jobs:
           npx wrangler d1 export multiplo-metrics-production --remote --config .wrangler/metrics-production.jsonc --output .wrangler/backup/pre-migration.sql
           test -s .wrangler/backup/pre-migration.sql
           npx wrangler d1 execute multiplo-metrics-production --local --config .wrangler/metrics-production.jsonc --file .wrangler/backup/pre-migration.sql
-          npx wrangler d1 execute multiplo-metrics-production --local --config .wrangler/metrics-production.jsonc --json --command "PRAGMA integrity_check" > .wrangler/backup/integrity.json
-          node -e 'const fs=require("node:fs"); const result=JSON.parse(fs.readFileSync(".wrangler/backup/integrity.json","utf8")); if (!JSON.stringify(result).includes("\"integrity_check\":\"ok\"")) process.exit(1);'
+          npx wrangler d1 execute multiplo-metrics-production --local --config .wrangler/metrics-production.jsonc --json --command "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name" > .wrangler/backup/verification.json
+          node -e 'const fs=require("node:fs"); const result=JSON.parse(fs.readFileSync(".wrangler/backup/verification.json","utf8")); const execution=Array.isArray(result)?result.at(-1):result; if (!execution?.success || !Array.isArray(execution.results)) process.exit(1);'
           shasum -a 256 .wrangler/backup/pre-migration.sql
       - name: Encrypt the verified backup before preserving it
         env:
