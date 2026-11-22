@@ -42,14 +42,20 @@ async function completeRound(page, { retryAndHint = false } = {}) {
   await page.waitForSelector('#view-fin.view-active');
 }
 
-test('V3-01 E2E: una sesión con dos rondas conserva intentos/hints, opera offline y no transmite métricas', async (t) => {
+test('V3-01 E2E: una sesión con dos rondas conserva intentos/hints y el juego no se bloquea si no puede enviar métricas agregadas', async (t) => {
   const server = startServer();
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const browser = await puppeteer.launch({ executablePath: chromeExecutablePath(), args: ['--no-sandbox', '--disable-gpu'] });
   t.after(async () => { await browser.close(); await new Promise((resolve) => server.close(resolve)); });
   const page = await browser.newPage();
-  const metricRequests = [];
-  page.on('request', (request) => { if (/\/api\/metrics(?:\?|$)/.test(request.url())) metricRequests.push(request.url()); });
+  const metricPayloads = [];
+  page.on('request', (request) => {
+    if (!/\/api\/metrics(?:\?|$)/.test(request.url())) return;
+    try {
+      const payload = request.postData();
+      if (payload) metricPayloads.push(JSON.parse(payload));
+    } catch { /* Una petición que falla por estar offline sigue siendo no bloqueante. */ }
+  });
   await page.goto(`http://127.0.0.1:${server.address().port}/`, { waitUntil: 'domcontentloaded' });
   await page.evaluate(() => localStorage.clear());
   await page.reload({ waitUntil: 'domcontentloaded' });
@@ -88,7 +94,17 @@ test('V3-01 E2E: una sesión con dos rondas conserva intentos/hints, opera offli
   assert.ok(result.historyRaw);
   assert.ok(result.progression, 'la progresión del juego sigue su flujo existente');
   assert.equal(JSON.parse(result.progression).highestUnlockedLevel, 2);
-  assert.deepEqual(metricRequests, []);
+  assert.ok(metricPayloads.length > 0, 'la app intenta enviar sus agregados autorizados');
+  for (const payload of metricPayloads) {
+    assert.equal(payload.schemaVersion, 1);
+    assert.match(payload.batchId, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    assert.equal(typeof payload.questionsAnswered, 'number');
+    assert.equal(typeof payload.firstAttemptCorrect, 'number');
+    assert.equal(typeof payload.table, 'number');
+    assert.ok(Array.isArray(payload.operations));
+    assert.equal('sessionId' in payload, false);
+    assert.equal('questionId' in payload, false);
+  }
   await page.close();
 });
 
