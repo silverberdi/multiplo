@@ -2,7 +2,7 @@
 
 **Juego educativo para un niño de 6 años:** aprender a multiplicar mediante grupos de objetos, sumas repetidas y desafíos positivos.
 
-**Estado:** el juego Múltiplo v1.2 está implementado en este repositorio. La documentación original del MVP conserva decisiones históricas; para el comportamiento vigente, consulta también los Changes OpenSpec archivados y el código actual. El Issue #42 conserva historial y métricas localmente. #43/#44 incorporan Worker/D1 agregado, outbox apagada, publicación Pages allowlisted y workflows manuales protegidos; la migración y el Worker ya están desplegados, pero no se autoriza transmisión real y ambos interruptores siguen apagados. Consulta [operación de métricas](metrics/OPERATIONS.md).
+**Estado:** el juego Múltiplo v1.2 está implementado en este repositorio. La documentación original del MVP conserva decisiones históricas; para el comportamiento vigente, consulta también los Changes OpenSpec archivados y el código actual. El Issue #42 conserva historial local. #43/#44 incorporaron Worker/D1 agregado, outbox, publicación Pages allowlisted y workflows protegidos; migración y Worker están desplegados. El operador autorizó métricas agregadas y el Change de activación secuencial está en curso. Consulta [operación de métricas](metrics/OPERATIONS.md).
 
 ## Empezar aquí
 
@@ -18,7 +18,7 @@
 
 El juego actual incluye tablas y factores del 1 al 10, dominio acumulado y progreso local. Cada ronda conserva una demostración y cuatro preguntas evaluables, con pistas y reintentos ilimitados; la evaluación usa el primer intento. La convención es `a × b` = **a grupos de b objetos**.
 
-Una estrella amarilla guía con voz y texto. Es una web responsive/PWA para celular, tablet y computador, con progreso local. No incluye cuentas ni backend de juego. El cliente no envía métricas mientras el interruptor de transmisión esté apagado; la operación futura requiere los gates documentados.
+Una estrella amarilla guía con voz y texto. Es una web responsive/PWA para celular, tablet y computador, con progreso local. No incluye cuentas ni backend de juego. La transmisión de agregados está autorizada y se habilita por etapas; consulta el estado y los límites en [operación de métricas](metrics/OPERATIONS.md).
 
 **Convención:** `a × b` significa **a grupos de b objetos**; por ejemplo `3×2` son tres grupos de dos, no al revés.
 

@@ -2,6 +2,12 @@ name: Protected metrics Worker deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      enable_ingestion:
+        description: "Habilitar ingesta productiva autorizada"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,8 +34,9 @@ jobs:
           CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
           METRICS_DATABASE_ID: ${{ vars.METRICS_DATABASE_ID }}
           METRICS_RATE_LIMIT_NAMESPACE: ${{ vars.METRICS_RATE_LIMIT_NAMESPACE }}
+          METRICS_INGEST_ENABLED: ${{ inputs.enable_ingestion }}
         run: node scripts/create-metrics-production-config.mjs
-      - name: Deploy disabled Worker to the exact metrics route
+      - name: Deploy Worker to the exact metrics route with approved kill-switch state
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}

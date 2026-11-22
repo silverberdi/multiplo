@@ -19,6 +19,10 @@ if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/
 if (!/^\d+$/.test(process.env.METRICS_RATE_LIMIT_NAMESPACE)) {
   throw new Error('METRICS_RATE_LIMIT_NAMESPACE debe ser numérico');
 }
+const ingestionEnabled = process.env.METRICS_INGEST_ENABLED ?? 'false';
+if (ingestionEnabled !== 'true' && ingestionEnabled !== 'false') {
+  throw new Error('METRICS_INGEST_ENABLED solo puede ser true o false');
+}
 
 const config = {
   $schema: '../node_modules/wrangler/config-schema.json',
@@ -29,7 +33,7 @@ const config = {
   workers_dev: false,
   routes: [{ pattern: 'multiplo.silverman.pro/api/metrics*', zone_id: process.env.CLOUDFLARE_ZONE_ID }],
   vars: {
-    METRICS_INGEST_ENABLED: 'false',
+    METRICS_INGEST_ENABLED: ingestionEnabled,
     METRICS_ALLOWED_HOST: 'multiplo.silverman.pro'
   },
   d1_databases: [{
@@ -48,4 +52,4 @@ const config = {
 const outputDirectory = path.resolve('.wrangler');
 fs.mkdirSync(outputDirectory, { recursive: true });
 fs.writeFileSync(path.join(outputDirectory, 'metrics-production.jsonc'), `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
-console.log('Configuración protegida creada; la ingesta permanece deshabilitada.');
+console.log(`Configuración protegida creada; ingesta ${ingestionEnabled === 'true' ? 'habilitada por entrada explícita del workflow' : 'deshabilitada'}.`);

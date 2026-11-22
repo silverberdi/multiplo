@@ -12,7 +12,7 @@ context: |
   Arquitectura: docs/ARCHITECTURE.md. Secuencia: docs/ROADMAP.md.
   Trazabilidad: docs/TRACEABILITY.md; QA: docs/QUALITY_AND_VALIDATION.md.
   Recursos disponibles: docs/ASSETS.md y assets/ (SVG y WAV).
-  V3: #42 historial educativo local; #43 ingestión agregada con Worker/D1 aislados; #44 integración/CI/CD/informe mensual. Los Changes #43/#44 están implementados y desplegados con workflows protegidos; la transmisión del cliente y la ingesta Worker permanecen apagadas hasta completar los gates de privacidad/operación. Son alcances separados y no se infiere autorización de uno a otro.
+  V3: #42 historial educativo local; #43 ingestión agregada con Worker/D1 aislados; #44 integración/CI/CD/informe mensual. La migración y el Worker de #43/#44 están desplegados. El operador autorizó la transmisión agregada y el Change `v3-03-enable-authorized-metrics` de #44 coordina la activación segura por etapas: Worker primero, cliente después. Se acepta el rate limit aproximado del Worker (120 solicitudes/minuto por IP), sin regla WAF amplia ni facturación; las métricas pueden subcontar eventos rechazados.
   El juego vigente admite tablas y factores 1–10; a x b = a grupos de b. La progresión acumulada v1.2 y la evaluación de primer intento se mantienen. Cada ronda contiene 1 demostración no evaluable y 4 preguntas evaluables; pistas y reintentos son ilimitados.
   UX: estrella amarilla como guía, instrucciones mediante voz en español + texto/fallback,
   pantallas responsive para móvil/tablet/PC, toque y clic.
