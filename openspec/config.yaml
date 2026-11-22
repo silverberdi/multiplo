@@ -12,7 +12,7 @@ context: |
   Arquitectura: docs/ARCHITECTURE.md. Secuencia: docs/ROADMAP.md.
   Trazabilidad: docs/TRACEABILITY.md; QA: docs/QUALITY_AND_VALIDATION.md.
   Recursos disponibles: docs/ASSETS.md y assets/ (SVG y WAV).
-  Backlog V3: #42 historial educativo local sin transmisión, #43 ingestión anónima Worker/D1 y #44 integración/CI/CD/informe mensual. #43 y #44 son issues separados etiquetados disabled; no están autorizados por el #42.
+  V3: #42 historial educativo local; #43 ingestión agregada con Worker/D1 aislados; #44 integración/CI/CD/informe mensual. Los Changes #43/#44 están implementados y desplegados con workflows protegidos; la transmisión del cliente y la ingesta Worker permanecen apagadas hasta completar los gates de privacidad/operación. Son alcances separados y no se infiere autorización de uno a otro.
   El juego vigente admite tablas y factores 1–10; a x b = a grupos de b. La progresión acumulada v1.2 y la evaluación de primer intento se mantienen. Cada ronda contiene 1 demostración no evaluable y 4 preguntas evaluables; pistas y reintentos son ilimitados.
   UX: estrella amarilla como guía, instrucciones mediante voz en español + texto/fallback,
   pantallas responsive para móvil/tablet/PC, toque y clic.
