@@ -6,6 +6,6 @@
 ## 2. Enable production collection in safe order
 
 - [x] 2.1 Add an explicit protected workflow input for Worker ingestion, default it to off, and pass the selected state through the production config generator.
-- [ ] 2.2 Deploy the Worker from `main` with ingestion enabled while the browser outbox remains disabled; verify the exact route, enabled state, and rate-limit response.
+- [x] 2.2 Deploy the Worker from `main` with ingestion enabled while the browser outbox remains disabled; verify the exact route and enabled state with a non-writing invalid-payload probe, and confirm the 120/minute binding in deployment evidence.
 - [ ] 2.3 Enable client transmission only after Worker verification; publish Pages and verify a completed real gameplay round is persisted in D1 without blocking play.
 - [ ] 2.4 Record deployment SHAs, workflow runs, accepted D1 evidence, and final kill-switch states in `metrics/OPERATIONS.md`; verify rollback instructions disable client first and archive the Change natively.
