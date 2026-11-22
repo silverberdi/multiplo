@@ -2,7 +2,7 @@
 
 **Juego educativo para un niño de 6 años:** aprender a multiplicar mediante grupos de objetos, sumas repetidas y desafíos positivos.
 
-**Estado:** el juego Múltiplo v1.2 está implementado en este repositorio. La documentación original del MVP conserva decisiones históricas; para el comportamiento vigente, consulta también los Changes OpenSpec archivados y el código actual. El Issue #42 conserva historial local. #43/#44 incorporaron Worker/D1 agregado, outbox, publicación Pages allowlisted y workflows protegidos; migración y Worker están desplegados. El operador autorizó métricas agregadas y el Change de activación secuencial está en curso. Consulta [operación de métricas](metrics/OPERATIONS.md).
+**Estado:** el juego Múltiplo v1.2 está implementado en este repositorio. La documentación original del MVP conserva decisiones históricas; para el comportamiento vigente, consulta también los Changes OpenSpec archivados y el código actual. El Issue #42 conserva historial local. #43/#44 incorporaron Worker/D1 agregado, outbox, publicación Pages allowlisted y workflows protegidos; la transmisión agregada autorizada está activa desde 2026-11-22. Consulta [operación de métricas](metrics/OPERATIONS.md) para evidencia y límites.
 
 ## Empezar aquí
 
