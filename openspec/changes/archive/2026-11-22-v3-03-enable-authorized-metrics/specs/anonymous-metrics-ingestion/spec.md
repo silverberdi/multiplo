@@ -14,10 +14,6 @@ El servicio SHALL iniciar con `METRICS_INGEST_ENABLED=false`. Cuando esté desac
 - **WHEN** el límite local de Cloudflare rechaza una solicitud
 - **THEN** el servicio responde 429 antes de leer o escribir D1, y los reportes no presentan los eventos rechazados como datos recibidos
 
-#### Scenario: Cuota, D1 o protección no disponible
-- **WHEN** se agota una cuota, falla D1 o falta el binding de rate limiting
-- **THEN** la ingesta no confirma una escritura no realizada, no hace fallback a Pages y no afecta el juego
-
 #### Scenario: Cuota, D1 o protección perimetral no disponible
 - **WHEN** se agota una cuota, falla D1 o la ruta/binding de rate limiting requerido no está disponible
 - **THEN** la ingesta no confirma una escritura no realizada, no hace fallback a Pages, no amplía el impacto a otros hosts y no afecta el juego

@@ -9,7 +9,7 @@
 
 ## Autoridad y límites
 - Priorizar comprensión de un niño de seis años, exactitud matemática y experiencia breve.
-- No introducir funciones, datos personales, cuentas, transmisión/telemetría o frameworks pesados fuera del Change autorizado. #42 conserva historial local; #43/#44 preparan un receptor agregado, outbox apagado y operación protegida. Ningún agente debe activar telemetría ni migrar/desplegar D1 productiva sin gates de privacidad y autorización explícita.
+- No introducir funciones, datos personales, cuentas, transmisión/telemetría o frameworks pesados fuera del Change autorizado. #42 conserva historial local; #43/#44 añaden un receptor agregado separado y operación protegida. La transmisión agregada de #44 fue autorizada y está activa en producción desde 2026-11-22; cualquier cambio de activación requiere los gates de privacidad y autorización operativa explícita.
 - No afirmar que una versión está probada, desplegada o terminada sin evidencia.
 - Reutilizar primero los SVG/WAV versionados, sin depender del historial de chat.
 - Si hay contradicción entre documentos, issues y decisiones, exponerla y resolverla con decisión de producto; no ocultarla.
