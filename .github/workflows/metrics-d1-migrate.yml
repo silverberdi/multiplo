@@ -51,8 +51,11 @@ jobs:
           test -n "$BACKUP_REFERENCE"
           test -n "$D1_BACKUP_ENCRYPTION_KEY"
           mkdir -p .wrangler/backup
-          printf 'Backup reference: %s\n' "$BACKUP_REFERENCE" >> "$GITHUB_STEP_SUMMARY"
-          npx wrangler d1 export multiplo-metrics-production --remote --config .wrangler/metrics-production.jsonc --output .wrangler/backup/pre-migration.sql
+          if ! npx wrangler d1 export multiplo-metrics-production --remote --config .wrangler/metrics-production.jsonc --output .wrangler/backup/pre-migration.sql > .wrangler/backup/export.log 2>&1; then
+            echo 'D1 backup export failed; provider output was withheld from the public run log.' >&2
+            exit 1
+          fi
+          rm .wrangler/backup/export.log
           test -s .wrangler/backup/pre-migration.sql
           npx wrangler d1 execute multiplo-metrics-production --local --config .wrangler/metrics-production.jsonc --file .wrangler/backup/pre-migration.sql
           npx wrangler d1 execute multiplo-metrics-production --local --config .wrangler/metrics-production.jsonc --json --command "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name" > .wrangler/backup/verification.json
