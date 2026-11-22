@@ -4,3 +4,5 @@ node_modules/
 assets/audio/fola/
 .fola-release.zip
 .fola-inspect/
+.wrangler/
+.dev.vars

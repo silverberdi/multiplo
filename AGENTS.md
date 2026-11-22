@@ -9,7 +9,7 @@
 
 ## Autoridad y límites
 - Priorizar comprensión de un niño de seis años, exactitud matemática y experiencia breve.
-- No introducir funciones, datos personales, backend, cuentas, transmisión/telemetría, tablas adicionales o frameworks pesados fuera del Change autorizado. Issue #42 permite solo historial y agregados locales sin transmisión.
+- No introducir funciones, datos personales, cuentas ni transmisión/telemetría fuera del Change autorizado. #42 conserva datos solo localmente; #43 añade únicamente un receptor Worker/D1 separado, sin integración de cliente y apagado para datos reales. La activación requiere evaluación de privacidad infantil y autorización operativa explícitas.
 - No afirmar que una versión está probada, desplegada o terminada sin evidencia.
 - Reutilizar primero los SVG/WAV versionados, sin depender del historial de chat.
 - Si hay contradicción entre documentos, issues y decisiones, exponerla y resolverla con decisión de producto; no ocultarla.

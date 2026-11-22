@@ -2,7 +2,7 @@
 
 **Juego educativo para un niño de 6 años:** aprender a multiplicar mediante grupos de objetos, sumas repetidas y desafíos positivos.
 
-**Estado:** el juego Múltiplo v1.2 está implementado en este repositorio. La documentación original del MVP conserva decisiones históricas; para el comportamiento vigente, consulta también los Changes OpenSpec archivados y el código actual. El Issue #42 autoriza una extensión local de historial educativo y métricas derivadas, sin telemetría ni transmisión.
+**Estado:** el juego Múltiplo v1.2 está implementado en este repositorio. La documentación original del MVP conserva decisiones históricas; para el comportamiento vigente, consulta también los Changes OpenSpec archivados y el código actual. El Issue #42 conserva historial educativo y métricas locales. El #43 añade un receptor Worker/D1 aislado, apagado para datos reales y sin integración de cliente; cualquier conexión futura requiere su Change propio y el gate de privacidad.
 
 ## Empezar aquí
 
@@ -18,7 +18,7 @@
 
 El juego actual incluye tablas y factores del 1 al 10, dominio acumulado y progreso local. Cada ronda conserva una demostración y cuatro preguntas evaluables, con pistas y reintentos ilimitados; la evaluación usa el primer intento. La convención es `a × b` = **a grupos de b objetos**.
 
-Una estrella amarilla guía con voz y texto. Es una web responsive/PWA para celular, tablet y computador, con progreso local. No incluye cuentas ni backend de juego. El Change del Issue #42 añade solo historial y agregados locales; no envía datos ni incorpora telemetría.
+Una estrella amarilla guía con voz y texto. Es una web responsive/PWA para celular, tablet y computador, con progreso local. No incluye cuentas ni backend de juego. El cliente sigue sin enviar métricas: el receptor del #43 no está conectado a la aplicación y su interruptor de ingestión parte apagado.
 
 **Convención:** `a × b` significa **a grupos de b objetos**; por ejemplo `3×2` son tres grupos de dos, no al revés.
 
