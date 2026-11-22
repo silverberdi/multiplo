@@ -6,3 +6,4 @@ assets/audio/fola/
 .fola-inspect/
 .wrangler/
 .dev.vars
+/dist/

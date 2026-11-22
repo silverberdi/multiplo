@@ -3,6 +3,12 @@
     on:
       push:
         branches: ["main"]
+        paths:
+          - "index.html"
+          - "manifest.webmanifest"
+          - "css/**"
+          - "js/**"
+          - "assets/**"
       workflow_dispatch:
 
     permissions:
@@ -34,8 +40,8 @@
               npm ci
               npm run prepare:fola
 
-          - name: Configurar CNAME para subdominio
-            run: echo "multiplo.silverman.pro" > CNAME
+          - name: Construir artefacto Pages allowlisted
+            run: npm run build:pages
 
           - name: Configurar Pages
             uses: actions/configure-pages@v5
@@ -43,7 +49,7 @@
           - name: Subir artefacto estático
             uses: actions/upload-pages-artifact@v3
             with:
-              path: '.'
+              path: 'dist/pages'
 
           - name: Desplegar a GitHub Pages
             id: deployment

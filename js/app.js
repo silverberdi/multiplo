@@ -44,7 +44,8 @@ import {
   createInitialProgressionState
 } from './progression.js';
 
-import { createLearningHistoryStore, calculateLearningMetrics } from './learning-history.js';
+import { createLearningHistoryStore, calculateLearningMetrics, getDailyLearningDeltas } from './learning-history.js';
+import { createMetricsOutbox } from './metrics-outbox.js';
 
 (function () {
   'use strict';
@@ -57,6 +58,16 @@ import { createLearningHistoryStore, calculateLearningMetrics } from './learning
   let progressionLoadResult = loadProgressionState();
   let progressionState = progressionLoadResult.state;
   const learningHistory = createLearningHistoryStore();
+  const METRICS_TRANSMISSION_ENABLED = false;
+  const metricsOutbox = createMetricsOutbox({ enabled: METRICS_TRANSMISSION_ENABLED });
+  const metricsReady = metricsOutbox.initialize(METRICS_TRANSMISSION_ENABLED
+    ? getDailyLearningDeltas(learningHistory.getState())
+    : null).catch(() => false);
+
+  function captureMetrics(eventId) {
+    if (!METRICS_TRANSMISSION_ENABLED || !eventId) return;
+    void metricsReady.then(() => metricsOutbox.capture(eventId, learningHistory.getState())).catch(() => {});
+  }
 
   // Estado de la ronda actual (nivel, demo Aprende, ronda de preguntas y resumen)
   let currentRound = null;
@@ -121,6 +132,7 @@ import { createLearningHistoryStore, calculateLearningMetrics } from './learning
     };
 
     learningHistory.startRound(validatedLevel);
+    void metricsReady.then(() => metricsOutbox.drain());
 
     return currentRound;
   }
@@ -232,7 +244,10 @@ import { createLearningHistoryStore, calculateLearningMetrics } from './learning
     // Cancelar voz anterior de forma inmediata antes de cambiar de actividad
     guide.cancelSpeech();
 
-    if (viewId === 'inicio' && currentView !== 'inicio') learningHistory.endSession('completed');
+    if (viewId === 'inicio' && currentView !== 'inicio') {
+      const metricsEventId = learningHistory.getActiveRoundMetricsEventId();
+      if (learningHistory.endSession('completed')) captureMetrics(metricsEventId);
+    }
 
     VALID_VIEWS.forEach((id) => {
       const section = document.getElementById(`view-${id}`);
@@ -274,11 +289,12 @@ import { createLearningHistoryStore, calculateLearningMetrics } from './learning
           currentRound,
           undefined
         );
-        learningHistory.completeRound(
+        const completed = learningHistory.completeRound(
           currentRound.questionRound.summary,
           progressionResult,
           currentRound.questionRound.isFinished === true
         );
+        if (completed) captureMetrics(learningHistory.getActiveRoundMetricsEventId());
         updateLevelsView();
         const finInfo = renderFinView(currentRound.questionRound.summary, progressionResult);
         if (finInfo && finInfo.spokenText) {

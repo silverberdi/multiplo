@@ -1,0 +1,31 @@
+{
+  "sourceLabel": "SINTÉTICO: ejemplo de formato, no datos reales",
+  "extractedAtUtc": "2026-11-22T12:00:00.000Z",
+  "periodStartUtc": "2026-10-01",
+  "periodEndExclusiveUtc": "2026-11-01",
+  "traffic": {
+    "source": "Cloudflare Traffic Analytics export (sintético)",
+    "periodStartUtc": "2026-10-01",
+    "periodEndExclusiveUtc": "2026-11-01",
+    "requests": 1200,
+    "visits": 240,
+    "errors": 12,
+    "estimatedCostUsd": 0
+  },
+  "daily": [
+    { "date": "2026-10-03", "table": 2, "roundsStarted": 30, "roundsCompleted": 27, "roundsAbandoned": 3, "questionsAnswered": 108, "firstAttemptCorrect": 83, "questionsWithHints": 12, "additionalAttempts": 17, "practiceSeconds": 2400 },
+    { "date": "2026-10-04", "table": 2, "roundsStarted": 2, "roundsCompleted": 2, "roundsAbandoned": 0, "questionsAnswered": 8, "firstAttemptCorrect": 6, "questionsWithHints": 1, "additionalAttempts": 1, "practiceSeconds": 120 }
+  ],
+  "operations": [
+    { "date": "2026-10-03", "table": 2, "factor": 3, "questionsAnswered": 40, "firstAttemptCorrect": 32 },
+    { "date": "2026-10-03", "table": 2, "factor": 4, "questionsAnswered": 8, "firstAttemptCorrect": 2 }
+  ],
+  "health": {
+    "workerErrors": 2,
+    "workerRequests": 400,
+    "d1ReadUnits": 1000,
+    "d1WriteUnits": 80,
+    "d1StorageBytes": 4096,
+    "quotaNotes": "Valores sintéticos; sustituir con lectura del periodo"
+  }
+}
