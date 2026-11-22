@@ -11,6 +11,8 @@ on:
       - "tests/metrics-worker.integration.test.js"
       - "scripts/build-pages-artifact.mjs"
       - "scripts/generate-monthly-report.mjs"
+      - "openspec/changes/v3-02-worker-d1-ingesta-anonima/**"
+      - "openspec/changes/v3-03-integracion-ci-cd-y-reporte-mensual/**"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/metrics-pr.yml"
